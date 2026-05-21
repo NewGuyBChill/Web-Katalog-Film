@@ -29,6 +29,11 @@ if(isset($_SESSION['user_id'])) {
     <script>
         const userWatchlist = <?= json_encode($userWatchlist) ?>;
         const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
+
+        // Terapkan tema sebelum rendering body untuk mencegah efek FOUC (Berkedip)
+        if (localStorage.getItem('kinema_theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
     </script>
 </head>
 <body>
@@ -48,7 +53,10 @@ if(isset($_SESSION['user_id'])) {
                 <button type="submit" class="search-trigger" id="searchTrigger">
                     <i class="fas fa-search"></i>
                 </button>
-                <input type="text" name="q" class="search-input" id="searchInput" placeholder="Search movies...">
+                <input type="text" name="q" class="search-input" id="searchInput" placeholder="Search movies..." autocomplete="off">
+                <i class="fas fa-times clear-search" id="clearSearch" title="Clear search"></i>
+                
+                <div class="live-search-results" id="liveSearchResults"></div>
             </form>
 
             <div class="lang-container" id="langContainer">
@@ -66,12 +74,29 @@ if(isset($_SESSION['user_id'])) {
                 </div>
             </div>
             
+            <div class="theme-switch" id="themeSwitch" title="Toggle Light/Dark Mode">
+                <i class="fas fa-sun" id="themeIcon"></i>
+            </div>
+            
             <div style="display: flex; gap: 1rem; align-items: center; margin-left: 1rem;">
-                <?php if(isset($_SESSION['user'])): ?>
+                <?php if(isset($_SESSION['user'])): 
+                    $uname = $_SESSION['user'];
+                    $initial = strtoupper(substr($uname, 0, 1));
+                    $avatarColors = [
+                        'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)', // Pink-Purple
+                        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Blue-Cyan
+                        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green-Mint
+                        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', // Orange-Yellow
+                        'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', // Soft Purple
+                        'linear-gradient(135deg, #ff0844 0%, #ffb199 100%)'  // Red-Orange
+                    ];
+                    $colorIndex = ord($initial) % count($avatarColors);
+                    $activeAvatarBg = $avatarColors[$colorIndex];
+                ?>
                     <div class="user-menu-container">
-                        <div style="display: flex; align-items: center; gap: 8px; color: white;">
-                            <div class="profile-icon" title="<?= htmlspecialchars($_SESSION['user']) ?>"><i class="fas fa-user-circle" style="color: var(--accent); font-size: 1.8rem;"></i></div>
-                            <span style="font-weight: 600; font-size: 0.95rem;"><?= htmlspecialchars($_SESSION['user']) ?> <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 3px; color: var(--text-muted);"></i></span>
+                        <div class="user-profile-btn" title="<?= htmlspecialchars($uname) ?>">
+                            <div class="profile-avatar" style="background: <?= $activeAvatarBg ?>;"><?= htmlspecialchars($initial) ?></div>
+                            <span class="profile-name"><?= htmlspecialchars($uname) ?> <i class="fas fa-chevron-down caret-icon"></i></span>
                         </div>
                         <div class="user-dropdown">
                             <a href="index.php?page=watchlist"><i class="fas fa-bookmark" style="width: 20px;"></i> <?= translateText('watchlist') ?></a>
@@ -82,8 +107,9 @@ if(isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="index.php?page=login" class="btn-login">Login</a>
-                    <a href="index.php?page=signup" class="btn-signup">Sign Up</a>
+                <a href="index.php?page=login" class="btn-login"><i class="fas fa-user"></i> Login</a>
+                    <div class="nav-divider"></div>
+                <a href="index.php?page=signup" class="btn-signup">Sign Up <i class="fas fa-arrow-right"></i></a>
                 <?php endif; ?>
             </div>
         </div>

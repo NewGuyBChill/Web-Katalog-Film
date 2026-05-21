@@ -62,8 +62,8 @@ if (file_exists($dbPath)) {
         </div>
         
         <div style="position: relative; z-index: 10; max-width: 700px;">
-            <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.1;"><?= htmlspecialchars($title) ?></h1>
-            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 500;"><?= $release_date ?> &bull; <?= $runtime ?><?= $extraInfo ?></p>
+            <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.1; color: #fff;"><?= htmlspecialchars($title) ?></h1>
+            <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 500;"><?= $release_date ?> &bull; <?= $runtime ?><?= $extraInfo ?></p>
             
             <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
                 <div style="background: #FCD34D; color: black; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 800; font-size: 1.2rem;">

@@ -10,6 +10,9 @@ if ($page === 'ajax_watchlist') {
 } elseif ($page === 'ajax_review') {
     require_once __DIR__ . '/pages/ajax_review.php';
     exit;
+} elseif ($page === 'ajax_search') {
+    require_once __DIR__ . '/pages/ajax_search.php';
+    exit;
 } elseif ($page === 'logout') {
     session_unset();
     session_destroy();
@@ -19,6 +22,9 @@ if ($page === 'ajax_watchlist') {
 
 require_once __DIR__ . '/config/data.php';
 require_once __DIR__ . '/includes/header.php';
+
+// Tampilkan animasi loading (progress bar) saat halamannya baru memuat data
+echo '<div id="topProgressBar" class="top-progress-bar"></div>';
 
 if ($page === 'home') {
     require_once __DIR__ . '/pages/home.php';

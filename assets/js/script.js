@@ -1,3 +1,57 @@
+// --- Animasi Top Progress Bar Loader ---
+const topProgressBar = document.getElementById('topProgressBar');
+if (topProgressBar) {
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 10 + 5; // Tambah 5-15% secara acak
+        if (progress > 85) progress = 85; // Menahan di 85% sebelum halaman load total
+        topProgressBar.style.width = progress + '%';
+    }, 100);
+
+    window.addEventListener('load', () => {
+        clearInterval(interval);
+        topProgressBar.style.width = '100%'; // Selesai
+        setTimeout(() => {
+            topProgressBar.style.opacity = '0';
+            setTimeout(() => topProgressBar.remove(), 400);
+        }, 300);
+    });
+}
+
+// --- Smart Navbar (Auto-Hide on Scroll) ---
+const navbar = document.querySelector('.navbar');
+let lastScrollY = window.scrollY;
+window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    
+    // Tampilkan/sembunyikan tombol Scroll to Top
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    if (scrollToTopBtn) {
+        if (currentScrollY > 400) {
+            scrollToTopBtn.classList.add('show');
+        } else {
+            scrollToTopBtn.classList.remove('show');
+        }
+    }
+        
+    if (navbar) {
+        // Abaikan scroll negatif (bouncing effect di Mac/iOS) agar navbar tidak glitch
+        if (currentScrollY <= 0) {
+            navbar.classList.remove('navbar-hidden');
+            lastScrollY = currentScrollY;
+            return;
+        }
+        
+        // Jika scroll ke bawah dan sudah melewati 80px (tinggi navbar), sembunyikan
+        if (currentScrollY > lastScrollY && currentScrollY > 80) {
+            navbar.classList.add('navbar-hidden'); 
+        } else {
+            navbar.classList.remove('navbar-hidden'); // Scroll ke atas: Tampilkan
+        }
+    }
+    lastScrollY = currentScrollY;
+});
+
 const heroSlider = document.querySelector('.hero');
 const heroContent = document.querySelector('.hero-content');
 const dotsContainer = document.getElementById('heroDots');
@@ -108,6 +162,7 @@ if (banners.length > 0) {
 const searchTrigger = document.getElementById('searchTrigger');
 const searchContainer = document.getElementById('searchContainer');
 const searchInput = document.getElementById('searchInput');
+const clearSearch = document.getElementById('clearSearch');
 const langContainer = document.getElementById('langContainer');
 const langTrigger = document.getElementById('langTrigger');
 const langDropdown = document.getElementById('langDropdown');
@@ -140,6 +195,149 @@ searchTrigger.addEventListener('click', (e) => {
         searchInput.focus();
     }
 });
+
+const liveSearchResults = document.getElementById('liveSearchResults');
+let debounceTimer;
+
+if (searchInput && clearSearch) {
+    // Tampilkan tombol X jika ada teks, sembunyikan jika kosong
+    searchInput.addEventListener('input', () => {
+        if (searchInput.value.length > 0) {
+            clearSearch.classList.add('show');
+            if (liveSearchResults) {
+                liveSearchResults.classList.add('show');
+                liveSearchResults.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Mencari...</div>';
+                
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    fetch(`index.php?page=ajax_search&q=${encodeURIComponent(searchInput.value)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                let html = '';
+                                data.forEach(item => {
+                                    html += `
+                                        <a href="index.php?page=details&id=${item.id}" class="live-search-item">
+                                            <img src="${item.image}" alt="Poster" class="live-search-poster">
+                                            <div class="live-search-info">
+                                                <div class="live-search-title">${item.title}</div>
+                                                <div class="live-search-meta"><i class="fas fa-star" style="color: #FCD34D;"></i> ${item.rating} &bull; ${item.year}</div>
+                                            </div>
+                                        </a>
+                                    `;
+                                });
+                                html += `
+                                    <a href="index.php?page=search&q=${encodeURIComponent(searchInput.value)}" style="display: block; text-align: center; padding: 10px; color: var(--accent); font-size: 0.85rem; font-weight: 600; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.1);">
+                                        Lihat semua hasil <i class="fas fa-arrow-right" style="font-size: 0.8rem; margin-left: 4px;"></i>
+                                    </a>
+                                `;
+                                liveSearchResults.innerHTML = html;
+                            } else {
+                                liveSearchResults.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">Tidak ada hasil ditemukan.</div>';
+                            }
+                        }).catch(err => {
+                            liveSearchResults.innerHTML = '<div style="padding: 15px; text-align: center; color: #ff3b3b; font-size: 0.9rem;">Gagal memuat data.</div>';
+                        });
+                }, 500); // Jeda 500ms setelah selesai ngetik
+            }
+        } else {
+            clearSearch.classList.remove('show');
+            if (liveSearchResults) liveSearchResults.classList.remove('show');
+            clearTimeout(debounceTimer);
+        }
+    });
+    
+    // Munculkan langsung jika input sudah ada isinya dari awal (saat berada di halaman hasil pencarian)
+    if (searchInput.value.length > 0) {
+        clearSearch.classList.add('show');
+    }
+    
+    // Tampilkan kembali hasil pencarian jika kotak pencarian diklik ulang (fokus)
+    searchInput.addEventListener('focus', () => {
+        if (searchInput.value.length > 0 && liveSearchResults && liveSearchResults.innerHTML.trim() !== '') {
+            liveSearchResults.classList.add('show');
+        }
+    });
+    
+    // Tutup live search jika pengguna mengklik di luar area kotak pencarian
+    document.addEventListener('click', (e) => {
+        if (searchContainer && !searchContainer.contains(e.target)) {
+            if (liveSearchResults) liveSearchResults.classList.remove('show');
+        }
+    });
+    
+    // Kosongkan isi text box saat tombol X diklik
+    clearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearch.classList.remove('show');
+        if (liveSearchResults) {
+            liveSearchResults.classList.remove('show');
+            liveSearchResults.innerHTML = '';
+        }
+        searchInput.focus();
+    });
+}
+
+// --- Animasi Ketikan (Typing Effect) pada Placeholder Pencarian ---
+if (searchInput) {
+    const placeholderTexts = [
+        "Search movies...",
+        "Search TV shows...",
+        "Discover new favorites...",
+        "Find your next watch..."
+    ];
+    let textIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typingDelay = 100;
+    let isPaused = false; // Flag untuk menjeda animasi
+
+    // Berhenti saat diklik (fokus) dan tampilkan teks default
+    searchInput.addEventListener('focus', () => {
+        isPaused = true;
+        searchInput.setAttribute('placeholder', 'Search movies...'); 
+    });
+
+    // Lanjutkan animasi dari awal saat kursor keluar (blur)
+    searchInput.addEventListener('blur', () => {
+        isPaused = false;
+        textIndex = 0;
+        charIndex = 0;
+        isDeleting = false;
+    });
+
+    function typePlaceholder() {
+        if (isPaused) {
+            setTimeout(typePlaceholder, 300); // Cek secara berkala (tunggu) sampai fokus hilang
+            return;
+        }
+        
+        const currentText = placeholderTexts[textIndex];
+        
+        if (isDeleting) {
+            searchInput.setAttribute('placeholder', currentText.substring(0, charIndex - 1));
+            charIndex--;
+            typingDelay = 40; // Kecepatan saat menghapus teks
+        } else {
+            searchInput.setAttribute('placeholder', currentText.substring(0, charIndex + 1));
+            charIndex++;
+            typingDelay = 80; // Kecepatan saat mengetik teks
+        }
+
+        if (!isDeleting && charIndex === currentText.length) {
+            isDeleting = true;
+            typingDelay = 2000; // Jeda (pause) setelah satu kalimat selesai diketik
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            textIndex = (textIndex + 1) % placeholderTexts.length;
+            typingDelay = 500; // Jeda sebelum mulai mengetik kalimat baru
+        }
+        setTimeout(typePlaceholder, typingDelay);
+    }
+    
+    // Mulai animasi
+    setTimeout(typePlaceholder, 1000);
+}
 
 langTrigger.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -239,6 +437,23 @@ document.addEventListener("error", function (e) {
         }
     }
 }, true);
+
+// --- Animasi Fade-In saat gambar berhasil dimuat ---
+document.addEventListener("load", function (e) {
+    if (e.target.tagName && e.target.tagName.toLowerCase() === "img") {
+        e.target.classList.add("img-loaded");
+        // Kunci gambar: hapus animasi setelah selesai agar tidak berkedip saat ganti tema
+        setTimeout(() => { e.target.style.animation = 'none'; }, 1000);
+    }
+}, true);
+
+document.querySelectorAll('img').forEach(img => {
+    if (img.complete) {
+        img.classList.add('img-loaded');
+        // Kunci gambar: hapus animasi setelah selesai agar tidak berkedip saat ganti tema
+        setTimeout(() => { img.style.animation = 'none'; }, 1000);
+    }
+});
 
 // --- Fitur Watchlist (Database) ---
 function toggleWatchlist(e, btn) {
@@ -373,5 +588,68 @@ function closeTrailerModal() {
     if(modal && iframe) {
         modal.classList.remove('show');
         iframe.src = ''; // Hentikan video saat modal ditutup
+    }
+}
+
+// --- Fitur Scroll to Top ---
+const scrollTopBtnHTML = `
+    <div id="scrollToTop" class="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+`;
+document.body.insertAdjacentHTML('beforeend', scrollTopBtnHTML);
+
+// --- Animasi Staggered Fade In untuk Movie Grid (Pagination) ---
+document.querySelectorAll('.grid-movie-card').forEach((card, index) => {
+    // Berikan jeda bertingkat: 0s, 0.05s, 0.1s, dst. Max delay 1.5 detik
+    const delay = Math.min(index * 0.05, 1.5);
+    card.style.animationDelay = `${delay}s`;
+    
+    // Kunci kartu: Hapus paksa properti animasi setelah selesai (animasi 0.6s + jeda). 
+    // Ini secara permanen mencegah browser me-restart animasi (efek tawuran/melompat) saat tombol Tema ditekan!
+    setTimeout(() => {
+        card.style.animation = 'none';
+    }, (delay + 0.8) * 1000);
+});
+
+// --- Theme Switcher (Dark/Light Mode) ---
+const themeSwitch = document.getElementById('themeSwitch');
+const themeIcon = document.getElementById('themeIcon');
+
+if (themeSwitch && themeIcon) {
+    if (document.documentElement.classList.contains('light-mode')) {
+        themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+
+    themeSwitch.addEventListener('click', () => {
+        // Tambahkan class animasi transisi tema sementara
+        document.documentElement.classList.add('theme-transition');
+        setTimeout(() => document.documentElement.classList.remove('theme-transition'), 500);
+        
+        document.documentElement.classList.toggle('light-mode');
+        
+        if (document.documentElement.classList.contains('light-mode')) {
+            localStorage.setItem('kinema_theme', 'light');
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
+        } else {
+            localStorage.setItem('kinema_theme', 'dark');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+    });
+}
+
+// --- Fitur Show/Hide Password ---
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+            icon.style.color = 'var(--accent)';
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+            icon.style.color = 'var(--text-muted)';
+        }
     }
 }

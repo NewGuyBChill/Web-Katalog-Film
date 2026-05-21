@@ -162,13 +162,48 @@ function translateText($key) {
 }
 
 // Fungsi Pembantu untuk Memanggil TMDB
-function fetchTMDB($endpoint) {
+function fetchTMDB($endpoint, $cache_ttl = 3600) {
     global $tmdbApiKey, $siteLang;
     $separator = strpos($endpoint, '?') !== false ? "&" : "?";
     $url = "https://api.themoviedb.org/3/" . $endpoint . $separator . "api_key=" . $tmdbApiKey . "&language=" . $siteLang;
-    // @ mencegah tampilan error muncul jika komputer mati internet
-    $response = @file_get_contents($url);
-    return $response ? json_decode($response, true) : null;
+    
+    // Setup direktori cache sementara
+    $cacheDir = __DIR__ . '/../cache/';
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0777, true);
+    }
+    
+    // Buat nama file cache unik berdasarkan URL API
+    $cacheFile = $cacheDir . md5($url) . '.json';
+    
+    // Cek apakah cache valid (belum expired / umurnya di bawah 1 jam)
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cache_ttl) {
+        return json_decode(@file_get_contents($cacheFile), true);
+    }
+    
+    // Gunakan cURL karena jauh lebih stabil dan cepat dibanding file_get_contents
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Mencegah error SSL Certificate di XAMPP
+    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // Mencegah Lag DNS IPv6 di Windows
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    // Simpan data respons ke dalam file cache jika sukses (HTTP 200)
+    if ($response && $httpCode === 200) {
+        @file_put_contents($cacheFile, $response);
+        return json_decode($response, true);
+    }
+    
+    // Jika koneksi TMDB gagal/putus, ambil data dari cache lama jika file nya ada
+    if (file_exists($cacheFile)) {
+        return json_decode(@file_get_contents($cacheFile), true);
+    }
+    
+    return null;
 }
 
 // Fungsi untuk memformat array hasil TMDB
@@ -342,9 +377,9 @@ function getSimilarMedia($id, $type = 'movie', $limit = 10) {
     return formatMovies($data['results'] ?? [], $limit, $type);
 }
 
-function searchMovies($query) {
+function searchMovies($query, $page = 1) {
     if(empty($query)) return [];
-    $data = fetchTMDB("search/movie?query=" . urlencode($query));
+    $data = fetchTMDB("search/movie?query=" . urlencode($query) . "&page=" . intval($page));
     return formatMovies($data['results'] ?? [], 20); // Tampilkan max 20 pencarian
 }
 
