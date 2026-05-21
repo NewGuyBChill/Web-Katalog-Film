@@ -47,17 +47,19 @@ function updateSlider(index) {
         }
         const trailerBtn = document.querySelector('.hero .btn-primary');
         if (trailerBtn) {
+            const watchTxt = typeof langStrings !== 'undefined' ? langStrings.watchTrailer : 'Watch Trailer';
+            const noTrailerTxt = typeof langStrings !== 'undefined' ? langStrings.noTrailer : 'Tidak Ada Trailer';
             if (data.trailer && data.trailer !== '#') {
                 trailerBtn.style.opacity = '1';
                 trailerBtn.style.cursor = 'pointer';
                 trailerBtn.disabled = false;
-                trailerBtn.innerHTML = '<i class="fas fa-play"></i> Watch Trailer';
-                trailerBtn.setAttribute('onclick', `window.open('${data.trailer}', '_blank')`);
+                trailerBtn.innerHTML = `<i class="fas fa-play"></i> ${watchTxt}`;
+                trailerBtn.setAttribute('onclick', `openTrailerModal('${data.trailer}')`);
             } else {
                 trailerBtn.style.opacity = '0.5';
                 trailerBtn.style.cursor = 'not-allowed';
                 trailerBtn.disabled = true;
-                trailerBtn.innerHTML = '<i class="fas fa-play"></i> Tidak Ada Trailer';
+                trailerBtn.innerHTML = `<i class="fas fa-play"></i> ${noTrailerTxt}`;
                 trailerBtn.removeAttribute('onclick');
             }
         }
@@ -110,6 +112,26 @@ const langContainer = document.getElementById('langContainer');
 const langTrigger = document.getElementById('langTrigger');
 const langDropdown = document.getElementById('langDropdown');
 const currentLangText = document.getElementById('currentLang');
+
+// Cek cookie bahasa saat ini (default: en-US)
+const getSiteLang = () => {
+    const match = document.cookie.match(/(^| )site_lang=([^;]+)/);
+    return match ? match[2] : 'en-US';
+};
+const currentSiteLang = getSiteLang();
+
+if (currentLangText) {
+    currentLangText.innerText = currentSiteLang === 'id-ID' ? 'ID' : 'EN';
+}
+
+if (langDropdown) {
+    // Render ulang pilihan bahasa hanya untuk EN dan ID
+    langDropdown.innerHTML = `
+        <div class="lang-option ${currentSiteLang === 'en-US' ? 'active' : ''}" data-lang="EN" data-value="en-US">English</div>
+        <div class="lang-option ${currentSiteLang === 'id-ID' ? 'active' : ''}" data-lang="ID" data-value="id-ID">Indonesia</div>
+    `;
+}
+
 const langOptions = document.querySelectorAll('.lang-option');
 
 searchTrigger.addEventListener('click', (e) => {
@@ -127,10 +149,11 @@ langTrigger.addEventListener('click', (e) => {
 langOptions.forEach(option => {
     option.addEventListener('click', (e) => {
         e.stopPropagation();
-        langOptions.forEach(opt => opt.classList.remove('active'));
-        e.target.classList.add('active');
-        currentLangText.innerText = e.target.getAttribute('data-lang');
-        langDropdown.classList.remove('show');
+        const selectedLang = e.target.getAttribute('data-value');
+        // Simpan preferensi bahasa ke Cookie (berlaku 30 hari)
+        document.cookie = "site_lang=" + selectedLang + "; path=/; max-age=" + (60*60*24*30);
+        // Reload halaman agar PHP mengambil data TMDB dalam bahasa yang baru
+        window.location.reload();
     });
 });
 
@@ -205,3 +228,150 @@ window.addEventListener('click', function(e) {
         });
     }
 });
+
+// Tangani semua broken image secara global (misal koneksi ke server TMDB terputus)
+document.addEventListener("error", function (e) {
+    if (e.target.tagName && e.target.tagName.toLowerCase() === "img") {
+        // Cegah infinite loop jika fallback gagal dimuat
+        if (!e.target.dataset.fallbackApplied) {
+            e.target.dataset.fallbackApplied = "true";
+            e.target.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22500%22%20height%3D%22750%22%20viewBox%3D%220%200%20500%20750%22%3E%3Crect%20width%3D%22500%22%20height%3D%22750%22%20fill%3D%22%231a1a1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2230%22%20fill%3D%22%23555555%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Poster%3C%2Ftext%3E%3C%2Fsvg%3E";
+        }
+    }
+}, true);
+
+// --- Fitur Watchlist (Database) ---
+function toggleWatchlist(e, btn) {
+    e.preventDefault(); // Mencegah pindah ke halaman detail saat klik ikon hati
+    e.stopPropagation();
+
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        alert("Silakan login terlebih dahulu untuk menyimpan ke Watchlist!");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    const movieId = btn.getAttribute('data-id');
+    const title = btn.getAttribute('data-title');
+    
+    let posterPath = '';
+    const imgEl = btn.previousElementSibling;
+    if (imgEl && imgEl.tagName === 'IMG') {
+        posterPath = imgEl.src;
+    }
+    
+    let mediaType = 'movie';
+    if (window.location.href.includes('tvshows') || window.location.href.includes('type=tv')) {
+        mediaType = 'tv';
+    }
+
+    const isActive = btn.classList.contains('active');
+    const action = isActive ? 'remove' : 'add';
+
+    if (isActive) {
+        btn.classList.remove('active');
+    } else {
+        btn.classList.add('active');
+        btn.style.transform = 'scale(1.3)'; // Efek interaktif detak jantung
+        setTimeout(() => btn.style.transform = '', 200);
+    }
+
+    fetch('index.php?page=ajax_watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=${action}&media_id=${movieId}&media_type=${mediaType}&title=${encodeURIComponent(title)}&poster_path=${encodeURIComponent(posterPath)}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            console.error("Gagal", data.error);
+            if (isActive) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    });
+}
+
+function toggleWatchlistDetail(e, btn, movieId, mediaType, title, posterPath) {
+    e.preventDefault();
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        alert("Silakan login terlebih dahulu untuk menyimpan ke Watchlist!");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    const icon = btn.querySelector('i');
+    const isActive = btn.classList.contains('active-fav');
+    const action = isActive ? 'remove' : 'add';
+
+    if (isActive) {
+        btn.classList.remove('active-fav');
+        if(icon) icon.style.color = '';
+    } else {
+        btn.classList.add('active-fav');
+        if(icon) icon.style.color = '#ff3b3b';
+        btn.style.transform = 'scale(1.05)';
+        setTimeout(() => btn.style.transform = '', 200);
+    }
+
+    fetch('index.php?page=ajax_watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=${action}&media_id=${movieId}&media_type=${mediaType}&title=${encodeURIComponent(title)}&poster_path=${encodeURIComponent(posterPath)}`
+    }).then(r => r.json()).catch(err => console.error(err));
+}
+
+function initWatchlistButtons() {
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn || typeof userWatchlist === 'undefined') return;
+    
+    document.querySelectorAll('.watchlist-btn').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        if (userWatchlist.some(watchId => String(watchId) === String(id))) {
+            btn.classList.add('active');
+        }
+    });
+    
+    document.querySelectorAll('.watchlist-btn-detail').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        if (id && userWatchlist.some(watchId => String(watchId) === String(id))) {
+            btn.classList.add('active-fav');
+            const icon = btn.querySelector('i');
+            if(icon) icon.style.color = '#ff3b3b';
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', initWatchlistButtons);
+
+// --- Fitur Trailer Modal (Global) ---
+const modalHTML = `
+    <div id="trailerModal" class="trailer-modal" onclick="closeTrailerModal()">
+        <div class="trailer-modal-content" onclick="event.stopPropagation()">
+            <div class="trailer-close" onclick="closeTrailerModal()">&times;</div>
+            <div class="trailer-iframe-container">
+                <iframe id="trailerIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+`;
+document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+function openTrailerModal(url) {
+    const modal = document.getElementById('trailerModal');
+    const iframe = document.getElementById('trailerIframe');
+    if(modal && iframe) {
+        let embedUrl = url;
+        if(url.includes('watch?v=')) {
+            embedUrl = url.replace('watch?v=', 'embed/') + '?autoplay=1';
+        }
+        iframe.src = embedUrl;
+        modal.classList.add('show');
+    }
+}
+
+function closeTrailerModal() {
+    const modal = document.getElementById('trailerModal');
+    const iframe = document.getElementById('trailerIframe');
+    if(modal && iframe) {
+        modal.classList.remove('show');
+        iframe.src = ''; // Hentikan video saat modal ditutup
+    }
+}

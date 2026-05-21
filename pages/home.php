@@ -4,14 +4,20 @@
   $firstHero = $heroBanners[0] ?? ['bg' => '', 'title' => 'NO DATA', 'meta' => '', 'synopsis' => '', 'trailer' => '#'];
 ?>
 <!-- Pass data dari PHP ke Javascript -->
-<script>const dynamicBanners = <?= json_encode($heroBanners) ?>;</script>
+<script>
+    const dynamicBanners = <?= json_encode($heroBanners) ?>;
+    const langStrings = {
+        watchTrailer: "<?= translateText('watch_trailer') ?>",
+        noTrailer: "<?= translateText('no_trailer') ?>"
+    };
+</script>
 
 <!-- Hero Section -->
 <header class="hero" style="background-image: <?= $firstHero['bg'] ?>;">
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <div class="badges">
-            <span class="badge smart-tv">NOW PLAYING</span>
+            <span class="badge smart-tv"><?= translateText('now_playing') ?></span>
             <span class="badge resolution">HD</span>
             <span class="badge rating" id="heroRating"><i class="fas fa-star"></i> <?= htmlspecialchars($firstHero['rating'] ?? 0) ?></span>
         </div>
@@ -20,11 +26,11 @@
         <p class="synopsis"><?= htmlspecialchars(substr($firstHero['synopsis'] ?? '', 0, 150)) ?>...</p>
         <div class="hero-buttons">
             <?php if (isset($firstHero['trailer']) && $firstHero['trailer'] !== "#"): ?>
-                <button class="btn-primary" onclick="window.open('<?= $firstHero['trailer'] ?>', '_blank')"><i class="fas fa-play"></i> Watch Trailer</button>
+                <button class="btn-primary" onclick="openTrailerModal('<?= $firstHero['trailer'] ?>')"><i class="fas fa-play"></i> <?= translateText('watch_trailer') ?></button>
             <?php else: ?>
-                <button class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled><i class="fas fa-play"></i> Tidak Ada Trailer</button>
+                <button class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled><i class="fas fa-play"></i> <?= translateText('no_trailer') ?></button>
             <?php endif; ?>
-            <button class="btn-secondary" onclick="window.location.href='index.php?page=details&id=<?= $firstHero['id'] ?? 0 ?>'">Details</button>
+            <button class="btn-secondary" onclick="window.location.href='index.php?page=details&id=<?= $firstHero['id'] ?? 0 ?>'"><?= translateText('details') ?></button>
         </div>
     </div>
     <div class="hero-dots" id="heroDots"></div>
@@ -41,12 +47,12 @@
     <?php if ($featured): ?>
     <section class="container">
         <div class="section-header">
-            <h2>Featured Today</h2>
-            <p>Highlight of the day</p>
+            <h2><?= translateText('featured_today') ?></h2>
+            <p><?= translateText('highlight_day') ?></p>
         </div>
         <div class="featured-today-card" style="background-image: linear-gradient(to right, rgba(18,18,18,1) 15%, rgba(18,18,18,0.7) 50%, rgba(18,18,18,0.1)), url('<?= htmlspecialchars($featured['backdrop'] ?: $featured['image']) ?>');">
             <div class="featured-today-content">
-                <span class="badge-trending"><i class="fas fa-fire"></i> Trending #1 Hari Ini</span>
+                <span class="badge-trending"><i class="fas fa-fire"></i> <?= translateText('trending_1') ?></span>
                 <h1 class="featured-today-title"><?= htmlspecialchars($featured['title']) ?></h1>
                 
                 <div class="featured-today-meta">
@@ -56,15 +62,15 @@
                 </div>
                 
                 <p class="featured-today-synopsis">
-                    <?= htmlspecialchars($featured['overview'] ?: 'Sinopsis belum tersedia untuk film ini.') ?>
+                    <?= htmlspecialchars($featured['overview'] ?: translateText('no_synopsis')) ?>
                 </p>
                 
                 <div class="featured-today-actions">
                     <a href="index.php?page=details&id=<?= $featured['id'] ?>" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-info-circle"></i> Selengkapnya
+                        <i class="fas fa-info-circle"></i> <?= translateText('read_more') ?>
                     </a>
-                    <button class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-plus"></i> Watchlist
+                    <button class="btn-secondary watchlist-btn-detail" data-id="<?= $featured['id'] ?>" onclick="toggleWatchlistDetail(event, this, '<?= $featured['id'] ?>', 'movie', '<?= addslashes(htmlspecialchars($featured['title'])) ?>', '<?= $featured['poster_path'] ?? $featured['image'] ?>')" style="display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;">
+                        <i class="fas fa-plus"></i> <?= translateText('watchlist') ?>
                     </button>
                 </div>
             </div>
@@ -141,10 +147,44 @@
     </section>
     <?php endif; ?>
 
+    <!-- Recommended For You (Fitur Personal) -->
+    <?php 
+    $personalized = getPersonalizedRecommendations();
+    if (!empty($personalized) && isset($_SESSION['user'])): 
+    ?>
+    <section class="container">
+        <div class="section-header">
+            <h2 style="color: var(--accent);"><i class="fas fa-magic"></i> <?= translateText('recommended_for_you') ?></h2>
+            <p><?= translateText('based_on_rating') ?></p>
+        </div>
+        <div class="movie-row" id="personalized-row">
+            <?php foreach($personalized as $movie): ?>
+            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+                <div class="grid-movie-img-wrap">
+                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
+                    <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
+                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="grid-movie-quick-view">
+                        <div class="quick-view-title"><?= translateText('synopsis') ?></div>
+                        <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
+                    </div>
+                </div>
+                <div class="grid-movie-info">
+                    <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
+                    <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
+                </div>
+            </a>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <!-- Trending Now -->
     <section class="container">
         <div class="section-header">
-            <h2>Trending Now</h2>
+            <h2><?= translateText('trending_now') ?></h2>
         </div>
         <div class="movie-row" id="trending-row">
             <?php 
@@ -154,6 +194,13 @@
                 <div class="grid-movie-img-wrap">
                     <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
                     <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
+                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="grid-movie-quick-view">
+                        <div class="quick-view-title"><?= translateText('synopsis') ?></div>
+                        <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
+                    </div>
                 </div>
                 <div class="grid-movie-info">
                     <div class="grid-movie-title"><?= htmlspecialchars($movie['title']) ?></div>
@@ -163,11 +210,42 @@
             <?php endforeach; ?>
         </div>
     </section>
+
+<!-- Upcoming Movies -->
+<section class="container">
+    <div class="section-header">
+        <h2><?= translateText('upcoming_movies') ?></h2>
+    </div>
+    <div class="movie-row" id="upcoming-row">
+        <?php 
+        $upcomingMovies = getUpcomingMovies();
+        foreach($upcomingMovies as $movie): 
+        ?>
+        <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+            <div class="grid-movie-img-wrap">
+                <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
+                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
+                <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="grid-movie-quick-view">
+                    <div class="quick-view-title"><?= translateText('synopsis') ?></div>
+                    <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
+                </div>
+            </div>
+            <div class="grid-movie-info">
+                <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
+                <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
+            </div>
+        </a>
+        <?php endforeach; ?>
+    </div>
+</section>
     
     <!-- Top Picks -->
     <section class="container">
         <div class="section-header">
-            <h2>Top Picks</h2>
+            <h2><?= translateText('top_picks') ?></h2>
         </div>
         <div class="movie-row" id="top-picks-row">
             <?php 
@@ -178,6 +256,13 @@
                 <div class="grid-movie-img-wrap">
                     <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
                     <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
+                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="grid-movie-quick-view">
+                        <div class="quick-view-title"><?= translateText('synopsis') ?></div>
+                        <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
+                    </div>
                 </div>
                 <div class="grid-movie-info">
                     <div class="grid-movie-title"><?= htmlspecialchars($movie['title']) ?></div>
