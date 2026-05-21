@@ -68,9 +68,19 @@ if(isset($_SESSION['user_id'])) {
             
             <div style="display: flex; gap: 1rem; align-items: center; margin-left: 1rem;">
                 <?php if(isset($_SESSION['user'])): ?>
-                    <a href="index.php?page=watchlist" style="color: var(--text-main); text-decoration: none; font-size: 0.9rem; margin-right: 10px; display: flex; align-items: center; gap: 5px;"><i class="fas fa-bookmark" style="color: var(--accent);"></i> My Watchlist</a>
-                    <div class="profile-icon" title="<?= htmlspecialchars($_SESSION['user']) ?>"><i class="fas fa-user-circle" style="color: var(--accent); font-size: 1.5rem;"></i></div>
-                    <a href="index.php?page=logout" class="btn-login" style="color: #ff3b3b;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <div class="user-menu-container">
+                        <div style="display: flex; align-items: center; gap: 8px; color: white;">
+                            <div class="profile-icon" title="<?= htmlspecialchars($_SESSION['user']) ?>"><i class="fas fa-user-circle" style="color: var(--accent); font-size: 1.8rem;"></i></div>
+                            <span style="font-weight: 600; font-size: 0.95rem;"><?= htmlspecialchars($_SESSION['user']) ?> <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 3px; color: var(--text-muted);"></i></span>
+                        </div>
+                        <div class="user-dropdown">
+                            <a href="index.php?page=watchlist"><i class="fas fa-bookmark" style="width: 20px;"></i> <?= translateText('watchlist') ?></a>
+                            <a href="index.php?page=my_reviews"><i class="fas fa-star" style="width: 20px;"></i> <?= translateText('my_reviews') ?></a>
+                            <a href="index.php?page=profile"><i class="fas fa-cog" style="width: 20px;"></i> <?= translateText('profile_settings') ?></a>
+                            <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
+                            <a href="index.php?page=logout" class="logout-btn"><i class="fas fa-sign-out-alt" style="width: 20px;"></i> Logout</a>
+                        </div>
+                    </div>
                 <?php else: ?>
                     <a href="index.php?page=login" class="btn-login">Login</a>
                     <a href="index.php?page=signup" class="btn-signup">Sign Up</a>

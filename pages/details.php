@@ -36,6 +36,22 @@ if (!empty($movie['videos']['results'])) {
 }
 ?>
 
+<?php
+$userReview = null;
+$dbPath = __DIR__ . '/../config/db.php';
+if (file_exists($dbPath)) {
+    require_once $dbPath;
+    global $conn;
+    if ($conn && isset($_SESSION['user_id'])) {
+        $uid = (int)$_SESSION['user_id'];
+        $checkRev = $conn->query("SELECT rating, review_text FROM reviews WHERE user_id = $uid AND media_id = " . intval($id) . " AND media_type = '" . $conn->real_escape_string($type) . "'");
+        if ($checkRev && $checkRev->num_rows > 0) {
+            $userReview = $checkRev->fetch_assoc();
+        }
+    }
+}
+?>
+
 <main style="padding-top: 80px; min-height: 80vh;">
     <!-- Bagian Header (Poster, Judul, Info) -->
     <div style="position: relative; background: url('<?= $backdrop ?>') center/cover; padding: 4rem; display: flex; gap: 3rem; align-items: center; justify-content: center; min-height: 60vh; flex-wrap: wrap;">
@@ -74,16 +90,16 @@ if (!empty($movie['videos']['results'])) {
         </div>
         
         <div style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 12px; border: 1px solid #262626; margin-bottom: 3rem;">
-            <h3 style="margin-bottom: 1.2rem; font-size: 1.1rem; font-weight: 600;"><?= translateText('write_review') ?></h3>
+            <h3 id="reviewFormTitle" style="margin-bottom: 1.2rem; font-size: 1.1rem; font-weight: 600;"><?= $userReview ? "Edit Ulasan Kamu" : translateText('write_review') ?></h3>
             <form id="reviewForm" style="display: flex; flex-direction: column; gap: 1.2rem;">
                 <div>
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;"><?= translateText('rating') ?>:</label>
-                    <div id="starRating" style="color: #FCD34D; font-size: 1.5rem; cursor: pointer; letter-spacing: 5px; transition: 0.2s;">
+                    <div id="starRating" style="color: #FCD34D; font-size: 1.5rem; cursor: pointer; letter-spacing: 5px; transition: 0.2s;" data-rating="<?= $userReview ? $userReview['rating'] : 0 ?>">
                         <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                     </div>
                 </div>
-                <textarea id="reviewText" placeholder="<?= translateText('review_placeholder') ?>" rows="4" style="width: 100%; padding: 1.2rem; border-radius: 8px; background: #080808; border: 1px solid #333; color: white; resize: vertical; font-family: inherit; font-size: 1rem; outline: none;"></textarea>
-                <button type="submit" class="btn-primary" style="align-self: flex-start; padding: 0.8rem 2rem; border-radius: 30px;"><?= translateText('submit_review') ?></button>
+                <textarea id="reviewText" placeholder="<?= translateText('review_placeholder') ?>" rows="4" style="width: 100%; padding: 1.2rem; border-radius: 8px; background: #080808; border: 1px solid #333; color: white; resize: vertical; font-family: inherit; font-size: 1rem; outline: none;"><?= $userReview ? htmlspecialchars($userReview['review_text']) : '' ?></textarea>
+                <button type="submit" id="submitReviewBtn" class="btn-primary" style="align-self: flex-start; padding: 0.8rem 2rem; border-radius: 30px;"><?= $userReview ? "Update Ulasan" : translateText('submit_review') ?></button>
             </form>
         </div>
         
@@ -108,7 +124,7 @@ if (!empty($movie['videos']['results'])) {
                                     $deleteBtn = '<button onclick="deleteReview('.$rev['id'].', this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:0.85rem; margin-left:15px; transition: 0.3s;" title="Hapus Ulasan"><i class="fas fa-trash"></i></button>';
                                 }
                                 echo '
-                                <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid #262626;">
+                                <div id="review-'.$rev['id'].'" style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid #262626;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                                         <div style="display: flex; gap: 1rem; align-items: center;">
                                             <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: black; font-weight: bold;">'.$initial.'</div>
@@ -165,7 +181,13 @@ if (!empty($movie['videos']['results'])) {
 
 <script>
 // Interaksi sederhana untuk klik rating bintang
-let currentRating = 0;
+let currentRating = parseInt(document.getElementById('starRating').getAttribute('data-rating')) || 0;
+if (currentRating > 0) {
+    document.querySelectorAll('#starRating i').forEach((s, i) => {
+        s.className = i < currentRating ? 'fas fa-star' : 'far fa-star';
+    });
+}
+
 document.querySelectorAll('#starRating i').forEach((star, index) => {
     star.addEventListener('click', () => {
         currentRating = index + 1;
@@ -208,12 +230,17 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
             // Hapus teks "Belum ada ulasan" jika itu review pertama
             if (reviewList.innerHTML.includes('Belum ada ulasan')) reviewList.innerHTML = '';
 
+            // Hapus ulasan lama dari list jika merupakan update
+            const oldReview = document.getElementById(`review-${data.review_id}`);
+            if (oldReview) oldReview.remove();
+
             let starsHtml = '';
             for(let i=0; i<5; i++) { starsHtml += i < currentRating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'; }
             
             const deleteBtnHtml = `<button onclick="deleteReview(${data.review_id}, this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:0.85rem; margin-left:15px; transition: 0.3s;" title="Hapus Ulasan"><i class="fas fa-trash"></i></button>`;
 
             const newReview = document.createElement('div');
+            newReview.id = `review-${data.review_id}`;
             newReview.style.cssText = 'background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid #262626; animation: slideIn 0.3s ease;';
             newReview.innerHTML = `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
@@ -228,14 +255,16 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
             
             reviewList.prepend(newReview);
             
-            document.getElementById('reviewText').value = '';
-            currentRating = 0;
-            document.querySelectorAll('#starRating i').forEach(s => s.className = 'far fa-star');
+            document.getElementById('submitReviewBtn').innerHTML = 'Update Ulasan';
+            document.getElementById('reviewFormTitle').innerHTML = 'Edit Ulasan Kamu';
         } else {
             alert('Gagal mengirim ulasan: ' + data.error);
         }
     })
-    .catch(err => console.error(err))
+    .catch(err => {
+        console.error(err);
+        alert("Terjadi kesalahan sistem. (Mungkin tabel 'reviews' belum terbuat dengan benar di Database).");
+    })
     .finally(() => {
         submitBtn.innerHTML = originalBtnText;
         submitBtn.disabled = false;
@@ -252,10 +281,22 @@ function deleteReview(reviewId, btn) {
         .then(r => r.json())
         .then(data => {
             if(data.success) {
-                btn.closest('div[style*="border-radius: 12px"]').remove();
+                const reviewDiv = document.getElementById('review-' + reviewId) || btn.closest('div[style*="border-radius: 12px"]');
+                if (reviewDiv) reviewDiv.remove();
+                
+                // Kembalikan mode form ke normal
+                document.getElementById('reviewText').value = '';
+                currentRating = 0;
+                document.getElementById('starRating').setAttribute('data-rating', 0);
+                document.querySelectorAll('#starRating i').forEach(s => s.className = 'far fa-star');
+                document.getElementById('submitReviewBtn').innerHTML = '<?= translateText('submit_review') ?>';
+                document.getElementById('reviewFormTitle').innerHTML = '<?= translateText('write_review') ?>';
             } else {
-                alert("Gagal menghapus ulasan.");
+                alert("Gagal menghapus ulasan: " + data.error);
             }
+        }).catch(err => {
+            console.error(err);
+            alert("Terjadi kesalahan sistem/jaringan saat menghapus.");
         });
     }
 }
