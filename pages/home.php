@@ -1,7 +1,7 @@
 <?php require_once __DIR__ . '/../config/data.php'; ?>
 <?php 
   $heroBanners = getHeroBanners(); 
-  $firstHero = $heroBanners[0] ?? ['bg' => '', 'title' => 'NO DATA', 'meta' => '', 'synopsis' => ''];
+  $firstHero = $heroBanners[0] ?? ['bg' => '', 'title' => 'NO DATA', 'meta' => '', 'synopsis' => '', 'trailer' => '#'];
 ?>
 <!-- Pass data dari PHP ke Javascript -->
 <script>const dynamicBanners = <?= json_encode($heroBanners) ?>;</script>
@@ -11,58 +11,135 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <div class="badges">
-            <span class="badge smart-tv">SMART TV</span>
-            <span class="badge resolution">4K</span>
-            <span class="badge rating">16+</span>
+            <span class="badge smart-tv">NOW PLAYING</span>
+            <span class="badge resolution">HD</span>
+            <span class="badge rating" id="heroRating"><i class="fas fa-star"></i> <?= htmlspecialchars($firstHero['rating'] ?? 0) ?></span>
         </div>
         <h1><?= htmlspecialchars($firstHero['title']) ?></h1>
         <p class="meta"><?= htmlspecialchars($firstHero['meta']) ?></p>
-        <p class="cast">Park Shin-hye &bull; Kim Jae-young &bull; Kim In-kwon</p>
         <p class="synopsis"><?= htmlspecialchars(substr($firstHero['synopsis'] ?? '', 0, 150)) ?>...</p>
         <div class="hero-buttons">
-            <button class="btn-primary"><i class="fas fa-play"></i> Watch Trailer</button>
+            <?php if (isset($firstHero['trailer']) && $firstHero['trailer'] !== "#"): ?>
+                <button class="btn-primary" onclick="window.open('<?= $firstHero['trailer'] ?>', '_blank')"><i class="fas fa-play"></i> Watch Trailer</button>
+            <?php else: ?>
+                <button class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled><i class="fas fa-play"></i> Tidak Ada Trailer</button>
+            <?php endif; ?>
             <button class="btn-secondary" onclick="window.location.href='index.php?page=details&id=<?= $firstHero['id'] ?? 0 ?>'">Details</button>
         </div>
-    </div>
-    <div class="hero-arrows">
-        <button class="arrow-btn" id="prevSlide">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="arrow-btn" id="nextSlide">
-            <i class="fas fa-chevron-right"></i>
-        </button>
     </div>
     <div class="hero-dots" id="heroDots"></div>
 </header>
 
 <main>
+    <?php 
+    // Mengambil data trending, lalu menggunakan film pertama (Trending #1) sebagai Featured Today
+    $trendingMovies = getTrendingMovies();
+    $featured = !empty($trendingMovies) ? $trendingMovies[0] : null; 
+    ?>
+
     <!-- Featured Today -->
+    <?php if ($featured): ?>
     <section class="container">
         <div class="section-header">
             <h2>Featured Today</h2>
-            <p>What to watch based on your likes</p>
+            <p>Highlight of the day</p>
         </div>
-        <div class="featured-grid">
-            <div class="feature-card">
-                <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80" alt="Cinematography">
-                <h3>Visual Splendor & Masterful Cinematography</h3>
-                <p>Explore films with striking art direction and composition...</p>
-                <a href="#" class="read-more">View movies ></a>
-            </div>
-            <div class="feature-card">
-                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80" alt="Hidden Gems">
-                <h3>Hidden Gems & Underrated Masterpieces</h3>
-                <p>Brilliant films that might have slipped under the radar...</p>
-                <a href="#" class="read-more">View movies ></a>
-            </div>
-            <div class="feature-card">
-                <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=600&q=80" alt="Lore">
-                <h3>Immersive Worlds & Complex Lore</h3>
-                <p>A selection of films featuring strong world-building...</p>
-                <a href="#" class="read-more">View movies ></a>
+        <div class="featured-today-card" style="background-image: linear-gradient(to right, rgba(18,18,18,1) 15%, rgba(18,18,18,0.7) 50%, rgba(18,18,18,0.1)), url('<?= htmlspecialchars($featured['backdrop'] ?: $featured['image']) ?>');">
+            <div class="featured-today-content">
+                <span class="badge-trending"><i class="fas fa-fire"></i> Trending #1 Hari Ini</span>
+                <h1 class="featured-today-title"><?= htmlspecialchars($featured['title']) ?></h1>
+                
+                <div class="featured-today-meta">
+                    <span class="rating"><i class="fas fa-star" style="color: #FCD34D;"></i> <?= htmlspecialchars($featured['rating']) ?>/10</span>
+                    <span class="year"><?= htmlspecialchars($featured['year']) ?></span>
+                    <span class="genre"><?= htmlspecialchars($featured['genre']) ?></span>
+                </div>
+                
+                <p class="featured-today-synopsis">
+                    <?= htmlspecialchars($featured['overview'] ?: 'Sinopsis belum tersedia untuk film ini.') ?>
+                </p>
+                
+                <div class="featured-today-actions">
+                    <a href="index.php?page=details&id=<?= $featured['id'] ?>" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-info-circle"></i> Selengkapnya
+                    </a>
+                    <button class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Watchlist
+                    </button>
+                </div>
             </div>
         </div>
+        
+        <style>
+            .featured-today-card {
+                position: relative;
+                width: 100%;
+                min-height: 450px;
+                background-size: cover;
+                background-position: center top;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                padding: 3rem;
+                color: white;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                overflow: hidden;
+                margin-bottom: 2rem;
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+            .featured-today-content {
+                max-width: 550px;
+                z-index: 2;
+            }
+            .badge-trending {
+                background-color: #e50914;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 0.85rem;
+                font-weight: bold;
+                display: inline-block;
+                margin-bottom: 1rem;
+            }
+            .featured-today-title {
+                font-size: 2.8rem;
+                margin: 0 0 10px 0;
+                line-height: 1.1;
+                font-weight: 800;
+            }
+            .featured-today-meta {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 15px;
+                font-size: 0.95rem;
+                color: #ccc;
+                font-weight: 600;
+            }
+            .featured-today-synopsis {
+                line-height: 1.6;
+                margin-bottom: 25px;
+                display: -webkit-box;
+                -webkit-line-clamp: 4;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                color: #ddd;
+                font-size: 1.05rem;
+            }
+            .featured-today-actions {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+            }
+            @media (max-width: 768px) {
+                .featured-today-card {
+                    padding: 2rem;
+                    background-image: linear-gradient(to top, rgba(18,18,18,1) 20%, rgba(18,18,18,0.6)), url('<?= htmlspecialchars($featured['backdrop'] ?: $featured['image']) ?>') !important;
+                    align-items: flex-end;
+                }
+                .featured-today-title { font-size: 2rem; }
+            }
+        </style>
     </section>
+    <?php endif; ?>
 
     <!-- Trending Now -->
     <section class="container">
@@ -71,14 +148,17 @@
         </div>
         <div class="movie-row" id="trending-row">
             <?php 
-            $trendingMovies = getTrendingMovies();
             foreach($trendingMovies as $movie): 
             ?>
-            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card" style="text-decoration: none; color: inherit; display: block;">
-                <div class="movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
-                <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
-                <div class="movie-title"><?= htmlspecialchars($movie['title']) ?></div>
-                <div class="movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
+            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+                <div class="grid-movie-img-wrap">
+                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
+                    <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
+                </div>
+                <div class="grid-movie-info">
+                    <div class="grid-movie-title"><?= htmlspecialchars($movie['title']) ?></div>
+                    <div class="grid-movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
+                </div>
             </a>
             <?php endforeach; ?>
         </div>
@@ -94,11 +174,15 @@
             $topPicks = getTopPicks();
             foreach($topPicks as $movie): 
             ?>
-            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card" style="text-decoration: none; color: inherit; display: block;">
-                <div class="movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
-                <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
-                <div class="movie-title"><?= htmlspecialchars($movie['title']) ?></div>
-                <div class="movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
+            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+                <div class="grid-movie-img-wrap">
+                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
+                    <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
+                </div>
+                <div class="grid-movie-info">
+                    <div class="grid-movie-title"><?= htmlspecialchars($movie['title']) ?></div>
+                    <div class="grid-movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
+                </div>
             </a>
             <?php endforeach; ?>
         </div>

@@ -59,18 +59,49 @@ function getPopularMovies($limit = 20) {
     return formatMovies($data['results'] ?? [], $limit);
 }
 
+function discoverMovies($filters = [], $limit = 20) {
+    $endpoint = "discover/movie?sort_by=popularity.desc";
+    
+    if (!empty($filters['genre'])) {
+        $endpoint .= "&with_genres=" . urlencode($filters['genre']);
+    }
+    if (!empty($filters['year'])) {
+        $endpoint .= "&primary_release_year=" . urlencode($filters['year']);
+    }
+    if (!empty($filters['rating'])) {
+        $endpoint .= "&vote_average.gte=" . urlencode($filters['rating']);
+    }
+    
+    $data = fetchTMDB($endpoint);
+    return formatMovies($data['results'] ?? [], $limit);
+}
+
 function getHeroBanners() {
     $data = fetchTMDB("movie/now_playing");
     $movies = formatMovies($data['results'] ?? [], 4);
     $banners = [];
     foreach($movies as $m) {
         if(!empty($m['backdrop'])) {
+            // Cari video trailer dari YouTube
+            $trailerUrl = "#";
+            $vidData = fetchTMDB("movie/" . $m['id'] . "/videos");
+            if (!empty($vidData['results'])) {
+                foreach ($vidData['results'] as $video) {
+                    if ($video['site'] === 'YouTube' && ($video['type'] === 'Trailer' || $video['type'] === 'Teaser')) {
+                        $trailerUrl = "https://www.youtube.com/watch?v=" . $video['key'];
+                        break;
+                    }
+                }
+            }
+
             $banners[] = [
                 "id" => $m['id'],
                 "bg" => "url('" . $m['backdrop'] . "')",
                 "title" => $m['title'],
                 "meta" => $m['year'] . " • " . $m['genre'],
-                "synopsis" => $m['overview']
+                "synopsis" => $m['overview'],
+                "rating" => $m['rating'],
+                "trailer" => $trailerUrl
             ];
         }
     }
@@ -79,12 +110,23 @@ function getHeroBanners() {
 
 function getMovieDetails($id) {
     if(empty($id)) return null;
-    return fetchTMDB("movie/" . intval($id));
+    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos");
 }
 
 function searchMovies($query) {
     if(empty($query)) return [];
     $data = fetchTMDB("search/movie?query=" . urlencode($query));
     return formatMovies($data['results'] ?? [], 20); // Tampilkan max 20 pencarian
+}
+
+function buildFilterUrl($currentFilters, $keyToChange, $newValue) {
+    $params = $currentFilters;
+    $params[$keyToChange] = $newValue;
+    $params['page'] = 'movies'; // Selalu di halaman movies
+    
+    // Hapus filter yang kosong agar URL bersih
+    $params = array_filter($params);
+    
+    return 'index.php?' . http_build_query($params);
 }
 ?>

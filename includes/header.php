@@ -19,26 +19,28 @@
                 <li><a href="#">TV Show</a></li>
             </ul>
         </div>
-        <form action="index.php" method="GET" class="search-container" id="searchContainer">
-            <input type="hidden" name="page" value="search">
-            <button type="submit" class="search-trigger" id="searchTrigger">
-                <i class="fas fa-search"></i>
-            </button>
-            <input type="text" name="q" class="search-input" id="searchInput" placeholder="Search movies...">
-        </form>
+        <div class="nav-right" style="gap: 1.5rem;">
+            <form action="index.php" method="GET" class="search-container" id="searchContainer">
+                <input type="hidden" name="page" value="search">
+                <button type="submit" class="search-trigger" id="searchTrigger">
+                    <i class="fas fa-search"></i>
+                </button>
+                <input type="text" name="q" class="search-input" id="searchInput" placeholder="Search movies...">
+            </form>
 
-        <div class="lang-container" id="langContainer">
-            <div class="lang-trigger" id="langTrigger">
-                <i class="fas fa-globe"></i>
-                <span class="lang-text" id="currentLang">ID</span>
-                <i class="fas fa-chevron-down" style="font-size: 0.6rem; margin-left: 3px;"></i>
-            </div>
-            
-            <div class="lang-dropdown" id="langDropdown">
-                <div class="lang-option active" data-lang="ID">Indonesia</div>
-                <div class="lang-option" data-lang="EN">English</div>
-                <div class="lang-option" data-lang="KR">한국어</div>
-                <div class="lang-option" data-lang="JP">日本語</div>
+            <div class="lang-container" id="langContainer">
+                <div class="lang-trigger" id="langTrigger">
+                    <i class="fas fa-globe"></i>
+                    <span class="lang-text" id="currentLang">ID</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.6rem; margin-left: 3px;"></i>
+                </div>
+                
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option active" data-lang="ID">Indonesia</div>
+                    <div class="lang-option" data-lang="EN">English</div>
+                    <div class="lang-option" data-lang="KR">한국어</div>
+                    <div class="lang-option" data-lang="JP">日本語</div>
+                </div>
             </div>
         </div>
     </nav>
