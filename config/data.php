@@ -31,6 +31,7 @@ function formatMovies($results, $limit = 8) {
             $genre = $genreMap[$item['genre_ids'][0]] ?? "Movie";
         }
         $movies[] = [
+            "id" => $item['id'] ?? 0,
             "title" => $item['title'] ?? $item['original_title'] ?? $item['name'] ?? "Unknown",
             "year" => isset($item['release_date']) && strlen($item['release_date']) >= 4 ? substr($item['release_date'], 0, 4) : "-",
             "genre" => $genre,
@@ -53,6 +54,11 @@ function getTopPicks() {
     return formatMovies($data['results'] ?? []);
 }
 
+function getPopularMovies($limit = 20) {
+    $data = fetchTMDB("movie/popular");
+    return formatMovies($data['results'] ?? [], $limit);
+}
+
 function getHeroBanners() {
     $data = fetchTMDB("movie/now_playing");
     $movies = formatMovies($data['results'] ?? [], 4);
@@ -60,6 +66,7 @@ function getHeroBanners() {
     foreach($movies as $m) {
         if(!empty($m['backdrop'])) {
             $banners[] = [
+                "id" => $m['id'],
                 "bg" => "url('" . $m['backdrop'] . "')",
                 "title" => $m['title'],
                 "meta" => $m['year'] . " • " . $m['genre'],
@@ -68,6 +75,11 @@ function getHeroBanners() {
         }
     }
     return $banners;
+}
+
+function getMovieDetails($id) {
+    if(empty($id)) return null;
+    return fetchTMDB("movie/" . intval($id));
 }
 
 function searchMovies($query) {

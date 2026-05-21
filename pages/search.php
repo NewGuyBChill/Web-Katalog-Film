@@ -13,12 +13,12 @@ $results = searchMovies($query);
     <div class="movie-row" style="flex-wrap: wrap; overflow-x: visible; gap: 1.5rem;">
         <?php if(count($results) > 0): ?>
             <?php foreach($results as $movie): ?>
-            <div class="movie-card" style="margin-bottom: 1.5rem;">
+            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card" style="margin-bottom: 1.5rem; text-decoration: none; color: inherit; display: block;">
                 <div class="movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
                 <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
                 <div class="movie-title"><?= htmlspecialchars($movie['title']) ?></div>
                 <div class="movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
-            </div>
+            </a>
             <?php endforeach; ?>
         <?php else: ?>
             <p style="color: var(--text-muted);">No movies found. Try a different keyword.</p>

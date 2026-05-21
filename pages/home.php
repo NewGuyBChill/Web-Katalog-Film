@@ -21,7 +21,7 @@
         <p class="synopsis"><?= htmlspecialchars(substr($firstHero['synopsis'] ?? '', 0, 150)) ?>...</p>
         <div class="hero-buttons">
             <button class="btn-primary"><i class="fas fa-play"></i> Watch Trailer</button>
-            <button class="btn-secondary">Details</button>
+            <button class="btn-secondary" onclick="window.location.href='index.php?page=details&id=<?= $firstHero['id'] ?? 0 ?>'">Details</button>
         </div>
     </div>
     <div class="hero-arrows">
@@ -74,12 +74,12 @@
             $trendingMovies = getTrendingMovies();
             foreach($trendingMovies as $movie): 
             ?>
-            <div class="movie-card">
+            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card" style="text-decoration: none; color: inherit; display: block;">
                 <div class="movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
                 <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
                 <div class="movie-title"><?= htmlspecialchars($movie['title']) ?></div>
                 <div class="movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
-            </div>
+            </a>
             <?php endforeach; ?>
         </div>
     </section>
@@ -94,12 +94,12 @@
             $topPicks = getTopPicks();
             foreach($topPicks as $movie): 
             ?>
-            <div class="movie-card">
+            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card" style="text-decoration: none; color: inherit; display: block;">
                 <div class="movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
                 <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
                 <div class="movie-title"><?= htmlspecialchars($movie['title']) ?></div>
                 <div class="movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
-            </div>
+            </a>
             <?php endforeach; ?>
         </div>
     </section>

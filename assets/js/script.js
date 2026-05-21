@@ -19,6 +19,10 @@ function updateSlider(index) {
         if (document.querySelector('.hero .synopsis')) {
             document.querySelector('.hero .synopsis').innerHTML = data.synopsis.substring(0, 150) + "...";
         }
+        const detailsBtn = document.querySelector('.hero .btn-secondary');
+        if (detailsBtn) {
+            detailsBtn.setAttribute('onclick', `window.location.href='index.php?page=details&id=${data.id}'`);
+        }
         
         document.querySelectorAll('.dot').forEach((dot, i) => {
             dot.classList.toggle('active', i === currentIndex);

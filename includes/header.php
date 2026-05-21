@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinema - Katalog Film</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
     <!-- Font Awesome untuk Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,10 +14,9 @@
         <div class="nav-left">
             <div class="logo">KINEMA</div>
             <ul class="nav-links">
-                <li><a href="index.php?page=home" class="<?php echo (!isset($_GET['page']) || $_GET['page'] == 'home') ? 'active' : ''; ?>">Homepage</a></li>
-                <li><a href="#">Movies</a></li>
-                <li><a href="#">TV Shows</a></li>
-                <li><a href="#">Games</a></li>
+                <li><a href="index.php?page=home" class="<?php echo (!isset($_GET['page']) || $_GET['page'] == 'home') ? 'active' : ''; ?>">Home</a></li>
+                <li><a href="index.php?page=movies" class="<?php echo (isset($_GET['page']) && $_GET['page'] == 'movies') ? 'active' : ''; ?>">Movie</a></li>
+                <li><a href="#">TV Show</a></li>
             </ul>
         </div>
         <form action="index.php" method="GET" class="search-container" id="searchContainer">
