@@ -173,6 +173,17 @@ function fetchTMDB($endpoint, $cache_ttl = 3600) {
         @mkdir($cacheDir, 0777, true);
     }
     
+    // Fitur Garbage Collection Otomatis: 5% kemungkinan berjalan untuk menghapus file cache kedaluwarsa
+    if (rand(1, 20) === 1) {
+        $files = glob($cacheDir . '*.json');
+        $now = time();
+        foreach ($files as $file) {
+            if (is_file($file) && ($now - filemtime($file)) >= $cache_ttl) {
+                @unlink($file);
+            }
+        }
+    }
+    
     // Buat nama file cache unik berdasarkan URL API
     $cacheFile = $cacheDir . md5($url) . '.json';
     
@@ -303,7 +314,7 @@ function getHeroBanners() {
         if(!empty($m['backdrop'])) {
             // Cari video trailer dari YouTube
             $trailerUrl = "#";
-            $vidData = fetchTMDB("movie/" . $m['id'] . "/videos");
+            $vidData = fetchTMDB("movie/" . $m['id'] . "/videos?include_video_language=id,en,ko,ja,zh,th,es,fr,null");
             if (!empty($vidData['results'])) {
                 foreach ($vidData['results'] as $video) {
                     if ($video['site'] === 'YouTube' && ($video['type'] === 'Trailer' || $video['type'] === 'Teaser')) {
@@ -329,12 +340,12 @@ function getHeroBanners() {
 
 function getMovieDetails($id) {
     if(empty($id)) return null;
-    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos");
+    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
 }
 
 function getMediaDetails($id, $type = 'movie') {
     if(empty($id)) return null;
-    return fetchTMDB($type . "/" . intval($id) . "?append_to_response=videos");
+    return fetchTMDB($type . "/" . intval($id) . "?append_to_response=videos&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
 }
 
 function getPersonalizedRecommendations($limit = 10) {

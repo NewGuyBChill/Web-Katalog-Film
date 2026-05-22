@@ -156,6 +156,10 @@ function startAutoSlide() {
 
 if (banners.length > 0) {
     startAutoSlide();
+    
+    // Jeda otomatis saat kursor berada di area hero agar pengguna bisa membaca sinopsis
+    heroSlider.addEventListener('mouseenter', () => clearInterval(slideInterval));
+    heroSlider.addEventListener('mouseleave', startAutoSlide);
 }
 
 // Mengambil elemen HTML untuk search bar & logika dropdown bahasa

@@ -89,11 +89,6 @@ footer { padding: 3rem 4rem; border-top: 1px solid #1a1a1a; margin-top: 3rem; }
     .featured-grid { grid-template-columns: 1fr; }
 }
 
-/* Styling Navigasi Banner */
-.hero { 
-    /* Transisi gambar kini di-handle secara dinamis via JavaScript (Crossfade) */
-}
-
 .hero-content { 
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
 }
@@ -174,6 +169,11 @@ footer { padding: 3rem 4rem; border-top: 1px solid #1a1a1a; margin-top: 3rem; }
     color: rgba(255, 255, 255, 0.4);
 }
 
+::selection {
+    background: var(--accent);
+    color: #000;
+}
+
 .clear-search {
     color: var(--text-muted);
     cursor: pointer;
@@ -229,9 +229,9 @@ footer { padding: 3rem 4rem; border-top: 1px solid #1a1a1a; margin-top: 3rem; }
 }
 .live-search-item:last-child { border-bottom: none; }
 .live-search-item:hover { background: rgba(255,255,255,0.1); }
-.live-search-poster { width: 40px; height: 60px; object-fit: cover; border-radius: 4px; }
+.live-search-poster { width: 40px; height: 60px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
 .live-search-info { display: flex; flex-direction: column; justify-content: center; }
-.live-search-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.live-search-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .live-search-meta { font-size: 0.8rem; color: var(--text-muted); }
 .live-search-results::-webkit-scrollbar { width: 6px; }
 .live-search-results::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
@@ -327,7 +327,7 @@ body:has(.search-container:focus-within) footer {
 .imdb-title .year { color: var(--text-muted); font-weight: 400; font-size: 0.95rem; margin-left: 5px; }
 .imdb-meta { margin-bottom: 0.8rem; font-size: 0.85rem; color: #ccc; display: flex; gap: 10px; align-items: center; }
 .imdb-rating { color: #f5c518; font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 5px; }
-.imdb-synopsis { font-size: 0.9rem; color: #bbb; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 5px; }
+.imdb-synopsis { font-size: 0.9rem; color: #bbb; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 5px; }
 
 /* Movies Page Grid & Filters (Premium Edition) */
 .movies-header {
@@ -343,6 +343,7 @@ body:has(.search-container:focus-within) footer {
     letter-spacing: -1px;
     background: linear-gradient(90deg, #ffffff, #888888);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -403,14 +404,16 @@ body:has(.search-container:focus-within) footer {
 }
 
 /* --- Efek Fokus (Dim/Blur) saat menu dropdown filter aktif --- */
-.movies-header:has(.custom-dropdown:hover, .dropdown-menu.show) + .movies-grid {
+.movies-header:has(.dropdown-menu.show) + .movies-grid {
     filter: blur(5px) brightness(0.4);
     pointer-events: none;
 }
 
 /* Meredupkan tombol filter lain yang tidak sedang dibuka */
-.filters-section > * { transition: filter 0.4s ease, opacity 0.4s ease; }
-.filters-section:has(.custom-dropdown:hover, .dropdown-menu.show) > *:not(:hover):not(:has(.dropdown-menu.show)) {
+.filters-section .dropdown-toggle,
+.filters-section .reset-btn { transition: filter 0.4s ease, opacity 0.4s ease; }
+.filters-section:has(.dropdown-menu.show) .custom-dropdown:not(:has(.dropdown-menu.show)) .dropdown-toggle,
+.filters-section:has(.dropdown-menu.show) .reset-btn {
     filter: blur(1.5px);
     opacity: 0.5;
     pointer-events: none;
@@ -522,7 +525,7 @@ body:has(.search-container:focus-within) footer {
     transition-delay: 0.8s; /* Muncul setelah 0.8 detik di-hover */
 }
 .quick-view-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--accent); }
-.quick-view-synopsis { font-size: 0.8rem; line-height: 1.5; color: #ccc; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
+.quick-view-synopsis { font-size: 0.8rem; line-height: 1.5; color: #ccc; display: -webkit-box; -webkit-line-clamp: 8; line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
 
 .grid-movie-info {
     padding: 1.2rem 1rem;
@@ -549,6 +552,19 @@ body:has(.search-container:focus-within) footer {
 .custom-dropdown {
     position: relative;
     display: flex;
+}
+.custom-dropdown:hover,
+.custom-dropdown:has(.dropdown-menu.show) {
+    z-index: 50; /* Angkat dropdown yang aktif ke atas layar gelap (overlay) */
+}
+.custom-dropdown::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: transparent;
 }
 .dropdown-toggle {
     background-color: rgba(255, 255, 255, 0.05);
@@ -588,10 +604,11 @@ body:has(.search-container:focus-within) footer {
     left: 0;
     z-index: 50;
     background-color: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border-radius: 8px;
     padding: 0.5rem;
-    width: 100%;
+    min-width: 100%;
+    width: max-content;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.1);
     opacity: 0;
@@ -601,19 +618,24 @@ body:has(.search-container:focus-within) footer {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-height: 300px;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--accent) transparent;
+    pointer-events: none; /* Mencegah elemen tertutup menangkap interaksi kursor */
+    will-change: transform, opacity;
 }
 .dropdown-menu.show,
 .custom-dropdown:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
+    backdrop-filter: blur(10px);
+    pointer-events: auto; /* Aktifkan kembali saat dropdown muncul */
     transform: translateY(0) scale(1);
 }
-.custom-dropdown:hover .dropdown-toggle i { transform: rotate(180deg); color: var(--accent); }
-.dropdown-menu::before { content: ''; position: absolute; top: -20px; left: 0; width: 100%; height: 20px; background: transparent; cursor: default; }
+.custom-dropdown:hover .dropdown-toggle i,
+.custom-dropdown:has(.dropdown-menu.show) .dropdown-toggle i { transform: rotate(180deg); color: var(--accent); }
 .dropdown-menu::-webkit-scrollbar { width: 6px; }
-.dropdown-menu::-webkit-scrollbar-track { background: transparent; }
+.dropdown-menu::-webkit-scrollbar-track { background: transparent; margin-block: 0.5rem; }
 .dropdown-menu::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 .dropdown-menu a {
     display: flex;
@@ -625,6 +647,8 @@ body:has(.search-container:focus-within) footer {
     font-size: 0.9rem;
     border-radius: 6px;
     transition: 0.2s;
+    white-space: nowrap;
+    gap: 15px;
 }
 .dropdown-menu a:hover {
     background: rgba(0, 210, 255, 0.1);
@@ -993,7 +1017,7 @@ body:has(.search-container:focus-within) footer {
 .review-history-content { flex: 1; display: flex; flex-direction: column; }
 .review-history-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: #fff; display: flex; align-items: center; justify-content: space-between; }
 .review-history-date { font-size: 0.8rem; color: var(--text-muted); font-weight: normal; }
-.review-history-text { color: #ddd; line-height: 1.6; font-size: 0.95rem; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.review-history-text { color: #ddd; line-height: 1.6; font-size: 0.95rem; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 @media (max-width: 600px) { .review-history-item { flex-direction: column; } .review-history-poster { width: 80px; height: 120px; } }
 
 /* --- Smooth Theme Transition --- */
@@ -1057,6 +1081,7 @@ html.light-mode .search-container { background: rgba(0,0,0,0.05); border-color: 
 html.light-mode .search-container:focus-within { background: rgba(0,0,0,0.08); border-color: var(--accent); box-shadow: 0 0 10px rgba(0,114,255,0.15); }
 html.light-mode .search-input { color: var(--text-main); }
 html.light-mode .search-input::placeholder { color: var(--text-muted); }
+html.light-mode ::selection { color: #ffffff; }
 html.light-mode .search-trigger, html.light-mode .clear-search { color: var(--text-muted); }
 html.light-mode .search-trigger:hover, html.light-mode .clear-search:hover { color: var(--text-main); }
 html.light-mode .lang-trigger { color: var(--text-main); }
@@ -1086,11 +1111,11 @@ html.light-mode .grid-movie-quick-view { background: rgba(255,255,255,0.95); col
 html.light-mode .quick-view-synopsis { color: var(--text-muted); }
 html.light-mode .badge.resolution { background: #eee; color: #333; border-color: #ddd; }
 html.light-mode .cast { color: #555; }
-html.light-mode .movies-header h2 { background: linear-gradient(90deg, #111, #666); -webkit-background-clip: text; }
-html.light-mode .header-titles p { border-left-color: var(--accent); background: linear-gradient(90deg, rgba(0,114,255,0.05) 0%, transparent 80%); }
+html.light-mode .movies-header h2 { background: linear-gradient(90deg, #111, #666); -webkit-background-clip: text; background-clip: text; }
+html.light-mode .header-titles p { color: var(--text-muted); border-left-color: var(--accent); background: linear-gradient(90deg, rgba(0,114,255,0.05) 0%, transparent 80%); }
 html.light-mode .filter-btn, html.light-mode .dropdown-toggle { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); color: var(--text-main); }
 html.light-mode .filter-btn:hover, html.light-mode .dropdown-toggle:hover { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.2); }
-html.light-mode .dropdown-menu { background: rgba(255,255,255,0.95); border-color: rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+html.light-mode .dropdown-menu { background: rgba(255,255,255,0.65); border-color: rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 html.light-mode .dropdown-menu a { color: var(--text-main); }
 html.light-mode .dropdown-menu a:hover { background: rgba(0,114,255,0.05); }
 html.light-mode .dropdown-menu a.active { background: rgba(0,114,255,0.08); }
