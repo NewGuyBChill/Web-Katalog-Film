@@ -19,7 +19,7 @@ if (topProgressBar) {
 }
 
 // --- Smart Navbar (Auto-Hide on Scroll) ---
-const navbar = document.querySelector('.navbar');
+const navbar = document.querySelector('#mainNavbar');
 let lastScrollY = window.scrollY;
 window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
@@ -51,6 +51,55 @@ window.addEventListener('scroll', () => {
     }
     lastScrollY = currentScrollY;
 });
+
+// --- Hamburger Menu (Mobile) ---
+const navHamburger = document.getElementById('navHamburger');
+const navMenu = document.getElementById('navMenu');
+const navMobileOverlay = document.getElementById('navMobileOverlay');
+
+if (navHamburger && navMenu) {
+    navHamburger.addEventListener('click', () => {
+        navHamburger.classList.toggle('active');
+        navMenu.classList.toggle('show');
+        if (navMobileOverlay) navMobileOverlay.classList.toggle('show');
+    });
+    
+    if (navMobileOverlay) {
+        navMobileOverlay.addEventListener('click', () => {
+            navHamburger.classList.remove('active');
+            navMenu.classList.remove('show');
+            navMobileOverlay.classList.remove('show');
+        });
+    }
+    
+    // Mobile dropdown toggle for .has-dropdown items
+    document.querySelectorAll('.nav-item.has-dropdown').forEach(item => {
+        const link = item.querySelector('.nav-link');
+        if (link) {
+            link.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1024) {
+                    e.preventDefault();
+                    item.classList.toggle('mobile-open');
+                }
+            });
+        }
+    });
+}
+
+// --- Notification Bell ---
+const notifBell = document.getElementById('notifBell');
+const notifDropdown = document.getElementById('notifDropdown');
+if (notifBell && notifDropdown) {
+    notifBell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notifDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+        if (!notifBell.contains(e.target) && !notifDropdown.contains(e.target)) {
+            notifDropdown.classList.remove('show');
+        }
+    });
+}
 
 const heroSlider = document.querySelector('.hero');
 const heroContent = document.querySelector('.hero-content');
@@ -164,7 +213,7 @@ if (banners.length > 0) {
 
 // Mengambil elemen HTML untuk search bar & logika dropdown bahasa
 const searchTrigger = document.getElementById('searchTrigger');
-const searchContainer = document.getElementById('searchContainer');
+const searchContainer = document.getElementById('navSearch') || document.getElementById('searchContainer');
 const searchInput = document.getElementById('searchInput');
 const clearSearch = document.getElementById('clearSearch');
 const langContainer = document.getElementById('langContainer');
