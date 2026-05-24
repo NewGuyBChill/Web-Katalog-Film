@@ -1,0 +1,458 @@
+/* ========== THEMES & LIGHT MODE ========== */
+
+/* --- Smooth Theme Transition --- */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease !important;
+}
+
+/* --- Theme Switcher & Light Mode Overrides --- */
+.theme-switch {
+    cursor: pointer;
+    color: #FCD34D;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-switch:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transform: rotate(30deg);
+    box-shadow: 0 0 15px rgba(252, 211, 77, 0.4);
+}
+
+html.light-mode .theme-switch,
+html.light-mode #themeSwitch {
+    color: #ffffff;
+    background: #1a1a1a;
+    border-color: #000000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+html.light-mode .theme-switch:hover,
+html.light-mode #themeSwitch:hover {
+    background: #000000;
+    color: var(--accent);
+    transform: rotate(-30deg);
+}
+
+/* Light Mode Variables & Adjustments */
+html.light-mode body {
+    --bg-color: #f4f6f8;
+    --nav-bg: rgba(255, 255, 255, 0.88);
+    --accent: #0066ff;
+    --text-main: #1a1a1a;
+    --text-muted: #666666;
+    --card-bg: #ffffff;
+}
+
+html.light-mode .navbar {
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+html.light-mode .logo-text {
+    color: var(--text-main);
+}
+
+html.light-mode .logo-icon {
+    background: linear-gradient(135deg, #0066ff, #0044cc);
+}
+
+html.light-mode .nav-link {
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-link:hover,
+html.light-mode .nav-link.active {
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+html.light-mode .nav-dropdown,
+html.light-mode .nav-profile-dropdown,
+html.light-mode .nav-notif-dropdown,
+html.light-mode .nav-lang-dropdown {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .nav-dropdown-item {
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-dropdown-item:hover {
+    background: rgba(0, 102, 255, 0.06);
+    color: var(--text-main);
+}
+
+html.light-mode .nav-dropdown-item i {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-dropdown-genre-item {
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-dropdown-genre-item:hover {
+    background: rgba(0, 102, 255, 0.06);
+    color: var(--accent);
+}
+
+html.light-mode .dropdown-item-title {
+    color: var(--text-main);
+}
+
+html.light-mode .nav-search {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light-mode .nav-search:focus-within {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.1);
+}
+
+html.light-mode .nav-search-input {
+    color: var(--text-main);
+}
+
+html.light-mode .nav-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-action-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-action-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--text-main);
+}
+
+html.light-mode .nav-lang-trigger {
+    color: var(--text-muted);
+}
+
+html.light-mode .nav-lang-trigger:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-main);
+}
+
+html.light-mode .nav-profile-trigger {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light-mode .nav-profile-trigger:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+html.light-mode .profile-name-text {
+    color: var(--text-main);
+}
+
+html.light-mode .profile-dropdown-item {
+    color: var(--text-muted);
+}
+
+html.light-mode .profile-dropdown-item:hover {
+    background: rgba(0, 102, 255, 0.06);
+    color: var(--text-main);
+}
+
+html.light-mode .profile-dropdown-name {
+    color: var(--text-main);
+}
+
+html.light-mode .notif-item {
+    border-bottom-color: rgba(0, 0, 0, 0.04);
+}
+
+html.light-mode .notif-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+html.light-mode .notif-item.unread {
+    background: rgba(0, 102, 255, 0.04);
+}
+
+html.light-mode .notif-content p {
+    color: var(--text-main);
+}
+
+html.light-mode .notif-header {
+    color: var(--text-main);
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+html.light-mode .nav-divider {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+html.light-mode .btn-login {
+    color: var(--text-main);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+html.light-mode .btn-login:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+html.light-mode .btn-signup {
+    background: linear-gradient(135deg, #0066ff, #0044cc);
+    color: #fff;
+}
+
+html.light-mode ::selection {
+    color: #ffffff;
+}
+
+html.light-mode .lang-option {
+    color: var(--text-main);
+}
+
+html.light-mode .lang-option:hover {
+    background: rgba(0, 102, 255, 0.06);
+    color: var(--accent);
+}
+
+html.light-mode .lang-option.active {
+    color: var(--accent);
+    background: rgba(0, 102, 255, 0.04);
+}
+
+html.light-mode .live-search-results {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .live-search-item {
+    color: var(--text-main);
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+html.light-mode .live-search-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+html.light-mode .hero-overlay {
+    background: linear-gradient(to right, rgba(244, 246, 248, 0.65) 0%, rgba(244, 246, 248, 0.2) 50%, transparent 100%), linear-gradient(to top, var(--bg-color) 0%, transparent 20%);
+}
+
+html.light-mode .hero h1 {
+    color: var(--text-main);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+html.light-mode .hero .meta,
+html.light-mode .hero .synopsis {
+    color: var(--text-main);
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+html.light-mode .btn-primary {
+    color: #ffffff;
+}
+
+html.light-mode .hero .btn-secondary {
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+html.light-mode .hero .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .dot {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+html.light-mode .dot.active {
+    background: var(--accent);
+}
+
+html.light-mode .feature-card,
+html.light-mode .grid-movie-card,
+html.light-mode .review-history-item,
+html.light-mode .imdb-item {
+    background: var(--card-bg);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .feature-card:hover,
+html.light-mode .grid-movie-card:hover,
+html.light-mode .review-history-item:hover,
+html.light-mode .imdb-item:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transform: translate3d(0, -5px, 0);
+    background: #fdfdfd;
+}
+
+html.light-mode .grid-movie-title,
+html.light-mode .feature-card h3,
+html.light-mode .review-history-title,
+html.light-mode .imdb-title {
+    color: var(--text-main);
+}
+
+html.light-mode .grid-movie-img-wrap {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .grid-movie-quick-view {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-main);
+}
+
+html.light-mode .quick-view-synopsis {
+    color: var(--text-muted);
+}
+
+html.light-mode .badge.resolution {
+    background: #eee;
+    color: #333;
+    border-color: #ddd;
+}
+
+html.light-mode .cast {
+    color: #555;
+}
+
+html.light-mode .movies-header h2 {
+    background: linear-gradient(90deg, #111, #666);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+html.light-mode .header-titles p {
+    color: var(--text-muted);
+    border-left-color: var(--accent);
+    background: linear-gradient(90deg, rgba(0, 114, 255, 0.05) 0%, transparent 80%);
+}
+
+html.light-mode .filter-btn,
+html.light-mode .dropdown-toggle {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-main);
+}
+
+html.light-mode .filter-btn:hover,
+html.light-mode .dropdown-toggle:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+html.light-mode .dropdown-menu {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .dropdown-menu a {
+    color: var(--text-main);
+}
+
+html.light-mode .dropdown-menu a:hover {
+    background: rgba(0, 114, 255, 0.05);
+}
+
+html.light-mode .dropdown-menu a.active {
+    background: rgba(0, 114, 255, 0.08);
+}
+
+html.light-mode .pagination {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .page-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-main);
+}
+
+html.light-mode footer {
+    border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .auth-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .auth-card h2 {
+    color: var(--text-main);
+}
+
+html.light-mode .auth-input {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-main);
+}
+
+html.light-mode .tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-main);
+}
+
+html.light-mode .empty-state {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light-mode .empty-state h3 {
+    color: var(--text-main);
+}
+
+html.light-mode .nav-hamburger span {
+    background: var(--text-main);
+}
+
+html.light-mode .nav-menu {
+    background: rgba(255, 255, 255, 0.98);
+    border-left-color: rgba(0, 0, 0, 0.06);
+}
+
+@keyframes skeletonPulseLight {
+    0% {
+        background-color: #e0e0e0;
+    }
+
+    50% {
+        background-color: #f0f0f0;
+    }
+
+    100% {
+        background-color: #e0e0e0;
+    }
+}
+
+html.light-mode .grid-movie-img-wrap img:not(.img-loaded),
+html.light-mode .feature-card img:not(.img-loaded),
+html.light-mode .live-search-poster:not(.img-loaded),
+html.light-mode .imdb-poster img:not(.img-loaded),
+html.light-mode .review-history-poster:not(.img-loaded) {
+    animation: skeletonPulseLight 1.5s infinite ease-in-out;
+}

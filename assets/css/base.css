@@ -1,0 +1,26 @@
+:root {
+    --bg-color: #121212;
+    --nav-bg: rgba(8, 8, 8, 0.85);
+    --accent: #00d2ff;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --card-bg: #111;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    overflow-x: hidden;
+}
