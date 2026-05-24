@@ -35,31 +35,27 @@ $navGenres = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CelesView - Katalog Film</title>
     <meta name="description" content="Kinema — Discover, rate, and discuss movies and TV shows. Your personal film catalog.">
-    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/style.css'); ?>">
+
     <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@200;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Modular CSS (Dimuat secara paralel) -->
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/components/navbar.css">
+    <link rel="stylesheet" href="assets/css/components/hero.css">
+    <link rel="stylesheet" href="assets/css/components/cards.css">
+    <link rel="stylesheet" href="assets/css/components/auth.css">
+    <link rel="stylesheet" href="assets/css/themes/light-mode.css">
+    
+    <!-- CSS Utama diletakkan di paling bawah -->
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/style.css'); ?>">
+
     <!-- Font Awesome untuk Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Tailwind CSS (Play CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            corePlugins: {
-                preflight: false, // Menonaktifkan reset bawaan Tailwind agar style.css kita tidak rusak
-            },
-            theme: {
-                extend: {
-                    colors: {
-                        brand: '#0072ff',
-                        accent: '#00d2ff',
-                        dark: '#0e0e12',
-                    }
-                }
-            }
-        }
-    </script>
-
     <script>
         const userWatchlist = <?= json_encode($userWatchlist) ?>;
         const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;

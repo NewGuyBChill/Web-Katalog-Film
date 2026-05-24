@@ -8,7 +8,9 @@ if (topProgressBar) {
         topProgressBar.style.width = progress + '%';
     }, 100);
 
-    window.addEventListener('load', () => {
+    // Gunakan DOMContentLoaded agar website langsung bisa digunakan tanpa harus
+    // menunggu proses download puluhan gambar/poster film resolusi tinggi selesai
+    document.addEventListener('DOMContentLoaded', () => {
         clearInterval(interval);
         topProgressBar.style.width = '100%'; // Selesai
         setTimeout(() => {
@@ -16,40 +18,56 @@ if (topProgressBar) {
             setTimeout(() => topProgressBar.remove(), 400);
         }, 300);
     });
+    
+    // Timeout maksimal 3 detik untuk berjaga-jaga membuang bar jika terjadi error loading
+    setTimeout(() => { clearInterval(interval); if (document.getElementById('topProgressBar')) topProgressBar.remove(); }, 3000);
 }
+
+// --- Fitur Scroll to Top ---
+const scrollTopBtnHTML = `
+    <div id="scrollToTop" class="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+`;
+document.body.insertAdjacentHTML('beforeend', scrollTopBtnHTML);
+const scrollToTopBtn = document.getElementById('scrollToTop'); // Tangkap di luar agar tidak nge-lag
 
 // --- Smart Navbar (Auto-Hide on Scroll) ---
 const navbar = document.querySelector('#mainNavbar');
 let lastScrollY = window.scrollY;
+let isScrolling = false;
+
 window.addEventListener('scroll', () => {
-    const currentScrollY = window.scrollY;
-    
-    // Tampilkan/sembunyikan tombol Scroll to Top
-    const scrollToTopBtn = document.getElementById('scrollToTop');
-    if (scrollToTopBtn) {
-        if (currentScrollY > 400) {
-            scrollToTopBtn.classList.add('show');
-        } else {
-            scrollToTopBtn.classList.remove('show');
-        }
-    }
-        
-    if (navbar) {
-        // Abaikan scroll negatif (bouncing effect di Mac/iOS) agar navbar tidak glitch
-        if (currentScrollY <= 0) {
-            navbar.classList.remove('navbar-hidden');
+    if (!isScrolling) {
+        window.requestAnimationFrame(() => {
+            const currentScrollY = window.scrollY;
+            
+            // Tampilkan/sembunyikan tombol Scroll to Top
+            if (scrollToTopBtn) {
+                if (currentScrollY > 400) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            }
+                
+            if (navbar) {
+                // Abaikan scroll negatif (bouncing effect di Mac/iOS) agar navbar tidak glitch
+                if (currentScrollY <= 0) {
+                    navbar.classList.remove('navbar-hidden');
+                    lastScrollY = currentScrollY;
+                } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
+                    // Jika scroll ke bawah dan sudah melewati 80px (tinggi navbar), sembunyikan
+                    navbar.classList.add('navbar-hidden'); 
+                } else {
+                    navbar.classList.remove('navbar-hidden'); // Scroll ke atas: Tampilkan
+                }
+            }
             lastScrollY = currentScrollY;
-            return;
-        }
-        
-        // Jika scroll ke bawah dan sudah melewati 80px (tinggi navbar), sembunyikan
-        if (currentScrollY > lastScrollY && currentScrollY > 80) {
-            navbar.classList.add('navbar-hidden'); 
-        } else {
-            navbar.classList.remove('navbar-hidden'); // Scroll ke atas: Tampilkan
-        }
+            isScrolling = false;
+        });
+        isScrolling = true;
     }
-    lastScrollY = currentScrollY;
 });
 
 // --- Hamburger Menu (Mobile) ---
@@ -242,12 +260,14 @@ if (langDropdown) {
 
 const langOptions = document.querySelectorAll('.lang-option');
 
-searchTrigger.addEventListener('click', (e) => {
-    if (searchInput.value.trim() === "") {
-        e.preventDefault(); // Mencegah pencarian kosong ter-submit
-        searchInput.focus();
-    }
-});
+if (searchTrigger) {
+    searchTrigger.addEventListener('click', (e) => {
+        if (searchInput && searchInput.value.trim() === "") {
+            e.preventDefault(); // Mencegah pencarian kosong ter-submit
+            searchInput.focus();
+        }
+    });
+}
 
 const liveSearchResults = document.getElementById('liveSearchResults');
 let debounceTimer;
@@ -403,25 +423,31 @@ if (searchInput) {
     setTimeout(typePlaceholder, 1000);
 }
 
-langTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    langDropdown.classList.toggle('show');
-});
-
-langOptions.forEach(option => {
-    option.addEventListener('click', (e) => {
+if (langTrigger && langDropdown) {
+    langTrigger.addEventListener('click', (e) => {
         e.stopPropagation();
-        const selectedLang = e.target.getAttribute('data-value');
-        // Simpan preferensi bahasa ke Cookie (berlaku 30 hari)
-        document.cookie = "site_lang=" + selectedLang + "; path=/; max-age=" + (60*60*24*30);
-        // Reload halaman agar PHP mengambil data TMDB dalam bahasa yang baru
-        window.location.reload();
+        langDropdown.classList.toggle('show');
     });
-});
+}
 
-document.addEventListener('click', (e) => {
-    if (!langContainer.contains(e.target)) langDropdown.classList.remove('show');
-});
+if (langOptions.length > 0) {
+    langOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const selectedLang = e.target.getAttribute('data-value');
+            // Simpan preferensi bahasa ke Cookie (berlaku 30 hari)
+            document.cookie = "site_lang=" + selectedLang + "; path=/; max-age=" + (60*60*24*30);
+            // Reload halaman agar PHP mengambil data TMDB dalam bahasa yang baru
+            window.location.reload();
+        });
+    });
+}
+
+if (langContainer && langDropdown) {
+    document.addEventListener('click', (e) => {
+        if (!langContainer.contains(e.target)) langDropdown.classList.remove('show');
+    });
+}
 
 // Fitur Drag to Scroll untuk baris film (Trending & Top Picks)
 const movieRows = document.querySelectorAll('.movie-row');
@@ -470,16 +496,18 @@ document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
     const toggle = dropdown.querySelector('.dropdown-toggle');
     const menu = dropdown.querySelector('.dropdown-menu');
 
-    toggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Tutup dropdown lain yang mungkin terbuka
-        document.querySelectorAll('.custom-dropdown .dropdown-menu').forEach(otherMenu => {
-            if (otherMenu !== menu) {
-                otherMenu.classList.remove('show');
-            }
+    if (toggle && menu) {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Tutup dropdown lain yang mungkin terbuka
+            document.querySelectorAll('.custom-dropdown .dropdown-menu').forEach(otherMenu => {
+                if (otherMenu !== menu) {
+                    otherMenu.classList.remove('show');
+                }
+            });
+            menu.classList.toggle('show');
         });
-        menu.classList.toggle('show');
-    });
+    }
 });
 
 // Tutup dropdown jika user mengklik di luar area dropdown
@@ -656,14 +684,6 @@ function closeTrailerModal() {
         iframe.src = ''; // Hentikan video saat modal ditutup
     }
 }
-
-// --- Fitur Scroll to Top ---
-const scrollTopBtnHTML = `
-    <div id="scrollToTop" class="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <i class="fas fa-arrow-up"></i>
-    </div>
-`;
-document.body.insertAdjacentHTML('beforeend', scrollTopBtnHTML);
 
 // --- Animasi Staggered Fade In untuk Movie Grid (Pagination) ---
 document.querySelectorAll('.grid-movie-card').forEach((card, index) => {

@@ -326,6 +326,59 @@ function fetchTMDB($endpoint, $cache_ttl = 3600) {
     return null;
 }
 
+// Fungsi Ekstra: Memanggil Beberapa Endpoint TMDB Secara Paralel (Mengatasi N+1 Lag)
+function fetchTMDBMulti($endpoints, $cache_ttl = 3600) {
+    global $tmdbApiKey, $siteLang;
+    $cacheDir = __DIR__ . '/../cache/';
+    $results = [];
+    $mh = curl_multi_init();
+    $ch_list = [];
+    
+    foreach ($endpoints as $key => $endpoint) {
+        $separator = strpos($endpoint, '?') !== false ? "&" : "?";
+        $url = "https://api.themoviedb.org/3/" . $endpoint . $separator . "api_key=" . $tmdbApiKey . "&language=" . $siteLang;
+        $cacheFile = $cacheDir . md5($url) . '.json';
+        
+        if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cache_ttl) {
+            $results[$key] = json_decode(@file_get_contents($cacheFile), true);
+        } else {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_multi_add_handle($mh, $ch);
+            $ch_list[$key] = ['handle' => $ch, 'cache_file' => $cacheFile];
+        }
+    }
+    
+    if (!empty($ch_list)) {
+        $running = null;
+        do {
+            curl_multi_exec($mh, $running);
+            curl_multi_select($mh);
+        } while ($running > 0);
+        
+        foreach ($ch_list as $key => $data) {
+            $response = curl_multi_getcontent($data['handle']);
+            $httpCode = curl_getinfo($data['handle'], CURLINFO_HTTP_CODE);
+            if ($response && $httpCode === 200) {
+                @file_put_contents($data['cache_file'], $response, LOCK_EX);
+                $results[$key] = json_decode($response, true);
+            } elseif (file_exists($data['cache_file'])) {
+                $results[$key] = json_decode(@file_get_contents($data['cache_file']), true);
+            } else {
+                $results[$key] = null;
+            }
+            curl_multi_remove_handle($mh, $data['handle']);
+            curl_close($data['handle']);
+        }
+    }
+    curl_multi_close($mh);
+    return $results;
+}
+
 // Fungsi untuk memformat array hasil TMDB
 function formatMovies($results, $limit = 8, $type = 'movie') {
     global $genreMap, $tvGenreMap;
@@ -419,11 +472,23 @@ function getHeroBanners() {
     $data = fetchTMDB("movie/now_playing");
     $movies = formatMovies($data['results'] ?? [], 4);
     $banners = [];
+    
+    // Kumpulkan endpoint video untuk dieksekusi secara paralel
+    $videoEndpoints = [];
+    foreach($movies as $m) {
+        if(!empty($m['backdrop'])) {
+            $videoEndpoints[$m['id']] = "movie/" . $m['id'] . "/videos?include_video_language=id,en,ko,ja,zh,th,es,fr,null";
+        }
+    }
+    
+    // Eksekusi semua request dalam 1 siklus paralel menggunakan curl_multi
+    $videosData = fetchTMDBMulti($videoEndpoints);
+    
     foreach($movies as $m) {
         if(!empty($m['backdrop'])) {
             // Cari video trailer dari YouTube
             $trailerUrl = "#";
-            $vidData = fetchTMDB("movie/" . $m['id'] . "/videos?include_video_language=id,en,ko,ja,zh,th,es,fr,null");
+            $vidData = $videosData[$m['id']] ?? [];
             if (!empty($vidData['results'])) {
                 foreach ($vidData['results'] as $video) {
                     if ($video['site'] === 'YouTube' && ($video['type'] === 'Trailer' || $video['type'] === 'Teaser')) {
