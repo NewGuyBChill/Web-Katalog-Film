@@ -1,4 +1,5 @@
 <?php
+global $tmdbApiKey, $genreMap, $tvGenreMap, $siteLang, $langMap, $siteTranslations;
 $tmdbApiKey = "ac2e690e071692fe9f8e181d6370f6c7"; // API Key TMDB kamu
 
 // Mapping ID Genre dari TMDB ke nama aslinya
@@ -56,6 +57,7 @@ $siteTranslations = [
         'based_on_rating' => 'Based on movies you rated highly',
         'synopsis' => 'Synopsis',
         'no_synopsis' => 'Synopsis is not available for this movie.',
+        'cast_and_crew' => 'Cast & Crew',
         'explore_movies' => 'Explore Movies',
         'explore_tv' => 'Explore TV Shows',
         'explore_desc' => 'From legendary cinematic masterpieces to the latest blockbuster releases. Adjust the filters below and find the perfect watch for your day.',
@@ -168,6 +170,7 @@ $siteTranslations = [
         'based_on_rating' => 'Berdasarkan film yang Anda beri rating tinggi',
         'synopsis' => 'Sinopsis',
         'no_synopsis' => 'Sinopsis belum tersedia untuk film ini.',
+        'cast_and_crew' => 'Artis & Pemeran',
         'explore_movies' => 'Jelajahi Film',
         'explore_tv' => 'Jelajahi TV Show',
         'explore_desc' => 'Dari mahakarya sinematik legendaris hingga rilis blockbuster terbaru. Sesuaikan filter di bawah dan temukan tontonan sempurna untuk menemani waktu santaimu hari ini.',
@@ -449,12 +452,12 @@ function getHeroBanners() {
 
 function getMovieDetails($id) {
     if(empty($id)) return null;
-    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
+    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos,credits&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
 }
 
 function getMediaDetails($id, $type = 'movie') {
     if(empty($id)) return null;
-    return fetchTMDB($type . "/" . intval($id) . "?append_to_response=videos&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
+    return fetchTMDB($type . "/" . intval($id) . "?append_to_response=videos,credits&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
 }
 
 function getPersonalizedRecommendations($limit = 10) {
