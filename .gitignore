@@ -1,0 +1,25 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment
+.env
+
+# Cache & Storage
+/storage/cache/
+/storage/logs/
+/storage/sessions/
+/cache/*.json
+/public/uploads/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Composer
+composer.lock

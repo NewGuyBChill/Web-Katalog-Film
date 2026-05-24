@@ -1,0 +1,3 @@
+<?php
+// Component / Layout Snippet
+?>

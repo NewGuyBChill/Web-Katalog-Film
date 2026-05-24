@@ -1,0 +1,13 @@
+{
+  "name": "celes-view",
+  "private": true,
+  "scripts": {
+    "dev": "tailwindcss -i ./resources/tailwind/input.css -o ./public/assets/css/tailwind.css --watch",
+    "build": "tailwindcss -i ./resources/tailwind/input.css -o ./public/assets/css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.16"
+  }
+}
