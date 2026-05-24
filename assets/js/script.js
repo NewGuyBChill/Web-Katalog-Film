@@ -210,7 +210,9 @@ if (searchInput && clearSearch) {
             clearSearch.classList.add('show');
             if (liveSearchResults) {
                 liveSearchResults.classList.add('show');
-                liveSearchResults.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Mencari...</div>';
+                const isIndo = document.cookie.includes("site_lang=id-ID");
+                const searchingText = isIndo ? "Mencari..." : "Searching...";
+                liveSearchResults.innerHTML = `<div style="padding: 15px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> ${searchingText}</div>`;
                 
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
@@ -230,17 +232,20 @@ if (searchInput && clearSearch) {
                                         </a>
                                     `;
                                 });
+                                const seeAllText = isIndo ? "Lihat semua hasil" : "See all results";
                                 html += `
                                     <a href="index.php?page=search&q=${encodeURIComponent(searchInput.value)}" style="display: block; text-align: center; padding: 10px; color: var(--accent); font-size: 0.85rem; font-weight: 600; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.1);">
-                                        Lihat semua hasil <i class="fas fa-arrow-right" style="font-size: 0.8rem; margin-left: 4px;"></i>
+                                        ${seeAllText} <i class="fas fa-arrow-right" style="font-size: 0.8rem; margin-left: 4px;"></i>
                                     </a>
                                 `;
                                 liveSearchResults.innerHTML = html;
                             } else {
-                                liveSearchResults.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">Tidak ada hasil ditemukan.</div>';
+                                const noResultText = isIndo ? "Tidak ada hasil ditemukan." : "No results found.";
+                                liveSearchResults.innerHTML = `<div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">${noResultText}</div>`;
                             }
                         }).catch(err => {
-                            liveSearchResults.innerHTML = '<div style="padding: 15px; text-align: center; color: #ff3b3b; font-size: 0.9rem;">Gagal memuat data.</div>';
+                            const errorText = isIndo ? "Gagal memuat data." : "Failed to load data.";
+                            liveSearchResults.innerHTML = `<div style="padding: 15px; text-align: center; color: #ff3b3b; font-size: 0.9rem;">${errorText}</div>`;
                         });
                 }, 500); // Jeda 500ms setelah selesai ngetik
             }
@@ -284,7 +289,13 @@ if (searchInput && clearSearch) {
 
 // --- Animasi Ketikan (Typing Effect) pada Placeholder Pencarian ---
 if (searchInput) {
-    const placeholderTexts = [
+    const isIndo = document.cookie.includes("site_lang=id-ID");
+    const placeholderTexts = isIndo ? [
+        "Cari film...",
+        "Cari TV show...",
+        "Temukan favorit baru...",
+        "Cari tontonan selanjutnya..."
+    ] : [
         "Search movies...",
         "Search TV shows...",
         "Discover new favorites...",
@@ -299,7 +310,7 @@ if (searchInput) {
     // Berhenti saat diklik (fokus) dan tampilkan teks default
     searchInput.addEventListener('focus', () => {
         isPaused = true;
-        searchInput.setAttribute('placeholder', 'Search movies...'); 
+        searchInput.setAttribute('placeholder', isIndo ? 'Cari film...' : 'Search movies...'); 
     });
 
     // Lanjutkan animasi dari awal saat kursor keluar (blur)
@@ -465,7 +476,8 @@ function toggleWatchlist(e, btn) {
     e.stopPropagation();
 
     if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
-        alert("Silakan login terlebih dahulu untuk menyimpan ke Watchlist!");
+        const isIndo = document.cookie.includes("site_lang=id-ID");
+        alert(isIndo ? "Silakan login terlebih dahulu untuk menyimpan ke Watchlist!" : "Please login to save to Watchlist!");
         window.location.href = 'index.php?page=login';
         return;
     }
@@ -513,7 +525,8 @@ function toggleWatchlist(e, btn) {
 function toggleWatchlistDetail(e, btn, movieId, mediaType, title, posterPath) {
     e.preventDefault();
     if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
-        alert("Silakan login terlebih dahulu untuk menyimpan ke Watchlist!");
+        const isIndo = document.cookie.includes("site_lang=id-ID");
+        alert(isIndo ? "Silakan login terlebih dahulu untuk menyimpan ke Watchlist!" : "Please login to save to Watchlist!");
         window.location.href = 'index.php?page=login';
         return;
     }

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/data.php';
+require_once __DIR__ . '/../../config/data.php';
 $id = isset($_GET['id']) ? $_GET['id'] : 0;
 $type = isset($_GET['type']) && $_GET['type'] === 'tv' ? 'tv' : 'movie';
 $movie = getMediaDetails($id, $type);
@@ -21,7 +21,7 @@ $extraInfo = "";
 if ($type === 'tv') {
     $seasons = $movie['number_of_seasons'] ?? 0;
     $episodes = $movie['number_of_episodes'] ?? 0;
-    if ($seasons > 0) $extraInfo = " &bull; $seasons Seasons ($episodes Episodes)";
+    if ($seasons > 0) $extraInfo = " &bull; $seasons " . translateText('seasons') . " ($episodes " . translateText('episodes') . ")";
 }
 
 // Cari video trailer dari YouTube (jika ada)
@@ -38,7 +38,7 @@ if (!empty($movie['videos']['results'])) {
 
 <?php
 $userReview = null;
-$dbPath = __DIR__ . '/../config/db.php';
+$dbPath = __DIR__ . '/../../config/db.php';
 if (file_exists($dbPath)) {
     require_once $dbPath;
     global $conn;
@@ -54,7 +54,7 @@ if (file_exists($dbPath)) {
 
 <main style="padding-top: 80px; min-height: 80vh;">
     <!-- Bagian Header (Poster, Judul, Info) -->
-    <div style="position: relative; background: url('<?= $backdrop ?>') center/cover; padding: 4rem; display: flex; gap: 3rem; align-items: center; justify-content: center; min-height: 60vh; flex-wrap: wrap;">
+    <div style="position: relative; background: <?= $backdrop ? "url('$backdrop')" : '#1a1a1a' ?> center/cover; padding: 4rem; display: flex; gap: 3rem; align-items: center; justify-content: center; min-height: 60vh; flex-wrap: wrap;">
         <div style="position: absolute; inset: 0; background: linear-gradient(to right, #121212 20%, rgba(18, 18, 18, 0.8) 50%, transparent 100%), linear-gradient(to top, #121212 0%, transparent 30%);"></div>
         
         <div style="position: relative; z-index: 10; max-width: 300px; flex-shrink: 0;">
@@ -90,7 +90,7 @@ if (file_exists($dbPath)) {
         </div>
         
         <div style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 12px; border: 1px solid #262626; margin-bottom: 3rem;">
-            <h3 id="reviewFormTitle" style="margin-bottom: 1.2rem; font-size: 1.1rem; font-weight: 600;"><?= $userReview ? "Edit Ulasan Kamu" : translateText('write_review') ?></h3>
+            <h3 id="reviewFormTitle" style="margin-bottom: 1.2rem; font-size: 1.1rem; font-weight: 600;"><?= $userReview ? translateText('edit_review') : translateText('write_review') ?></h3>
             <form id="reviewForm" style="display: flex; flex-direction: column; gap: 1.2rem;">
                 <div>
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;"><?= translateText('rating') ?>:</label>
@@ -99,13 +99,13 @@ if (file_exists($dbPath)) {
                     </div>
                 </div>
                 <textarea id="reviewText" placeholder="<?= translateText('review_placeholder') ?>" rows="4" style="width: 100%; padding: 1.2rem; border-radius: 8px; background: #080808; border: 1px solid #333; color: white; resize: vertical; font-family: inherit; font-size: 1rem; outline: none;"><?= $userReview ? htmlspecialchars($userReview['review_text']) : '' ?></textarea>
-                <button type="submit" id="submitReviewBtn" class="btn-primary" style="align-self: flex-start; padding: 0.8rem 2rem; border-radius: 30px;"><?= $userReview ? "Update Ulasan" : translateText('submit_review') ?></button>
+                <button type="submit" id="submitReviewBtn" class="btn-primary" style="align-self: flex-start; padding: 0.8rem 2rem; border-radius: 30px;"><?= $userReview ? translateText('update_review') : translateText('submit_review') ?></button>
             </form>
         </div>
         
         <div id="reviewsList" style="display: flex; flex-direction: column; gap: 1.5rem;">
             <?php
-            $dbPath = __DIR__ . '/../config/db.php';
+            $dbPath = __DIR__ . '/../../config/db.php';
             if (file_exists($dbPath)) {
                 require_once $dbPath;
                 global $conn;
@@ -121,7 +121,7 @@ if (file_exists($dbPath)) {
                                 $date = date('d M Y', strtotime($rev['created_at']));
                                 $deleteBtn = '';
                                 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $rev['user_id']) {
-                                    $deleteBtn = '<button onclick="deleteReview('.$rev['id'].', this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:0.85rem; margin-left:15px; transition: 0.3s;" title="Hapus Ulasan"><i class="fas fa-trash"></i></button>';
+                                    $deleteBtn = '<button onclick="deleteReview('.$rev['id'].', this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:0.85rem; margin-left:15px; transition: 0.3s;" title="' . translateText('delete_review') . '"><i class="fas fa-trash"></i></button>';
                                 }
                                 echo '
                                 <div id="review-'.$rev['id'].'" style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid #262626;">
@@ -136,7 +136,7 @@ if (file_exists($dbPath)) {
                                 </div>';
                             }
                         } else {
-                            echo '<p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">Belum ada ulasan. Jadilah yang pertama!</p>';
+                            echo '<p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">' . translateText('no_reviews_yet') . '</p>';
                         }
                     } catch (Exception $e) {}
                 }
@@ -201,7 +201,7 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
-        alert("Silakan login terlebih dahulu untuk mengirim ulasan!");
+        alert('<?= translateText('login_to_review') ?>');
         window.location.href = 'index.php?page=login';
         return;
     }
@@ -214,30 +214,37 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
 
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.innerHTML;
-    submitBtn.innerHTML = 'Mengirim...';
+    submitBtn.innerHTML = '<?= translateText('sending') ?>';
     submitBtn.disabled = true;
 
     fetch('index.php?page=ajax_review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `media_id=<?= $id ?>&media_type=<?= $type ?>&rating=${currentRating}&review_text=${encodeURIComponent(text)}`
+        body: `media_id=<?= $id ?>&media_type=<?= $type ?>&title=<?= urlencode($title) ?>&poster=<?= urlencode($poster) ?>&rating=${currentRating}&review_text=${encodeURIComponent(text)}`
     })
     .then(r => r.json())
     .then(data => {
         if (data.success) {
             const reviewList = document.getElementById('reviewsList');
             
-            // Hapus teks "Belum ada ulasan" jika itu review pertama
+            // Hapus teks "Belum ada ulasan" jika ada
             if (reviewList.innerHTML.includes('Belum ada ulasan')) reviewList.innerHTML = '';
+            if (reviewList.innerHTML.includes('No reviews yet')) reviewList.innerHTML = '';
 
             // Hapus ulasan lama dari list jika merupakan update
             const oldReview = document.getElementById(`review-${data.review_id}`);
             if (oldReview) oldReview.remove();
 
+            // Fungsi escape HTML untuk mencegah DOM XSS dan kerusakan layout UI
+            const escapeHTML = str => str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+            const safeText = escapeHTML(text).replace(/\n/g, '<br>');
+
             let starsHtml = '';
             for(let i=0; i<5; i++) { starsHtml += i < currentRating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'; }
             
-            const deleteBtnHtml = `<button onclick="deleteReview(${data.review_id}, this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:0.85rem; margin-left:15px; transition: 0.3s;" title="Hapus Ulasan"><i class="fas fa-trash"></i></button>`;
+            const deleteBtnHtml = `<button onclick="deleteReview(${data.review_id}, this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:0.85rem; margin-left:15px; transition: 0.3s;" title="<?= translateText('delete_review') ?>"><i class="fas fa-trash"></i></button>`;
 
             const newReview = document.createElement('div');
             newReview.id = `review-${data.review_id}`;
@@ -250,13 +257,13 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
                     </div>
                     <div style="color: #FCD34D; display: flex; align-items: center;">${starsHtml}${deleteBtnHtml}</div>
                 </div>
-                <p style="color: #ddd; line-height: 1.6;">${text.replace(/\n/g, '<br>')}</p>
+                <p style="color: #ddd; line-height: 1.6;">${safeText}</p>
             `;
             
             reviewList.prepend(newReview);
             
-            document.getElementById('submitReviewBtn').innerHTML = 'Update Ulasan';
-            document.getElementById('reviewFormTitle').innerHTML = 'Edit Ulasan Kamu';
+            document.getElementById('submitReviewBtn').innerHTML = '<?= translateText('update_review') ?>';
+            document.getElementById('reviewFormTitle').innerHTML = '<?= translateText('edit_review') ?>';
         } else {
             alert('Gagal mengirim ulasan: ' + data.error);
         }
@@ -272,7 +279,7 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
 });
 
 function deleteReview(reviewId, btn) {
-    if(confirm("Apakah Anda yakin ingin menghapus ulasan ini?")) {
+    if(confirm('<?= translateText('delete_review_confirm') ?>')) {
         fetch('index.php?page=ajax_review', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

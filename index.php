@@ -1,17 +1,26 @@
 <?php
 session_start();
-// Router sederhana
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 
-// Pisahkan rute API/AJAX agar tidak tercampur dengan Header dan Footer HTML
-if ($page === 'ajax_watchlist') {
-    require_once __DIR__ . '/pages/ajax_watchlist.php';
-    exit;
-} elseif ($page === 'ajax_review') {
-    require_once __DIR__ . '/pages/ajax_review.php';
-    exit;
-} elseif ($page === 'ajax_search') {
-    require_once __DIR__ . '/pages/ajax_search.php';
+// Mapping rute ke struktur modular baru
+$routes = [
+    'home'           => 'modules/Catalog/home.php',
+    'search'         => 'modules/Catalog/search.php',
+    'movies'         => 'modules/Catalog/movies.php',
+    'tvshows'        => 'modules/Catalog/tvshows.php',
+    'details'        => 'modules/Catalog/details.php',
+    'login'          => 'modules/Auth/login.php',
+    'signup'         => 'modules/Auth/signup.php',
+    'profile'        => 'modules/Auth/profile.php',
+    'watchlist'      => 'modules/User/watchlist.php',
+    'my_reviews'     => 'modules/User/my_reviews.php',
+    'ajax_watchlist' => 'modules/User/ajax_watchlist.php',
+    'ajax_review'    => 'modules/User/ajax_review.php',
+    'ajax_search'    => 'modules/Api/ajax_search.php'
+];
+
+if (in_array($page, ['ajax_watchlist', 'ajax_review', 'ajax_search'])) {
+    if (isset($routes[$page])) require_once __DIR__ . '/' . $routes[$page];
     exit;
 } elseif ($page === 'logout') {
     session_unset();
@@ -23,29 +32,10 @@ if ($page === 'ajax_watchlist') {
 require_once __DIR__ . '/config/data.php';
 require_once __DIR__ . '/includes/header.php';
 
-// Tampilkan animasi loading (progress bar) saat halamannya baru memuat data
 echo '<div id="topProgressBar" class="top-progress-bar"></div>';
 
-if ($page === 'home') {
-    require_once __DIR__ . '/pages/home.php';
-} elseif ($page === 'search') {
-    require_once __DIR__ . '/pages/search.php';
-} elseif ($page === 'movies') {
-    require_once __DIR__ . '/pages/movies.php';
-} elseif ($page === 'tvshows') {
-    require_once __DIR__ . '/pages/tvshows.php';
-} elseif ($page === 'details') {
-    require_once __DIR__ . '/pages/details.php';
-} elseif ($page === 'login') {
-    require_once __DIR__ . '/pages/login.php';
-} elseif ($page === 'signup') {
-    require_once __DIR__ . '/pages/signup.php';
-} elseif ($page === 'watchlist') {
-    require_once __DIR__ . '/pages/watchlist.php';
-} elseif ($page === 'profile') {
-    require_once __DIR__ . '/pages/profile.php';
-} elseif ($page === 'my_reviews') {
-    require_once __DIR__ . '/pages/my_reviews.php';
+if (isset($routes[$page])) {
+    require_once __DIR__ . '/' . $routes[$page];
 } else {
     echo "<div style='padding: 150px 20px; text-align: center; height: 60vh;'><h2>404 - Halaman Tidak Ditemukan</h2></div>";
 }

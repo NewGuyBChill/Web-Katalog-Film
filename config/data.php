@@ -17,18 +17,17 @@ $tvGenreMap = [
     10766 => "Soap", 10767 => "Talk", 10768 => "War & Politics", 37 => "Western"
 ];
 
-// Mapping Bahasa Film
-$langMap = [
-    'en' => 'Inggris (Barat)',
-    'ko' => 'Korea',
-    'ja' => 'Jepang (Anime)',
-    'id' => 'Indonesia',
-    'zh' => 'Mandarin',
-    'th' => 'Thailand'
-];
-
 // Cek bahasa situs yang dipilih user melalui cookie (default: English)
 $siteLang = isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'id-ID' ? 'id-ID' : 'en-US';
+
+// Mapping Bahasa Film
+$langMap = $siteLang === 'id-ID' ? [
+    'en' => 'Inggris (Barat)', 'ko' => 'Korea', 'ja' => 'Jepang (Anime)',
+    'id' => 'Indonesia', 'zh' => 'Mandarin', 'th' => 'Thailand'
+] : [
+    'en' => 'English (Western)', 'ko' => 'Korean', 'ja' => 'Japanese (Anime)',
+    'id' => 'Indonesian', 'zh' => 'Mandarin', 'th' => 'Thai'
+];
 
 // Mapping Bahasa Situs untuk Teks Antarmuka / UI
 $siteTranslations = [
@@ -90,7 +89,59 @@ $siteTranslations = [
         'just_now' => 'Just now',
         'alert_review' => 'Please provide a rating and review first.',
         'all' => 'All',
-        'user' => 'User'
+        'user' => 'User',
+        'search_results_for' => 'Search Results for',
+        'page' => 'Page',
+        'movies_on_page' => 'movies on this page',
+        'edit_review' => 'Edit Your Review',
+        'update_review' => 'Update Review',
+        'no_reviews_yet' => 'No reviews yet. Be the first to review!',
+        'login_to_review' => 'Please login to submit a review!',
+        'sending' => 'Sending...',
+        'delete_review_confirm' => 'Are you sure you want to delete this review?',
+        'delete_review' => 'Delete Review',
+        'seasons' => 'Seasons',
+        'episodes' => 'Episodes',
+        'welcome_back' => 'Welcome Back',
+        'login_desc' => 'Log in to access your personalized recommendations and watchlist.',
+        'email_address' => 'Email Address',
+        'enter_email' => 'Enter your email',
+        'password' => 'Password',
+        'enter_password' => 'Enter your password',
+        'login_btn' => 'Log In',
+        'no_account' => 'Don\'t have an account?',
+        'signup_here' => 'Sign Up here',
+        'create_account' => 'Create Account',
+        'signup_desc' => 'Join Kinema to save favorites and get tailored recommendations.',
+        'full_name' => 'Full Name',
+        'enter_name' => 'Enter your name',
+        'create_password' => 'Create a password',
+        'signup_btn' => 'Sign Up',
+        'already_account' => 'Already have an account?',
+        'login_here' => 'Log In here',
+        'profile_updated' => 'Profile successfully updated!',
+        'profile_update_desc' => 'Update your account information here.',
+        'new_username' => 'New Username',
+        'new_password' => 'New Password',
+        'leave_blank' => '(Leave blank if unchanged)',
+        'enter_new_password' => 'Enter new password',
+        'confirm_new_password' => 'Confirm New Password',
+        'retype_new_password' => 'Retype new password',
+        'delete_account_permanent' => 'Permanently Delete Account',
+        'delete_account_desc' => 'This action cannot be undone. All your review data and watchlist will be deleted.',
+        'delete_account_confirm' => 'Are you absolutely sure you want to delete this account?',
+        'confirm_password' => 'Confirm Password',
+        'enter_password_verify' => 'Enter your password for verification',
+        'delete_account_btn' => 'Delete Account',
+        'my_watchlist' => 'My Watchlist',
+        'watchlist_desc' => 'List of favorite movies and TV shows you saved.',
+        'empty_watchlist' => 'Watchlist is Empty',
+        'empty_watchlist_desc' => 'You haven\'t saved any movies or TV shows yet.',
+        'explore_now' => 'Explore Now',
+        'my_reviews_desc' => 'History of reviews and ratings you have given for movies and series.',
+        'empty_reviews' => 'No Reviews Yet',
+        'empty_reviews_desc' => 'You haven\'t provided a review for any movie or TV show yet.',
+        'explore_review_now' => 'Explore & Review Now'
     ],
     'id-ID' => [
         'now_playing' => 'SEDANG TAYANG',
@@ -150,7 +201,59 @@ $siteTranslations = [
         'just_now' => 'Baru saja',
         'alert_review' => 'Mohon isi rating dan ulasan terlebih dahulu.',
         'all' => 'Semua',
-        'user' => 'Pengguna'
+        'user' => 'Pengguna',
+        'search_results_for' => 'Hasil Pencarian untuk',
+        'page' => 'Halaman',
+        'movies_on_page' => 'film di halaman ini',
+        'edit_review' => 'Edit Ulasan Kamu',
+        'update_review' => 'Update Ulasan',
+        'no_reviews_yet' => 'Belum ada ulasan. Jadilah yang pertama!',
+        'login_to_review' => 'Silakan login terlebih dahulu untuk mengirim ulasan!',
+        'sending' => 'Mengirim...',
+        'delete_review_confirm' => 'Apakah Anda yakin ingin menghapus ulasan ini?',
+        'delete_review' => 'Hapus Ulasan',
+        'seasons' => 'Musim',
+        'episodes' => 'Episode',
+        'welcome_back' => 'Selamat Datang Kembali',
+        'login_desc' => 'Masuk untuk mengakses rekomendasi personal dan watchlist Anda.',
+        'email_address' => 'Alamat Email',
+        'enter_email' => 'Masukkan email Anda',
+        'password' => 'Kata Sandi',
+        'enter_password' => 'Masukkan kata sandi Anda',
+        'login_btn' => 'Masuk',
+        'no_account' => 'Belum punya akun?',
+        'signup_here' => 'Daftar di sini',
+        'create_account' => 'Buat Akun',
+        'signup_desc' => 'Bergabunglah dengan Kinema untuk menyimpan favorit dan mendapatkan rekomendasi yang disesuaikan.',
+        'full_name' => 'Nama Lengkap',
+        'enter_name' => 'Masukkan nama Anda',
+        'create_password' => 'Buat kata sandi',
+        'signup_btn' => 'Daftar',
+        'already_account' => 'Sudah punya akun?',
+        'login_here' => 'Masuk di sini',
+        'profile_updated' => 'Profil berhasil diperbarui!',
+        'profile_update_desc' => 'Perbarui informasi akun Anda di sini.',
+        'new_username' => 'Username Baru',
+        'new_password' => 'Kata Sandi Baru',
+        'leave_blank' => '(Kosongkan jika tidak diubah)',
+        'enter_new_password' => 'Masukkan kata sandi baru',
+        'confirm_new_password' => 'Konfirmasi Kata Sandi Baru',
+        'retype_new_password' => 'Ketik ulang kata sandi baru',
+        'delete_account_permanent' => 'Hapus Akun Permanen',
+        'delete_account_desc' => 'Tindakan ini tidak dapat dibatalkan. Semua data ulasan dan watchlist Anda akan ikut terhapus.',
+        'delete_account_confirm' => 'Apakah Anda benar-benar yakin ingin menghapus akun ini?',
+        'confirm_password' => 'Konfirmasi Kata Sandi',
+        'enter_password_verify' => 'Masukkan kata sandi Anda untuk verifikasi',
+        'delete_account_btn' => 'Hapus Akun',
+        'my_watchlist' => 'Watchlist Saya',
+        'watchlist_desc' => 'Daftar film dan serial TV favorit yang Anda simpan.',
+        'empty_watchlist' => 'Watchlist Kosong',
+        'empty_watchlist_desc' => 'Anda belum menyimpan film atau TV show apa pun.',
+        'explore_now' => 'Jelajahi Sekarang',
+        'my_reviews_desc' => 'Riwayat ulasan dan penilaian yang pernah Anda berikan untuk film dan serial.',
+        'empty_reviews' => 'Belum Ada Ulasan',
+        'empty_reviews_desc' => 'Anda belum pernah memberikan ulasan untuk film atau TV show apa pun.',
+        'explore_review_now' => 'Jelajahi & Beri Ulasan Sekarang'
     ]
 ];
 
@@ -175,13 +278,19 @@ function fetchTMDB($endpoint, $cache_ttl = 3600) {
     
     // Fitur Garbage Collection Otomatis: 5% kemungkinan berjalan untuk menghapus file cache kedaluwarsa
     if (rand(1, 20) === 1) {
-        $files = glob($cacheDir . '*.json');
-        $now = time();
-        foreach ($files as $file) {
-            if (is_file($file) && ($now - filemtime($file)) >= $cache_ttl) {
-                @unlink($file);
+        try {
+            $now = time();
+            $deleted = 0;
+            $iterator = new DirectoryIterator($cacheDir);
+            foreach ($iterator as $fileinfo) {
+                if ($fileinfo->isFile() && $fileinfo->getExtension() === 'json') {
+                    if (($now - $fileinfo->getMTime()) >= $cache_ttl) {
+                        @unlink($fileinfo->getPathname());
+                        if (++$deleted >= 30) break; // Batasi load memory (max 30 file per siklus)
+                    }
+                }
             }
-        }
+        } catch (Exception $e) {}
     }
     
     // Buat nama file cache unik berdasarkan URL API
@@ -205,7 +314,7 @@ function fetchTMDB($endpoint, $cache_ttl = 3600) {
     
     // Simpan data respons ke dalam file cache jika sukses (HTTP 200)
     if ($response && $httpCode === 200) {
-        @file_put_contents($cacheFile, $response);
+        @file_put_contents($cacheFile, $response, LOCK_EX);
         return json_decode($response, true);
     }
     

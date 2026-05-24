@@ -2,19 +2,22 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $userWatchlist = [];
-if(isset($_SESSION['user_id'])) {
-    require_once __DIR__ . '/../config/db.php';
-    $uid = (int)$_SESSION['user_id'];
-    try {
-        $res = $conn->query("SELECT media_id FROM watchlist WHERE user_id = $uid");
-        if ($res) {
-            while($row = $res->fetch_assoc()) {
-                $userWatchlist[] = $row['media_id'];
+if (isset($_SESSION['user_id'])) {
+    if (!isset($_SESSION['user_watchlist'])) {
+        require_once __DIR__ . '/../config/db.php';
+        $uid = (int)$_SESSION['user_id'];
+        $tempWatchlist = [];
+        try {
+            $res = $conn->query("SELECT media_id FROM watchlist WHERE user_id = $uid");
+            if ($res) {
+                while($row = $res->fetch_assoc()) {
+                    $tempWatchlist[] = $row['media_id'];
+                }
             }
-        }
-    } catch (mysqli_sql_exception $e) {
-        // Abaikan error (tabel belum ada), biarkan $userWatchlist kosong
+            $_SESSION['user_watchlist'] = $tempWatchlist;
+        } catch (mysqli_sql_exception $e) {}
     }
+    $userWatchlist = $_SESSION['user_watchlist'] ?? [];
 }
 ?>
 <!DOCTYPE html>
@@ -23,7 +26,7 @@ if(isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinema - Katalog Film</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/style.css'); ?>">
     <!-- Font Awesome untuk Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>

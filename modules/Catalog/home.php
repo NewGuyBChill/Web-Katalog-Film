@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/../config/data.php'; ?>
+<?php require_once __DIR__ . '/../../config/data.php'; ?>
 <?php 
   $heroBanners = getHeroBanners(); 
   $firstHero = $heroBanners[0] ?? ['bg' => '', 'title' => 'NO DATA', 'meta' => '', 'synopsis' => '', 'trailer' => '#'];

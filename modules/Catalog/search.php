@@ -1,5 +1,5 @@
 <?php 
-require_once __DIR__ . '/../config/data.php'; 
+require_once __DIR__ . '/../../config/data.php'; 
 $query = isset($_GET['q']) ? $_GET['q'] : '';
 $currentPage = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
 $currentSort = isset($_GET['sort']) ? $_GET['sort'] : 'popularity.desc';
@@ -31,8 +31,8 @@ $sortQuery = $currentSort !== 'popularity.desc' ? '&sort='.$currentSort : '';
 <main style="padding-top: 120px; min-height: 80vh;" class="container">
     <div class="movies-header">
         <div class="header-titles">
-            <h2>Search Results for "<?= htmlspecialchars($query) ?>"</h2>
-            <p>Page <?= $currentPage ?> &bull; <?= count($results) ?> movies on this page</p>
+            <h2><?= translateText('search_results_for') ?> "<?= htmlspecialchars($query) ?>"</h2>
+            <p><?= translateText('page') ?> <?= $currentPage ?> &bull; <?= count($results) ?> <?= translateText('movies_on_page') ?></p>
         </div>
         
         <?php if(count($results) > 0 || $currentSort !== 'popularity.desc'): ?>
@@ -118,7 +118,7 @@ $sortQuery = $currentSort !== 'popularity.desc' ? '&sort='.$currentSort : '';
             <div class="empty-state">
                 <i class="fas fa-search" style="font-size: 3.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i>
                 <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: white;"><?= translateText('no_movies') ?></h3>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">No movies found. Try a different keyword.</p>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;"><?= translateText('no_movies_desc') ?></p>
             </div>
         <?php endif; ?>
     </div>
