@@ -164,7 +164,7 @@ function updateSlider(index) {
         }
         const detailsBtn = document.querySelector('.hero .btn-secondary');
         if (detailsBtn) {
-            detailsBtn.setAttribute('onclick', `window.location.href='index.php?page=details&id=${data.id}'`);
+            detailsBtn.setAttribute('onclick', `window.location.href='index.php?page=details&type=${data.type || 'movie'}&id=${data.id}'`);
         }
         const trailerBtn = document.querySelector('.hero .btn-primary');
         if (trailerBtn) {
@@ -292,7 +292,7 @@ if (searchInput && clearSearch) {
                                 let html = '';
                                 data.forEach(item => {
                                     html += `
-                                        <a href="index.php?page=details&id=${item.id}" class="live-search-item">
+                                        <a href="index.php?page=details&type=${item.type || 'movie'}&id=${item.id}" class="live-search-item">
                                             <img src="${item.image}" alt="Poster" class="live-search-poster">
                                             <div class="live-search-info">
                                                 <div class="live-search-title">${item.title}</div>
@@ -568,9 +568,12 @@ function toggleWatchlist(e, btn) {
         posterPath = imgEl.src;
     }
     
-    let mediaType = 'movie';
-    if (window.location.href.includes('tvshows') || window.location.href.includes('type=tv')) {
-        mediaType = 'tv';
+    let mediaType = btn.getAttribute('data-type');
+    if (!mediaType) {
+        mediaType = 'movie';
+        if (window.location.href.includes('tvshows') || window.location.href.includes('type=tv')) {
+            mediaType = 'tv';
+        }
     }
 
     const isActive = btn.classList.contains('active');

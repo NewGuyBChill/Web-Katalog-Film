@@ -19,18 +19,18 @@
         <div class="badges">
             <span class="badge smart-tv"><?= translateText('now_playing') ?></span>
             <span class="badge resolution">HD</span>
-            <span class="badge rating" id="heroRating"><i class="fas fa-star"></i> <?= htmlspecialchars($firstHero['rating'] ?? 0) ?></span>
+            <span class="badge rating" id="heroRating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)($firstHero['rating'] ?? 0)) ?></span>
         </div>
-        <h1><?= htmlspecialchars($firstHero['title']) ?></h1>
-        <p class="meta"><?= htmlspecialchars($firstHero['meta']) ?></p>
-        <p class="synopsis"><?= htmlspecialchars(substr($firstHero['synopsis'] ?? '', 0, 150)) ?>...</p>
+        <h1><?= htmlspecialchars((string)($firstHero['title'] ?? '')) ?></h1>
+        <p class="meta"><?= htmlspecialchars((string)($firstHero['meta'] ?? '')) ?></p>
+        <p class="synopsis"><?= htmlspecialchars((string)substr($firstHero['synopsis'] ?? '', 0, 150)) ?>...</p>
         <div class="hero-buttons">
             <?php if (isset($firstHero['trailer']) && $firstHero['trailer'] !== "#"): ?>
                 <button class="btn-primary" onclick="openTrailerModal('<?= $firstHero['trailer'] ?>')"><i class="fas fa-play"></i> <?= translateText('watch_trailer') ?></button>
             <?php else: ?>
                 <button class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled><i class="fas fa-play"></i> <?= translateText('no_trailer') ?></button>
             <?php endif; ?>
-            <button class="btn-secondary" onclick="window.location.href='index.php?page=details&id=<?= $firstHero['id'] ?? 0 ?>'"><?= translateText('details') ?></button>
+            <button class="btn-secondary" onclick="window.location.href='index.php?page=details&type=<?= $firstHero['type'] ?? 'movie' ?>&id=<?= $firstHero['id'] ?? 0 ?>'"><?= translateText('details') ?></button>
         </div>
     </div>
     <div class="hero-dots" id="heroDots"></div>
@@ -50,26 +50,26 @@
             <h2><?= translateText('featured_today') ?></h2>
             <p><?= translateText('highlight_day') ?></p>
         </div>
-        <div class="featured-today-card" style="background-image: linear-gradient(to right, rgba(18,18,18,1) 15%, rgba(18,18,18,0.7) 50%, rgba(18,18,18,0.1)), url('<?= htmlspecialchars($featured['backdrop'] ?: $featured['image']) ?>');">
+        <div class="featured-today-card" style="background-image: linear-gradient(to right, rgba(18,18,18,1) 15%, rgba(18,18,18,0.7) 50%, rgba(18,18,18,0.1)), url('<?= htmlspecialchars((string)($featured['backdrop'] ?: $featured['image'])) ?>');">
             <div class="featured-today-content">
                 <span class="badge-trending"><i class="fas fa-fire"></i> <?= translateText('trending_1') ?></span>
-                <h1 class="featured-today-title"><?= htmlspecialchars($featured['title']) ?></h1>
+                <h1 class="featured-today-title"><?= htmlspecialchars((string)$featured['title']) ?></h1>
                 
                 <div class="featured-today-meta">
-                    <span class="rating"><i class="fas fa-star" style="color: #FCD34D;"></i> <?= htmlspecialchars($featured['rating']) ?>/10</span>
-                    <span class="year"><?= htmlspecialchars($featured['year']) ?></span>
-                    <span class="genre"><?= htmlspecialchars($featured['genre']) ?></span>
+                    <span class="rating"><i class="fas fa-star" style="color: #FCD34D;"></i> <?= htmlspecialchars((string)($featured['rating'] ?? 0)) ?>/10</span>
+                    <span class="year"><?= htmlspecialchars((string)$featured['year']) ?></span>
+                    <span class="genre"><?= htmlspecialchars((string)$featured['genre']) ?></span>
                 </div>
                 
                 <p class="featured-today-synopsis">
-                    <?= htmlspecialchars($featured['overview'] ?: translateText('no_synopsis')) ?>
+                    <?= htmlspecialchars((string)($featured['overview'] ?: translateText('no_synopsis'))) ?>
                 </p>
                 
                 <div class="featured-today-actions">
-                    <a href="index.php?page=details&id=<?= $featured['id'] ?>" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <a href="index.php?page=details&type=<?= $featured['type'] ?? 'movie' ?>&id=<?= $featured['id'] ?>" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                         <i class="fas fa-info-circle"></i> <?= translateText('read_more') ?>
                     </a>
-                    <button class="btn-secondary watchlist-btn-detail" data-id="<?= $featured['id'] ?>" onclick="toggleWatchlistDetail(event, this, '<?= $featured['id'] ?>', 'movie', '<?= addslashes(htmlspecialchars($featured['title'])) ?>', '<?= $featured['poster_path'] ?? $featured['image'] ?>')" style="display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;">
+                    <button class="btn-secondary watchlist-btn-detail" data-id="<?= $featured['id'] ?>" data-type="<?= $featured['type'] ?? 'movie' ?>" onclick="toggleWatchlistDetail(event, this, '<?= $featured['id'] ?>', '<?= $featured['type'] ?? 'movie' ?>', '<?= addslashes(htmlspecialchars($featured['title'])) ?>', '<?= $featured['poster_path'] ?? $featured['image'] ?>')" style="display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;">
                         <i class="fas fa-plus"></i> <?= translateText('watchlist') ?>
                     </button>
                 </div>
@@ -138,7 +138,7 @@
             @media (max-width: 768px) {
                 .featured-today-card {
                     padding: 2rem;
-                    background-image: linear-gradient(to top, rgba(18,18,18,1) 20%, rgba(18,18,18,0.6)), url('<?= htmlspecialchars($featured['backdrop'] ?: $featured['image']) ?>') !important;
+                    background-image: linear-gradient(to top, rgba(18,18,18,1) 20%, rgba(18,18,18,0.6)), url('<?= htmlspecialchars((string)($featured['backdrop'] ?: $featured['image'])) ?>') !important;
                     align-items: flex-end;
                 }
                 .featured-today-title { font-size: 2rem; }
@@ -159,11 +159,11 @@
         </div>
         <div class="movie-row" id="personalized-row">
             <?php foreach($personalized as $movie): ?>
-            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+            <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
                 <div class="grid-movie-img-wrap">
                     <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
                     <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
-                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
                         <i class="fas fa-heart"></i>
                     </div>
                     <div class="grid-movie-quick-view">
@@ -190,11 +190,11 @@
             <?php 
             foreach($trendingMovies as $movie): 
             ?>
-            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+            <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
                 <div class="grid-movie-img-wrap">
-                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
-                    <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
-                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
+                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
+                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
                         <i class="fas fa-heart"></i>
                     </div>
                     <div class="grid-movie-quick-view">
@@ -203,8 +203,8 @@
                     </div>
                 </div>
                 <div class="grid-movie-info">
-                    <div class="grid-movie-title"><?= htmlspecialchars($movie['title']) ?></div>
-                    <div class="grid-movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
+                <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
+                <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
                 </div>
             </a>
             <?php endforeach; ?>
@@ -221,11 +221,11 @@
         $upcomingMovies = getUpcomingMovies();
         foreach($upcomingMovies as $movie): 
         ?>
-        <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+        <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
             <div class="grid-movie-img-wrap">
                 <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
                 <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
-                <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
                     <i class="fas fa-heart"></i>
                 </div>
                 <div class="grid-movie-quick-view">
@@ -252,11 +252,11 @@
             $topPicks = getTopPicks();
             foreach($topPicks as $movie): 
             ?>
-            <a href="index.php?page=details&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
+            <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
                 <div class="grid-movie-img-wrap">
-                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars($movie['rating']) ?></div>
-                    <img src="<?= htmlspecialchars($movie['image']) ?>" alt="<?= htmlspecialchars($movie['title']) ?>">
-                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
+                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
+                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
+                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
                         <i class="fas fa-heart"></i>
                     </div>
                     <div class="grid-movie-quick-view">
@@ -265,8 +265,8 @@
                     </div>
                 </div>
                 <div class="grid-movie-info">
-                    <div class="grid-movie-title"><?= htmlspecialchars($movie['title']) ?></div>
-                    <div class="grid-movie-meta"><?= htmlspecialchars($movie['year']) ?> &bull; <?= htmlspecialchars($movie['genre']) ?></div>
+                <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
+                <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
                 </div>
             </a>
             <?php endforeach; ?>

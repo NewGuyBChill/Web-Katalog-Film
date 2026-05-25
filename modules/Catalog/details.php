@@ -4,14 +4,19 @@ $id = isset($_GET['id']) ? $_GET['id'] : 0;
 $type = isset($_GET['type']) && $_GET['type'] === 'tv' ? 'tv' : 'movie';
 $movie = getMediaDetails($id, $type);
 
-if (!$movie) {
-    echo "<div style='padding: 150px 20px; text-align: center; height: 60vh;'><h2>" . translateText('movie_not_found') . "</h2></div>";
+if (empty($movie) || (isset($movie['success']) && $movie['success'] === false)) {
+    echo "<main class='container' style='padding-top: 150px; text-align: center; min-height: 70vh;'>
+            <i class='fas fa-exclamation-triangle' style='font-size: 4rem; color: #ff3b3b; margin-bottom: 20px;'></i>
+            <h2>Film / TV Show Tidak Ditemukan</h2>
+            <p style='color: var(--text-muted); margin-top: 10px;'>Data tidak tersedia, ID salah, atau parameter tipe media tidak sesuai.</p>
+            <a href='index.php?page=home' class='btn-primary' style='margin-top: 20px; display: inline-flex;'><i class='fas fa-home'></i> Kembali ke Beranda</a>
+          </main>";
     return;
 }
 
 $backdrop = !empty($movie['backdrop_path']) ? "https://image.tmdb.org/t/p/original" . $movie['backdrop_path'] : "";
 $poster = !empty($movie['poster_path']) ? "https://image.tmdb.org/t/p/w500" . $movie['poster_path'] : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22500%22%20height%3D%22750%22%20viewBox%3D%220%200%20500%20750%22%3E%3Crect%20width%3D%22500%22%20height%3D%22750%22%20fill%3D%22%231a1a1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2230%22%20fill%3D%22%23555555%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Poster%3C%2Ftext%3E%3C%2Fsvg%3E";
-$title = $movie['title'] ?? $movie['original_title'] ?? $movie['name'];
+$title = $movie['title'] ?? $movie['original_title'] ?? $movie['name'] ?? 'Unknown';
 $overview = $movie['overview'] ?? translateText('no_synopsis');
 $rating = isset($movie['vote_average']) ? round($movie['vote_average'], 1) : 0;
 $release_date = isset($movie['release_date']) ? $movie['release_date'] : ($movie['first_air_date'] ?? "-");

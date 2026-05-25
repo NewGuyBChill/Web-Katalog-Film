@@ -328,6 +328,15 @@ function fetchTMDB($endpoint, $cache_ttl = 3600) {
 
 // Fungsi Ekstra: Memanggil Beberapa Endpoint TMDB Secara Paralel (Mengatasi N+1 Lag)
 function fetchTMDBMulti($endpoints, $cache_ttl = 3600) {
+    // Fallback jika hosting mematikan fitur curl_multi_exec (seperti InfinityFree)
+    if (!function_exists('curl_multi_init') || !function_exists('curl_multi_exec')) {
+        $results = [];
+        foreach ($endpoints as $key => $endpoint) {
+            $results[$key] = fetchTMDB($endpoint, $cache_ttl);
+        }
+        return $results;
+    }
+
     global $tmdbApiKey, $siteLang;
     $cacheDir = __DIR__ . '/../cache/';
     $results = [];
@@ -394,6 +403,7 @@ function formatMovies($results, $limit = 8, $type = 'movie') {
         }
         $movies[] = [
             "id" => $item['id'] ?? 0,
+            "type" => $type,
             "title" => $item['title'] ?? $item['original_title'] ?? $item['name'] ?? "Unknown",
             "year" => isset($item['release_date']) && strlen($item['release_date']) >= 4 ? substr($item['release_date'], 0, 4) : (isset($item['first_air_date']) && strlen($item['first_air_date']) >= 4 ? substr($item['first_air_date'], 0, 4) : "-"),
             "genre" => $genre,
@@ -500,6 +510,7 @@ function getHeroBanners() {
 
             $banners[] = [
                 "id" => $m['id'],
+                "type" => $m['type'] ?? 'movie',
                 "bg" => "url('" . $m['backdrop'] . "')",
                 "title" => $m['title'],
                 "meta" => $m['year'] . " • " . $m['genre'],
