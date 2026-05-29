@@ -107,16 +107,99 @@ if (navHamburger && navMenu) {
 // --- Notification Bell ---
 const notifBell = document.getElementById('notifBell');
 const notifDropdown = document.getElementById('notifDropdown');
+const notifBadge = document.getElementById('notifBadge');
+const notifList = document.querySelector('.notif-list');
+const markReadBtn = document.querySelector('.notif-mark-read');
 if (notifBell && notifDropdown) {
     notifBell.addEventListener('click', (e) => {
         e.stopPropagation();
         notifDropdown.classList.toggle('show');
+        notifBell.classList.toggle('active');
     });
     document.addEventListener('click', (e) => {
         if (!notifBell.contains(e.target) && !notifDropdown.contains(e.target)) {
             notifDropdown.classList.remove('show');
+            notifBell.classList.remove('active');
         }
     });
+
+    window.loadNotifications = function() {
+        if (typeof isLoggedIn === 'undefined' || !isLoggedIn) return;
+
+        fetch('index.php?page=ajax_notifications')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // 1. Update Lencana (Badge)
+                    if (data.unread_count > 0) {
+                        if (notifBadge) {
+                            notifBadge.innerText = data.unread_count > 99 ? '99+' : data.unread_count;
+                            notifBadge.style.display = 'flex';
+                        }
+                    } else {
+                        if (notifBadge) notifBadge.style.display = 'none';
+                    }
+
+                    // 2. Render List HTML
+                    if (notifList) {
+                        if (data.notifications.length > 0) {
+                            let html = '';
+                            data.notifications.forEach(notif => {
+                                const unreadClass = notif.is_read == 0 ? 'unread' : '';
+                                const dateObj = new Date(notif.created_at);
+                                const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) + ' ' + dateObj.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                                
+                                // Ubah ikon secara dinamis berdasarkan nilai 'type' di database
+                                let iconClass = 'fa-bell';
+                                if (notif.type === 'like') iconClass = 'fa-heart';
+                                else if (notif.type === 'follow') iconClass = 'fa-user-plus';
+                                else if (notif.type === 'recommendation') iconClass = 'fa-star';
+
+                                html += `
+                                    <div class="notif-item ${unreadClass}">
+                                        <div class="notif-icon"><i class="fas ${iconClass}"></i></div>
+                                        <div class="notif-content">
+                                            <p><strong>${notif.title}</strong><br>${notif.message}</p>
+                                            <span class="notif-time">${dateStr}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            notifList.innerHTML = html;
+                        } else {
+                            notifList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Belum ada notifikasi.</div>';
+                        }
+                    }
+                }
+            }).catch(err => console.error("Error fetching notifications:", err));
+    }
+
+    // Panggil otomatis saat halaman / DOM berhasil diload
+    document.addEventListener('DOMContentLoaded', window.loadNotifications);
+
+    // Event klik "Mark all read"
+    if (markReadBtn) {
+        markReadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof isLoggedIn === 'undefined' || !isLoggedIn) return;
+            
+            fetch('index.php?page=ajax_notifications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'action=mark_all_read'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI Instan tanpa me-reload/me-request ulang dari database
+                    if (notifBadge) notifBadge.style.display = 'none';
+                    document.querySelectorAll('.notif-item.unread').forEach(item => {
+                        item.classList.remove('unread'); // Hilangkan background penanda dan titik biru
+                    });
+                }
+            });
+        });
+    }
 }
 
 const heroSlider = document.querySelector('.hero');
@@ -330,22 +413,26 @@ if (searchInput && clearSearch) {
         clearSearch.classList.add('show');
     }
     
-    // Tampilkan kembali hasil pencarian jika kotak pencarian diklik ulang (fokus)
+    // 1. Tampilkan kembali hasil pencarian dan perpanjang ukuran bar saat terfokus
     searchInput.addEventListener('focus', () => {
+        if (searchContainer) searchContainer.classList.add('is-expanded');
         if (searchInput.value.length > 0 && liveSearchResults && liveSearchResults.innerHTML.trim() !== '') {
             liveSearchResults.classList.add('show');
         }
     });
     
-    // Tutup live search jika pengguna mengklik di luar area kotak pencarian
+    // 2. Tutup live search dan menciutkan ukuran bar HANYA jika klik di luar area container pencarian
     document.addEventListener('click', (e) => {
         if (searchContainer && !searchContainer.contains(e.target)) {
             if (liveSearchResults) liveSearchResults.classList.remove('show');
+            searchContainer.classList.remove('is-expanded');
         }
     });
     
-    // Kosongkan isi text box saat tombol X diklik
-    clearSearch.addEventListener('click', () => {
+    // 3. Kosongkan isi text box dengan 'mousedown' agar blur dan penyusutan elemen tidak ter-trigger
+    clearSearch.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Mencegah input kehilangan fokus secara instan, bar tetap memanjang!
+        clearTimeout(debounceTimer); // Mencegah API fetch berjalan sia-sia jika user menekan X kurang dari 500ms
         searchInput.value = '';
         clearSearch.classList.remove('show');
         if (liveSearchResults) {
@@ -382,12 +469,9 @@ if (searchInput) {
         searchInput.setAttribute('placeholder', isIndo ? 'Cari film...' : 'Search movies...'); 
     });
 
-    // Lanjutkan animasi dari awal saat kursor keluar (blur)
+    // Lanjutkan animasi di mana ia berhenti saat kursor keluar (blur)
     searchInput.addEventListener('blur', () => {
         isPaused = false;
-        textIndex = 0;
-        charIndex = 0;
-        isDeleting = false;
     });
 
     function typePlaceholder() {
@@ -519,6 +603,27 @@ window.addEventListener('click', function(e) {
     }
 });
 
+// --- Navbar Genre Tabs Logic ---
+document.querySelectorAll('.dropdown-tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Mencegah dropdown tertutup tidak sengaja
+
+        const targetId = btn.getAttribute('data-target');
+        const container = btn.closest('.nav-dropdown-genres');
+        
+        if (container) {
+            container.querySelectorAll('.dropdown-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            container.querySelectorAll('.nav-dropdown-grid').forEach(grid => grid.style.display = 'none');
+            
+            const targetGrid = container.querySelector('#' + targetId);
+            if (targetGrid) targetGrid.style.display = 'grid';
+        }
+    });
+});
+
 // Tangani semua broken image secara global (misal koneksi ke server TMDB terputus)
 document.addEventListener("error", function (e) {
     if (e.target.tagName && e.target.tagName.toLowerCase() === "img") {
@@ -637,14 +742,18 @@ function initWatchlistButtons() {
     
     document.querySelectorAll('.watchlist-btn').forEach(btn => {
         const id = btn.getAttribute('data-id');
-        if (userWatchlist.some(watchId => String(watchId) === String(id))) {
+        const type = btn.getAttribute('data-type') || 'movie';
+        const compositeId = type + '_' + id;
+        if (userWatchlist.some(watchId => String(watchId) === compositeId)) {
             btn.classList.add('active');
         }
     });
     
     document.querySelectorAll('.watchlist-btn-detail').forEach(btn => {
         const id = btn.getAttribute('data-id');
-        if (id && userWatchlist.some(watchId => String(watchId) === String(id))) {
+        const type = btn.getAttribute('data-type') || 'movie';
+        const compositeId = type + '_' + id;
+        if (id && userWatchlist.some(watchId => String(watchId) === compositeId)) {
             btn.classList.add('active-fav');
             const icon = btn.querySelector('i');
             if(icon) icon.style.color = '#ff3b3b';
@@ -703,26 +812,17 @@ document.querySelectorAll('.grid-movie-card').forEach((card, index) => {
 
 // --- Theme Switcher (Dark/Light Mode) ---
 const themeSwitch = document.getElementById('themeSwitch');
-const themeIcon = document.getElementById('themeIcon');
 
-if (themeSwitch && themeIcon) {
-    if (document.documentElement.classList.contains('light-mode')) {
-        themeIcon.classList.replace('fa-sun', 'fa-moon');
-    }
-
+if (themeSwitch) {
     themeSwitch.addEventListener('click', () => {
-        // Tambahkan class animasi transisi tema sementara
-        document.documentElement.classList.add('theme-transition');
-        setTimeout(() => document.documentElement.classList.remove('theme-transition'), 500);
-        
+        // Cukup toggle class di HTML dan CSS akan menangani semua animasi dengan mulus
         document.documentElement.classList.toggle('light-mode');
         
+        // Simpan preferensi ke localStorage
         if (document.documentElement.classList.contains('light-mode')) {
             localStorage.setItem('kinema_theme', 'light');
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
         } else {
             localStorage.setItem('kinema_theme', 'dark');
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
         }
     });
 }
@@ -741,4 +841,139 @@ function togglePassword(inputId, icon) {
             icon.style.color = 'var(--text-muted)';
         }
     }
+}
+
+// --- Fitur Like Review ---
+function likeReview(button, reviewId) {
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        const isIndo = document.cookie.includes("site_lang=id-ID");
+        alert(isIndo ? "Silakan login terlebih dahulu untuk menyukai ulasan!" : "Please login to like a review!");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    const isActive = button.classList.contains('active');
+    const action = isActive ? 'unlike' : 'like';
+    const likeCountSpan = button.querySelector('.like-count');
+    let currentLikes = parseInt(likeCountSpan.textContent, 10);
+
+    // Update UI secara instan untuk responsivitas
+    button.classList.toggle('active');
+    if (isActive) {
+        likeCountSpan.textContent = currentLikes - 1;
+    } else {
+        likeCountSpan.textContent = currentLikes + 1;
+        // Animasi kecil saat like
+        button.style.transform = 'scale(1.2)';
+        setTimeout(() => { button.style.transform = 'scale(1)'; }, 200);
+    }
+
+    // Kirim request ke server
+    const formData = new FormData();
+    formData.append('review_id', reviewId);
+    formData.append('action', action);
+
+    fetch('index.php?page=ajax_like_review', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            // Jika gagal, kembalikan UI ke state semula
+            console.error('Like action failed:', data.error);
+            button.classList.toggle('active');
+            likeCountSpan.textContent = currentLikes; // Kembalikan angka semula
+        }
+    }).catch(err => {
+        console.error('Network error:', err);
+        button.classList.toggle('active');
+        likeCountSpan.textContent = currentLikes; // Batalkan animasi like jika error jaringan
+    });
+}
+
+// --- Fitur Favorite Cast ---
+function toggleFavoriteCast(e, btn, castId, castName, castImage) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        const isIndo = document.cookie.includes("site_lang=id-ID");
+        alert(isIndo ? "Silakan login terlebih dahulu untuk menyimpan pemeran favorit!" : "Please login to save favorite cast!");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    const icon = btn.querySelector('i');
+    const isActive = btn.classList.contains('active-cast-fav');
+    const action = isActive ? 'remove' : 'add';
+
+    // Animasi Respons UI Instan
+    if (isActive) {
+        btn.classList.remove('active-cast-fav');
+        if (icon) icon.style.color = '';
+    } else {
+        btn.classList.add('active-cast-fav');
+        if (icon) icon.style.color = '#FCD34D';
+        btn.style.transform = 'scale(1.2)';
+        setTimeout(() => btn.style.transform = '', 200);
+    }
+
+    // Request Database
+    fetch('index.php?page=ajax_favorite_cast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=${action}&cast_id=${castId}&cast_name=${encodeURIComponent(castName)}&cast_image=${encodeURIComponent(castImage)}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            console.error("Gagal", data.error);
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+// --- Fitur Follow User ---
+function toggleFollow(btn, followingId) {
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        const isIndo = document.cookie.includes("site_lang=id-ID");
+        alert(isIndo ? "Silakan login terlebih dahulu untuk mengikuti pengguna!" : "Please login to follow users!");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    const icon = btn.querySelector('i');
+    const text = btn.querySelector('span');
+    const isActive = btn.classList.contains('active');
+    const action = isActive ? 'unfollow' : 'follow';
+    const isIndo = document.cookie.includes("site_lang=id-ID");
+
+    // Update UI secara instan
+    if (isActive) {
+        btn.classList.remove('active', 'btn-secondary');
+        btn.classList.add('btn-primary');
+        if (icon) icon.className = 'fas fa-user-plus';
+        if (text) text.innerText = isIndo ? 'Ikuti' : 'Follow';
+    } else {
+        btn.classList.add('active', 'btn-secondary');
+        btn.classList.remove('btn-primary');
+        if (icon) icon.className = 'fas fa-user-check';
+        if (text) text.innerText = isIndo ? 'Mengikuti' : 'Following';
+    }
+
+    // Kirim request ke server
+    fetch('index.php?page=ajax_follow_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=${action}&following_id=${followingId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            console.error("Follow action failed:", data.error);
+            // Jika gagal, kembalikan UI ke state semula (opsional, tapi disarankan)
+        }
+    })
+    .catch(err => console.error("Follow action failed:", err));
 }

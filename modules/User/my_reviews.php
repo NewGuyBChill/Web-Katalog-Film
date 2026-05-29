@@ -34,7 +34,12 @@ if ($res) {
             <a href="index.php?page=details&type=<?= $rev['media_type'] ?>&id=<?= $rev['media_id'] ?>" class="review-history-item" title="Lihat selengkapnya">
                 <img src="<?= $poster ?>" alt="Poster" class="review-history-poster">
                 <div class="review-history-content">
-                    <div class="review-history-title"><?= htmlspecialchars($title) ?> <span class="review-history-date"><?= date('d M Y', strtotime($rev['created_at'])) ?></span></div>
+                    <div class="review-history-title">
+                        <?= htmlspecialchars($title) ?> 
+                        <span class="review-history-date"><?= date('d M Y', strtotime($rev['created_at'])) ?></span>
+                        <button onclick="event.preventDefault(); window.location.href='index.php?page=details&type=<?= $rev['media_type'] ?>&id=<?= $rev['media_id'] ?>#reviewFormTitle'" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:1rem; margin-left:15px; transition: 0.3s; padding: 0;" title="<?= translateText('edit_review') ?>"><i class="fas fa-edit"></i></button>
+                        <button onclick="event.preventDefault(); deleteReview(<?= $rev['id'] ?>, this)" style="background:none; border:none; color:#ff3b3b; cursor:pointer; font-size:1rem; margin-left:10px; transition: 0.3s; padding: 0;" title="<?= translateText('delete_review') ?>"><i class="fas fa-trash"></i></button>
+                    </div>
                     <div style="color: #FCD34D; font-size: 0.95rem; margin-bottom: 0.5rem;"><?= $starsHtml ?></div>
                     <div class="review-history-text"><?= nl2br(htmlspecialchars($rev['review_text'])) ?></div>
                 </div>
@@ -45,3 +50,32 @@ if ($res) {
         <?php endif; ?>
     </div>
 </main>
+
+<script>
+function deleteReview(reviewId, btn) {
+    if(confirm('<?= translateText('delete_review_confirm') ?>')) {
+        fetch('index.php?page=ajax_review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=delete&review_id=${reviewId}`
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.success) {
+                const reviewItem = btn.closest('.review-history-item');
+                if (reviewItem) reviewItem.remove();
+                
+                // Reload halaman jika ulasan sudah kosong untuk memunculkan pesan "Belum Ada Ulasan"
+                if (document.querySelectorAll('.review-history-item').length === 0) {
+                    window.location.reload();
+                }
+            } else {
+                alert("Gagal menghapus ulasan: " + data.error);
+            }
+        }).catch(err => {
+            console.error(err);
+            alert("Terjadi kesalahan sistem/jaringan saat menghapus.");
+        });
+    }
+}
+</script>

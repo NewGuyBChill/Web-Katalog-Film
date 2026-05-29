@@ -41,23 +41,6 @@ footer {
     color: white;
 }
 
-@media (max-width: 900px) {
-
-    .hero,
-    .container,
-    footer {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    .hero h1 {
-        font-size: 3rem;
-    }
-
-    .featured-grid {
-        grid-template-columns: 1fr;
-    }
-}
 
 .hero-content {
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -100,16 +83,18 @@ footer {
     background: rgba(255, 255, 255, 0.08);
     border-radius: 30px;
     padding: 6px 16px;
-    width: 100%;
-    max-width: 320px;
+    width: 220px;
+    flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+    /* Animasi lebar smooth & konsisten */
+    transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
 }
 
-.search-container:focus-within {
+.search-container.is-expanded {
     background: rgba(255, 255, 255, 0.12);
     border-color: var(--accent);
     box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+    width: 320px !important;
 }
 
 .search-trigger {
@@ -126,7 +111,7 @@ footer {
 }
 
 .search-trigger:hover,
-.search-container:focus-within .search-trigger {
+.search-container.is-expanded .search-trigger {
     color: white;
 }
 
@@ -260,9 +245,9 @@ footer {
     transition: filter 0.4s ease, opacity 0.4s ease;
 }
 
-body:has(.nav-search:focus-within) main,
-body:has(.nav-search:focus-within) .hero,
-body:has(.nav-search:focus-within) footer {
+body:has(.nav-search.is-expanded) main,
+body:has(.nav-search.is-expanded) .hero,
+body:has(.nav-search.is-expanded) footer {
     filter: blur(5px) brightness(0.4);
     pointer-events: none;
 }
@@ -832,4 +817,274 @@ body:has(.nav-search:focus-within) footer {
     width: 100%;
     height: 100%;
     border: 0;
+}
+
+/* ===== KELAS KHUSUS HALAMAN DETAILS ===== */
+.detail-main {
+    padding-top: 80px;
+    min-height: 80vh;
+}
+.detail-hero {
+    position: relative;
+    padding: 4rem;
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    flex-wrap: wrap;
+}
+.detail-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, #121212 5%, rgba(18, 18, 18, 0.8) 50%, transparent 100%);
+}
+.detail-poster {
+    position: relative;
+    z-index: 10;
+    max-width: 300px;
+    width: 100%;
+    flex-shrink: 0;
+}
+.detail-poster img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.detail-info {
+    position: relative;
+    z-index: 10;
+    max-width: 700px;
+    width: 100%;
+}
+.detail-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+    color: #fff;
+}
+.detail-meta {
+    color: #ccc;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+.detail-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+.detail-synopsis-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--accent);
+}
+.detail-synopsis-text {
+    color: #ddd;
+    line-height: 1.7;
+    font-size: 1.05rem;
+}
+.detail-review-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+.review-box {
+    background: rgba(255,255,255,0.02);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid #262626;
+    margin-bottom: 3rem;
+}
+.review-item {
+    background: rgba(255,255,255,0.02);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #262626;
+    position: relative; /* Tambahkan ini untuk positioning tombol like */
+}
+
+/* --- Tombol Like untuk Review --- */
+.review-like-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.review-like-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.review-like-btn.active {
+    background: rgba(255, 59, 59, 0.15);
+    border-color: rgba(255, 59, 59, 0.5);
+    color: #ff5c5c;
+    font-weight: 600;
+}
+
+.review-like-btn.active .fa-heart {
+    animation: heartBeat 0.5s ease-in-out;
+}
+
+/* ===== RESPONSIVE MOBILE (MEDIA QUERIES) ===== */
+@media (max-width: 900px) {
+    .hero, .container, footer {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    .featured-grid {
+        grid-template-columns: 1fr;
+    }
+    .filters-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .custom-dropdown, .dropdown-toggle, .reset-btn {
+        width: 100%;
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .hero, .container, footer {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+    .hero h1 {
+        font-size: 2rem;
+    }
+    .hero .meta, .hero .synopsis {
+        font-size: 0.95rem;
+    }
+    .movies-header h2 {
+        font-size: 1.8rem;
+    }
+    .header-titles p {
+        font-size: 0.9rem;
+    }
+    .footer-content {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+    .footer-links a { margin: 0; }
+    .empty-state {
+        padding: 3rem 1rem;
+    }
+    .trailer-modal-content {
+        width: 95%;
+    }
+    /* Penyesuaian Halaman Details di Mobile */
+    .detail-hero {
+        padding: 2rem 1.25rem;
+        gap: 1.5rem;
+    }
+    .detail-hero-overlay {
+        background: linear-gradient(to top, #121212 5%, rgba(18, 18, 18, 0.8) 40%, transparent 100%);
+    }
+    .detail-poster {
+        max-width: 180px;
+        margin: 0 auto;
+    }
+    .detail-title {
+        font-size: 2rem;
+        text-align: center;
+    }
+    .detail-meta {
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    .detail-actions {
+        justify-content: center;
+    }
+    .detail-synopsis-title, .detail-synopsis-text {
+        text-align: center;
+    }
+    .review-box, .review-item {
+        padding: 1.25rem;
+    }
+}
+
+/* ===== RESPONSIVE KHUSUS LAYAR HP (MOBILE NARROW) ===== */
+@media (max-width: 576px) {
+    main.container, main.detail-main {
+        padding-top: 140px !important;
+    }
+    .hero, .container, footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .hero {
+        height: 520px !important; /* Kunci tinggi mati agar tidak melompat */
+        max-height: 520px !important;
+        padding-top: 0 !important; /* Pindahkan padding ke hero-content */
+        padding-bottom: 60px !important; /* Ruang aman di bawah untuk titik-titik slider */
+        background-position: center top !important; /* Fokus dari atas */
+        background-size: cover !important;
+    }
+    .hero-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding-top: 140px !important; /* Mendorong konten turun ke bawah agar keluar dari bayang-bayang navbar */
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        box-sizing: border-box !important;
+    }
+    .hero h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+        margin-bottom: 0.8rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word; /* Memaksa kata super panjang untuk turun baris agar tidak merusak layar */
+    }
+    .hero .synopsis {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important; /* Batasi maksimal 3 baris di HP */
+        line-clamp: 3 !important; /* Standar modern untuk kompatibilitas lintas browser */
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        height: 4.8em; /* Mengunci tinggi area teks sinopsis agar seragam */
+    }
+    .hero-dots {
+        bottom: 15px; /* Jauhkan dari tombol aksi */
+    }
+    .hero-buttons {
+        flex-direction: column; /* Ubah orientasi tombol menjadi atas-bawah */
+        width: 100%;
+        gap: 0.8rem;
+    }
+    .hero-buttons .btn-primary,
+    .hero-buttons .btn-secondary {
+        width: 100%;
+        justify-content: center; /* Ketengahkan teks di dalam tombol */
+    }
 }

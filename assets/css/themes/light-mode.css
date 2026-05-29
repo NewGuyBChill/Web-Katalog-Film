@@ -1,11 +1,10 @@
 /* ========== THEMES & LIGHT MODE ========== */
 
-/* --- Smooth Theme Transition --- */
-.theme-transition,
-.theme-transition *,
-.theme-transition *::before,
-.theme-transition *::after {
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease !important;
+/* --- Smooth Theme Transition (Targeted Performance) --- */
+body, .navbar, .nav-search, .nav-dropdown, .nav-profile-dropdown, .nav-notif-dropdown, .lang-dropdown, 
+.grid-movie-card, .feature-card, .review-history-item, .imdb-item, .auth-card, .empty-state, footer,
+.review-box, .review-item {
+    transition: background-color 0.4s ease, background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 /* --- Theme Switcher & Light Mode Overrides --- */
@@ -16,19 +15,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     width: 36px;
     height: 36px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative; /* Menahan elemen ikon absolute */
 }
 
 .theme-switch:hover {
     background: rgba(255, 255, 255, 0.2);
     color: #fff;
-    transform: rotate(30deg);
+    transform: scale(1.15); /* Hapus rotasi pembungkus agar rotasi ikon di dalamnya rapi */
     box-shadow: 0 0 15px rgba(252, 211, 77, 0.4);
+}
+
+.theme-switch:active, #themeSwitch:active {
+    transform: scale(0.8) !important;
 }
 
 html.light-mode .theme-switch,
@@ -43,7 +47,33 @@ html.light-mode .theme-switch:hover,
 html.light-mode #themeSwitch:hover {
     background: #000000;
     color: var(--accent);
-    transform: rotate(-30deg);
+    transform: scale(1.15);
+}
+
+/* --- Animasi Ikon Tumpuk (Matahari & Bulan) --- */
+#themeSwitch i {
+    position: absolute;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+
+/* State Mode Gelap (Default) */
+#themeIconSun {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+#themeIconMoon {
+    opacity: 0;
+    transform: scale(0.3) rotate(-180deg);
+}
+
+/* State Mode Terang */
+html.light-mode #themeIconSun {
+    opacity: 0;
+    transform: scale(0.3) rotate(180deg);
+}
+html.light-mode #themeIconMoon {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
 }
 
 /* Light Mode Variables & Adjustments */
@@ -82,10 +112,18 @@ html.light-mode .nav-link.active {
 html.light-mode .nav-dropdown,
 html.light-mode .nav-profile-dropdown,
 html.light-mode .nav-notif-dropdown,
-html.light-mode .nav-lang-dropdown {
+html.light-mode .nav-lang-dropdown,
+html.light-mode .nav-dropdown-genres {
     background: rgba(255, 255, 255, 0.98);
     border-color: rgba(0, 0, 0, 0.08);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 1024px) {
+    html.light-mode .nav-item.has-dropdown.mobile-open .nav-dropdown,
+    html.light-mode .nav-item.has-dropdown.mobile-open .nav-dropdown-genres {
+        background: rgba(0, 0, 0, 0.04) !important;
+    }
 }
 
 html.light-mode .nav-dropdown-item {
@@ -100,6 +138,22 @@ html.light-mode .nav-dropdown-item:hover {
 html.light-mode .nav-dropdown-item i {
     background: rgba(0, 0, 0, 0.04);
     color: var(--text-muted);
+}
+
+html.light-mode .dropdown-tabs {
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light-mode .dropdown-tab-btn {
+    color: var(--text-muted);
+}
+
+html.light-mode .dropdown-tab-btn:hover {
+    color: var(--text-main);
+}
+
+html.light-mode .dropdown-tab-btn.active {
+    color: var(--accent);
 }
 
 html.light-mode .nav-dropdown-genre-item {
@@ -120,7 +174,7 @@ html.light-mode .nav-search {
     border-color: rgba(0, 0, 0, 0.08);
 }
 
-html.light-mode .nav-search:focus-within {
+html.light-mode .nav-search.is-expanded {
     background: rgba(0, 0, 0, 0.06);
     border-color: var(--accent);
     box-shadow: 0 0 20px rgba(0, 102, 255, 0.1);
@@ -140,9 +194,15 @@ html.light-mode .nav-action-btn {
     color: var(--text-muted);
 }
 
-html.light-mode .nav-action-btn:hover {
+html.light-mode .nav-action-btn:hover,
+html.light-mode .nav-action-btn.active {
     background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.12);
     color: var(--text-main);
+}
+
+html.light-mode .notif-badge {
+    border-color: #ffffff;
 }
 
 html.light-mode .nav-lang-trigger {
@@ -152,6 +212,7 @@ html.light-mode .nav-lang-trigger {
 html.light-mode .nav-lang-trigger:hover {
     background: rgba(0, 0, 0, 0.04);
     color: var(--text-main);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 html.light-mode .nav-profile-trigger {
@@ -159,7 +220,8 @@ html.light-mode .nav-profile-trigger {
     border-color: rgba(0, 0, 0, 0.08);
 }
 
-html.light-mode .nav-profile-trigger:hover {
+html.light-mode .nav-profile-trigger:hover,
+html.light-mode .nav-profile:hover .nav-profile-trigger {
     background: rgba(0, 0, 0, 0.06);
     border-color: rgba(0, 0, 0, 0.12);
 }
@@ -181,6 +243,10 @@ html.light-mode .profile-dropdown-name {
     color: var(--text-main);
 }
 
+html.light-mode .profile-dropdown-divider {
+    background: rgba(0, 0, 0, 0.06);
+}
+
 html.light-mode .notif-item {
     border-bottom-color: rgba(0, 0, 0, 0.04);
 }
@@ -191,6 +257,14 @@ html.light-mode .notif-item:hover {
 
 html.light-mode .notif-item.unread {
     background: rgba(0, 102, 255, 0.04);
+}
+
+html.light-mode .notif-icon {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+html.light-mode .notif-see-all {
+    border-top-color: rgba(0, 0, 0, 0.06);
 }
 
 html.light-mode .notif-content p {
@@ -254,6 +328,10 @@ html.light-mode .live-search-item:hover {
     background: rgba(0, 0, 0, 0.03);
 }
 
+html.light-mode .live-search-results a[href*="page=search"] {
+    border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
 html.light-mode .hero-overlay {
     background: linear-gradient(to right, rgba(244, 246, 248, 0.65) 0%, rgba(244, 246, 248, 0.2) 50%, transparent 100%), linear-gradient(to top, var(--bg-color) 0%, transparent 20%);
 }
@@ -274,13 +352,15 @@ html.light-mode .btn-primary {
     color: #ffffff;
 }
 
-html.light-mode .hero .btn-secondary {
+html.light-mode .hero .btn-secondary,
+html.light-mode .featured-today-actions .btn-secondary {
     color: var(--text-main);
     background: rgba(0, 0, 0, 0.05);
     border-color: rgba(0, 0, 0, 0.2);
 }
 
-html.light-mode .hero .btn-secondary:hover {
+html.light-mode .hero .btn-secondary:hover,
+html.light-mode .featured-today-actions .btn-secondary:hover {
     background: rgba(0, 0, 0, 0.1);
 }
 
@@ -304,10 +384,34 @@ html.light-mode .feature-card:hover,
 html.light-mode .grid-movie-card:hover,
 html.light-mode .review-history-item:hover,
 html.light-mode .imdb-item:hover {
-    border-color: rgba(0, 0, 0, 0.2);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 102, 255, 0.15);
+    box-shadow: 0 12px 30px rgba(0, 102, 255, 0.12);
     transform: translate3d(0, -5px, 0);
-    background: #fdfdfd;
+    background: #ffffff;
+}
+
+/* Featured Today Gradient Overrides */
+html.light-mode .featured-today-card {
+    background-color: var(--card-bg) !important;
+    background-image: linear-gradient(to right, var(--card-bg) 0%, var(--card-bg) 5%, rgba(255, 255, 255, 0.2) 30%, transparent 100%), linear-gradient(to bottom, var(--card-bg) 0%, transparent 3%, transparent 97%, var(--card-bg) 100%), var(--featured-bg) !important;
+}
+
+@media (max-width: 768px) {
+    html.light-mode .featured-today-card {
+        background-image: linear-gradient(to top, var(--card-bg) 0%, var(--card-bg) 5%, rgba(255, 255, 255, 0.2) 30%, transparent 100%), linear-gradient(to bottom, var(--card-bg) 0%, transparent 3%, transparent 97%, var(--card-bg) 100%), var(--featured-bg) !important;
+    }
+}
+
+html.light-mode .featured-today-title {
+    color: var(--text-main);
+}
+
+html.light-mode .featured-today-meta {
+    color: var(--text-muted);
+}
+
+html.light-mode .featured-today-synopsis {
+    color: var(--text-muted);
 }
 
 html.light-mode .grid-movie-title,
@@ -315,6 +419,16 @@ html.light-mode .feature-card h3,
 html.light-mode .review-history-title,
 html.light-mode .imdb-title {
     color: var(--text-main);
+}
+
+html.light-mode .grid-movie-meta,
+html.light-mode .review-history-date,
+html.light-mode .review-history-text {
+    color: var(--text-muted);
+}
+
+html.light-mode .review-item p {
+    color: var(--text-main) !important;
 }
 
 html.light-mode .grid-movie-img-wrap {
@@ -412,9 +526,28 @@ html.light-mode .auth-input {
     color: var(--text-main);
 }
 
+html.light-mode .auth-input-group label {
+    color: var(--text-main);
+}
+
+html.light-mode .auth-input::placeholder {
+    color: var(--text-muted);
+}
+
+html.light-mode .tab-btn {
+    color: var(--text-muted);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
 html.light-mode .tab-btn:hover {
     background: rgba(0, 0, 0, 0.05);
     color: var(--text-main);
+}
+
+html.light-mode .tab-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
 }
 
 html.light-mode .empty-state {
@@ -423,16 +556,54 @@ html.light-mode .empty-state {
 }
 
 html.light-mode .empty-state h3 {
+    color: var(--text-main) !important;
+}
+
+html.light-mode .empty-state i {
+    color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-mode .review-box, html.light-mode .review-item {
+    background: var(--card-bg);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* --- Overrides Elemen Form & Modal --- */
+html.light-mode #reviewText {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: var(--text-main) !important;
+}
+
+html.light-mode .trailer-modal {
+    background: rgba(255, 255, 255, 0.85);
+}
+html.light-mode .trailer-close {
+    background: rgba(0, 0, 0, 0.05);
     color: var(--text-main);
+}
+html.light-mode .trailer-close:hover {
+    background: #ff3b3b;
+    color: #ffffff;
+}
+
+html.light-mode .nav-hamburger:hover {
+    background: rgba(0, 0, 0, 0.04);
 }
 
 html.light-mode .nav-hamburger span {
     background: var(--text-main);
 }
 
-html.light-mode .nav-menu {
-    background: rgba(255, 255, 255, 0.98);
-    border-left-color: rgba(0, 0, 0, 0.06);
+@media (max-width: 1024px) {
+    html.light-mode .nav-menu {
+        background: rgba(255, 255, 255, 0.98);
+        border-left-color: rgba(0, 0, 0, 0.06);
+    }
+
+    html.light-mode .mobile-only-item {
+        border-top-color: rgba(0, 0, 0, 0.08) !important;
+    }
 }
 
 @keyframes skeletonPulseLight {
@@ -455,4 +626,11 @@ html.light-mode .live-search-poster:not(.img-loaded),
 html.light-mode .imdb-poster img:not(.img-loaded),
 html.light-mode .review-history-poster:not(.img-loaded) {
     animation: skeletonPulseLight 1.5s infinite ease-in-out;
+}
+
+@media (max-width: 576px) {
+    html.light-mode .navbar {
+        background: rgba(255, 255, 255, 0.88) !important;
+        border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+    }
 }

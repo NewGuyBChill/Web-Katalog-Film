@@ -24,7 +24,7 @@ if ($media_id <= 0) {
 
 if ($action === 'add') {
     try {
-        $check = $conn->query("SELECT id FROM watchlist WHERE user_id = $user_id AND media_id = $media_id");
+        $check = $conn->query("SELECT id FROM watchlist WHERE user_id = $user_id AND media_id = $media_id AND media_type = '$media_type'");
         if ($check->num_rows == 0) {
             $sql = "INSERT INTO watchlist (user_id, media_id, media_type, title, poster_path) VALUES ($user_id, $media_id, '$media_type', '$title', '$poster_path')";
             if ($conn->query($sql)) {
@@ -41,7 +41,7 @@ if ($action === 'add') {
     }
 } elseif ($action === 'remove') {
     try {
-        $sql = "DELETE FROM watchlist WHERE user_id = $user_id AND media_id = $media_id";
+        $sql = "DELETE FROM watchlist WHERE user_id = $user_id AND media_id = $media_id AND media_type = '$media_type'";
         if ($conn->query($sql)) {
             unset($_SESSION['user_watchlist']); // Hapus cache sesi agar diperbarui
             echo json_encode(['success' => true]);

@@ -7,7 +7,8 @@ $filters = [
     'year' => $_GET['year'] ?? '',
     'rating' => $_GET['rating'] ?? '',
     'sort' => $_GET['sort'] ?? '',
-    'lang' => $_GET['lang'] ?? ''
+    'lang' => $_GET['lang'] ?? '',
+    'category' => $_GET['category'] ?? ''
 ];
 $currentPage = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
 
@@ -19,19 +20,36 @@ global $genreMap;
 global $langMap;
 
 $sortMap = [
-    'popularity.desc' => translateText('sort_pop_desc'),
-    'vote_average.desc' => translateText('sort_rating_desc'),
-    'primary_release_date.desc' => translateText('sort_date_desc'),
-    'primary_release_date.asc' => translateText('sort_date_asc')
+    'popularity.desc' => '<i class="fas fa-fire" style="color: #ff3b3b; margin-right: 6px;"></i> ' . translateText('sort_pop_desc'),
+    'vote_average.desc' => '<i class="fas fa-star" style="color: #FCD34D; margin-right: 6px;"></i> ' . translateText('sort_rating_desc'),
+    'primary_release_date.desc' => '<i class="fas fa-bolt" style="color: #00d2ff; margin-right: 6px;"></i> ' . translateText('sort_date_desc'),
+    'primary_release_date.asc' => '<i class="fas fa-history" style="margin-right: 6px;"></i> ' . translateText('sort_date_asc')
 ];
 $currentSortLabel = isset($sortMap[$filters['sort']]) ? $sortMap[$filters['sort']] : translateText('sort_pop_desc');
+
+global $siteLang;
+$pageTitle = translateText('explore_movies');
+$pageDesc = translateText('explore_desc');
+
+if (!empty($filters['category'])) {
+    if ($filters['category'] === 'upcoming') {
+        $pageTitle = translateText('upcoming_movies');
+        $pageDesc = $siteLang === 'id-ID' ? 'Daftar film yang akan segera tayang di bioskop.' : 'List of movies coming soon to theaters.';
+    } elseif ($filters['category'] === 'now_playing') {
+        $pageTitle = $siteLang === 'id-ID' ? 'Sedang Tayang' : 'Now Playing';
+        $pageDesc = $siteLang === 'id-ID' ? 'Film-film yang sedang tayang di bioskop saat ini.' : 'Movies currently playing in theaters.';
+    }
+} elseif ($filters['sort'] === 'primary_release_date.desc') {
+    $pageTitle = $siteLang === 'id-ID' ? 'Rilis Terbaru' : 'Latest Releases';
+    $pageDesc = $siteLang === 'id-ID' ? 'Kumpulan film rilisan paling baru yang fresh.' : 'Freshly released movies.';
+}
 ?>
 
 <main style="padding-top: 120px; min-height: 80vh;" class="container">
     <div class="movies-header" id="explore">
         <div class="header-titles">
-            <h2><?= translateText('explore_movies') ?></h2>
-            <p><?= translateText('explore_desc') ?></p>
+            <h2><?= $pageTitle ?></h2>
+            <p><?= $pageDesc ?></p>
         </div>
         <div class="filters-section">
             
@@ -105,7 +123,7 @@ $currentSortLabel = isset($sortMap[$filters['sort']]) ? $sortMap[$filters['sort'
             </div>
 
             <!-- Tombol reset filter muncul jika user sedang mem-filter sesuatu -->
-            <?php if(!empty($filters['genre']) || !empty($filters['year']) || !empty($filters['rating']) || !empty($filters['sort']) || !empty($filters['lang'])): ?>
+            <?php if(!empty($filters['genre']) || !empty($filters['year']) || !empty($filters['rating']) || !empty($filters['sort']) || !empty($filters['lang']) || !empty($filters['category'])): ?>
                 <a href="index.php?page=movies" class="reset-btn">
                     <i class="fas fa-times"></i> <?= translateText('reset_filter') ?>
                 </a>

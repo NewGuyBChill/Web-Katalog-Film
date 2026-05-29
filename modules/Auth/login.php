@@ -45,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <button type="submit" class="auth-btn"><?= translateText('login_btn') ?></button>
             </form>
+            <div class="auth-links" style="margin-top: 1rem; margin-bottom: 0;">
+                <a href="index.php?page=forgot_password" style="font-weight: 500;">Lupa Kata Sandi?</a>
+            </div>
             <div class="auth-links">
                 <?= translateText('no_account') ?> <a href="index.php?page=signup"><?= translateText('signup_here') ?></a>
             </div>

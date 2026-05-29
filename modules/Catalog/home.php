@@ -45,107 +45,119 @@
 
     <!-- Featured Today -->
     <?php if ($featured): ?>
-    <section class="container">
-        <div class="section-header">
-            <h2><?= translateText('featured_today') ?></h2>
-            <p><?= translateText('highlight_day') ?></p>
-        </div>
-        <div class="featured-today-card" style="background-image: linear-gradient(to right, rgba(18,18,18,1) 15%, rgba(18,18,18,0.7) 50%, rgba(18,18,18,0.1)), url('<?= htmlspecialchars((string)($featured['backdrop'] ?: $featured['image'])) ?>');">
-            <div class="featured-today-content">
-                <span class="badge-trending"><i class="fas fa-fire"></i> <?= translateText('trending_1') ?></span>
-                <h1 class="featured-today-title"><?= htmlspecialchars((string)$featured['title']) ?></h1>
-                
-                <div class="featured-today-meta">
-                    <span class="rating"><i class="fas fa-star" style="color: #FCD34D;"></i> <?= htmlspecialchars((string)($featured['rating'] ?? 0)) ?>/10</span>
-                    <span class="year"><?= htmlspecialchars((string)$featured['year']) ?></span>
-                    <span class="genre"><?= htmlspecialchars((string)$featured['genre']) ?></span>
-                </div>
-                
-                <p class="featured-today-synopsis">
-                    <?= htmlspecialchars((string)($featured['overview'] ?: translateText('no_synopsis'))) ?>
-                </p>
-                
-                <div class="featured-today-actions">
-                    <a href="index.php?page=details&type=<?= $featured['type'] ?? 'movie' ?>&id=<?= $featured['id'] ?>" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-info-circle"></i> <?= translateText('read_more') ?>
-                    </a>
-                    <button class="btn-secondary watchlist-btn-detail" data-id="<?= $featured['id'] ?>" data-type="<?= $featured['type'] ?? 'movie' ?>" onclick="toggleWatchlistDetail(event, this, '<?= $featured['id'] ?>', '<?= $featured['type'] ?? 'movie' ?>', '<?= addslashes(htmlspecialchars($featured['title'])) ?>', '<?= $featured['poster_path'] ?? $featured['image'] ?>')" style="display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;">
-                        <i class="fas fa-plus"></i> <?= translateText('watchlist') ?>
-                    </button>
+        <section class="container">
+            <div class="section-header">
+                <h2><?= translateText('featured_today') ?></h2>
+                <p><?= translateText('highlight_day') ?></p>
+            </div>
+            
+            <div class="featured-today-card" style="--featured-bg: url('<?= htmlspecialchars((string)($featured['backdrop'] ?: $featured['image'])) ?>'); border-radius: 16px !important; overflow: hidden !important; background-clip: padding-box !important; -webkit-background-clip: padding-box !important;">
+                <div class="featured-today-content">
+                    <span class="badge-trending"><i class="fas fa-fire"></i> <?= translateText('trending_1') ?></span>
+                    <h1 class="featured-today-title"><?= htmlspecialchars((string)$featured['title']) ?></h1>
+                    
+                    <div class="featured-today-meta">
+                        <span class="rating"><i class="fas fa-star" style="color: #FCD34D;"></i> <?= htmlspecialchars((string)($featured['rating'] ?? 0)) ?>/10</span>
+                        <span class="year"><?= htmlspecialchars((string)$featured['year']) ?></span>
+                        <span class="genre"><?= htmlspecialchars((string)$featured['genre']) ?></span>
+                    </div>
+                    
+                    <p class="featured-today-synopsis">
+                        <?= htmlspecialchars((string)($featured['overview'] ?: translateText('no_synopsis'))) ?>
+                    </p>
+                    
+                    <div class="featured-today-actions">
+                        <a href="index.php?page=details&type=<?= $featured['type'] ?? 'movie' ?>&id=<?= $featured['id'] ?>" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-info-circle"></i> <?= translateText('read_more') ?>
+                        </a>
+                        <button class="btn-secondary watchlist-btn-detail" data-id="<?= $featured['id'] ?>" data-type="<?= $featured['type'] ?? 'movie' ?>" onclick="toggleWatchlistDetail(event, this, '<?= $featured['id'] ?>', '<?= $featured['type'] ?? 'movie' ?>', '<?= addslashes(htmlspecialchars($featured['title'])) ?>', '<?= $featured['poster_path'] ?? $featured['image'] ?>')" style="display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;">
+                            <i class="fas fa-plus"></i> <?= translateText('watchlist') ?>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <style>
-            .featured-today-card {
-                position: relative;
-                width: 100%;
-                min-height: 450px;
-                background-size: cover;
-                background-position: center top;
-                border-radius: 16px;
-                display: flex;
-                align-items: center;
-                padding: 3rem;
-                color: white;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                overflow: hidden;
-                margin-bottom: 2rem;
-                border: 1px solid rgba(255,255,255,0.05);
-            }
-            .featured-today-content {
-                max-width: 550px;
-                z-index: 2;
-            }
-            .badge-trending {
-                background-color: #e50914;
-                padding: 6px 12px;
-                border-radius: 6px;
-                font-size: 0.85rem;
-                font-weight: bold;
-                display: inline-block;
-                margin-bottom: 1rem;
-            }
-            .featured-today-title {
-                font-size: 2.8rem;
-                margin: 0 0 10px 0;
-                line-height: 1.1;
-                font-weight: 800;
-            }
-            .featured-today-meta {
-                display: flex;
-                gap: 15px;
-                margin-bottom: 15px;
-                font-size: 0.95rem;
-                color: #ccc;
-                font-weight: 600;
-            }
-            .featured-today-synopsis {
-                line-height: 1.6;
-                margin-bottom: 25px;
-                display: -webkit-box;
-                -webkit-line-clamp: 4;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                color: #ddd;
-                font-size: 1.05rem;
-            }
-            .featured-today-actions {
-                display: flex;
-                gap: 15px;
-                align-items: center;
-            }
-            @media (max-width: 768px) {
+            
+            <style>
                 .featured-today-card {
-                    padding: 2rem;
-                    background-image: linear-gradient(to top, rgba(18,18,18,1) 20%, rgba(18,18,18,0.6)), url('<?= htmlspecialchars((string)($featured['backdrop'] ?: $featured['image'])) ?>') !important;
-                    align-items: flex-end;
+                    position: relative;
+                    width: 100%;
+                    box-sizing: border-box;
+                    min-height: 450px;
+                    background-color: #121212;
+                    background-image: linear-gradient(to right, #121212 0%, #121212 5%, rgba(18,18,18,0.7) 65%, transparent 100%), linear-gradient(to bottom, #121212 0%, transparent 3%, transparent 97%, #121212 100%), var(--featured-bg);
+                    background-size: cover;
+                    background-position: right center;
+                    background-repeat: no-repeat;
+                    border-radius: 16px !important; /* Diperkuat !important */
+                    display: flex;
+                    align-items: center;
+                    padding: 3rem;
+                    color: white;
+                    overflow: hidden !important;    /* Diperkuat !important */
+                    background-clip: padding-box !important; /* Mencegah gambar bocor keluar border */
+                    -webkit-background-clip: padding-box !important;
+                    transform: translateZ(0); 
+                    margin-bottom: 2rem;
+                    border: 1px solid rgba(255,255,255,0.05);
                 }
-                .featured-today-title { font-size: 2rem; }
-            }
-        </style>
-    </section>
-    <?php endif; ?>
+                .featured-today-content {
+                    max-width: 550px;
+                    z-index: 2;
+                }
+                .badge-trending {
+                    background-color: #e50914;
+                    padding: 6px 16px;
+                    border-radius: 6px;
+                    font-size: 0.85rem;
+                    font-weight: bold;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-left: 2px;
+                    margin-bottom: 1rem;
+                }
+                .featured-today-title {
+                    font-size: 2.8rem;
+                    margin: 0 0 10px 0;
+                    line-height: 1.1;
+                    font-weight: 800;
+                }
+                .featured-today-meta {
+                    display: flex;
+                    gap: 15px;
+                    margin-bottom: 15px;
+                    font-size: 0.95rem;
+                    color: #ccc;
+                    font-weight: 600;
+                }
+                .featured-today-synopsis {
+                    line-height: 1.6;
+                    margin-bottom: 25px;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 4;
+                    line-clamp: 4;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    color: #ddd;
+                    font-size: 1.05rem;
+                }
+                .featured-today-actions {
+                    display: flex;
+                    gap: 15px;
+                    align-items: center;
+                }
+                @media (max-width: 768px) {
+                    .featured-today-card {
+                        padding: 2rem;
+                        background-image: linear-gradient(to top, #121212 0%, #121212 5%, rgba(18,18,18,0.7) 30%, transparent 100%), linear-gradient(to bottom, #121212 0%, transparent 3%, transparent 97%, #121212 100%), var(--featured-bg) !important;
+                        background-position: center top !important;
+                        align-items: flex-end;
+                    }
+                    .featured-today-title { font-size: 2rem; }
+                }
+            </style>
+        </section>
+        <?php endif; ?>
 
     <!-- Recommended For You (Fitur Personal) -->
     <?php 

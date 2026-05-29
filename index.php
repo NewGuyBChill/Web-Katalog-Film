@@ -11,14 +11,30 @@ $routes = [
     'movies'         => 'modules/catalog/movies.php',
     'tvshows'        => 'modules/catalog/tvshows.php',
     'details'        => 'modules/catalog/details.php',
+    'person'         => 'modules/catalog/person.php',
     'login'          => 'modules/auth/login.php',
     'signup'         => 'modules/auth/signup.php',
+    'forgot_password'=> 'modules/auth/forgot_password.php',
     'profile'        => 'modules/auth/profile.php',
+    'user_profile'   => 'modules/user/user_profile.php',
     'watchlist'      => 'modules/user/watchlist.php',
     'my_reviews'     => 'modules/user/my_reviews.php',
+    'notifications'  => 'modules/user/notifications.php',
+    'admin'          => 'modules/admin/dashboard.php',
+    'ajax_admin'     => 'modules/admin/ajax_admin.php',
+    'my_lists'       => 'modules/playlists/my_lists.php',
+    'view_list'      => 'modules/playlists/view_list.php',
+    'ajax_playlist'  => 'modules/playlists/ajax_playlist.php',
     'ajax_watchlist' => 'modules/user/ajax_watchlist.php',
     'ajax_review'    => 'modules/user/ajax_review.php',
-    'ajax_search'    => 'modules/api/ajax_search.php'
+    'ajax_search'    => 'modules/api/ajax_search.php',
+    'ajax_search_user' => 'modules/user/ajax_search_user.php',
+    'ajax_notifications' => 'modules/api/ajax_notifications.php',
+    'ajax_like_review' => 'modules/api/ajax_like_review.php',
+    'ajax_review_reply'=> 'modules/api/ajax_review_reply.php',
+    'ajax_favorite_cast' => 'modules/user/ajax_favorite_cast.php',
+    'ajax_follow_user' => 'modules/user/ajax_follow_user.php',
+    'ajax_activity_feed' => 'modules/user/ajax_activity_feed.php'
 ];
 
 // Fungsi pencarian file (Toleransi Case-Sensitive untuk Hosting Linux)
@@ -34,7 +50,7 @@ function getModulePath($routePath) {
     return false;
 }
 
-if (in_array($page, ['ajax_watchlist', 'ajax_review', 'ajax_search'])) {
+if (in_array($page, ['ajax_watchlist', 'ajax_review', 'ajax_search', 'ajax_notifications', 'ajax_like_review', 'ajax_favorite_cast', 'ajax_review_reply', 'ajax_admin', 'ajax_playlist', 'ajax_follow_user', 'ajax_search_user', 'ajax_activity_feed'])) {
     if (isset($routes[$page]) && $path = getModulePath($routes[$page])) {
         require_once $path;
         exit;

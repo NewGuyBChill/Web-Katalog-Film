@@ -3,22 +3,47 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 $userWatchlist = [];
 if (isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/../config/db.php';
+    $uid = (int)$_SESSION['user_id'];
+    
     if (!isset($_SESSION['user_watchlist'])) {
-        require_once __DIR__ . '/../config/db.php';
-        $uid = (int)$_SESSION['user_id'];
         $tempWatchlist = [];
         try {
-            $res = $conn->query("SELECT media_id FROM watchlist WHERE user_id = $uid");
+            $res = $conn->query("SELECT media_id, media_type FROM watchlist WHERE user_id = $uid");
             if ($res) {
                 while($row = $res->fetch_assoc()) {
-                    $tempWatchlist[] = $row['media_id'];
+                    $tempWatchlist[] = $row['media_type'] . '_' . $row['media_id'];
                 }
             }
             $_SESSION['user_watchlist'] = $tempWatchlist;
         } catch (mysqli_sql_exception $e) {}
     }
     $userWatchlist = $_SESSION['user_watchlist'] ?? [];
+    
+    // Auto-create kolom avatar di database dan ambil datanya
+    try {
+        @$conn->query("ALTER TABLE users ADD COLUMN avatar VARCHAR(255) DEFAULT NULL");
+    } catch (Exception $e) {}
+    try {
+        @$conn->query("ALTER TABLE users ADD COLUMN role ENUM('user', 'admin') DEFAULT 'user'");
+    } catch (Exception $e) {}
+    $userAvatar = '';
+    $userRole = 'user';
+    $resAva = $conn->query("SELECT avatar, role FROM users WHERE id = $uid");
+    if ($resAva && $resAva->num_rows > 0) {
+        $rowAva = $resAva->fetch_assoc();
+        $userAvatar = $rowAva['avatar'];
+        $userRole = $rowAva['role'];
+        $_SESSION['role'] = $userRole;
+    }
 }
+
+    // Fallback keamanan jika $siteLang tidak terbaca dari config/data.php
+    global $siteLang;
+    global $tvGenreMap;
+    if (!isset($siteLang)) {
+        $siteLang = isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'id-ID' ? 'id-ID' : 'en-US';
+    }
 
 // Genre map for navbar dropdown
 $navGenres = [
@@ -27,6 +52,8 @@ $navGenres = [
     53 => "Thriller", 14 => "Fantasy", 16 => "Animation",
     80 => "Crime", 99 => "Documentary", 9648 => "Mystery"
 ];
+
+$isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -34,6 +61,28 @@ $navGenres = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CelesView - Katalog Film</title>
+    
+    <?php
+    // --- SEO Open Graph Tags Dinamis (Untuk Pratinjau WhatsApp/Sosmed) ---
+    $og_title = "CelesView - Katalog Film";
+    $og_desc = "Discover, rate, and discuss movies and TV shows. Your personal film catalog.";
+    $og_image = "https://via.placeholder.com/1200x630/1a1a1a/00d2ff?text=CelesView"; 
+    if (isset($_GET['page']) && $_GET['page'] === 'details' && isset($_GET['id'])) {
+        $og_type = isset($_GET['type']) && $_GET['type'] === 'tv' ? 'tv' : 'movie';
+        $url = "https://api.themoviedb.org/3/".$og_type."/".(int)$_GET['id']."?api_key=ac2e690e071692fe9f8e181d6370f6c7&language=".$siteLang;
+        $meta_data = @json_decode(@file_get_contents($url), true);
+        if ($meta_data && !isset($meta_data['success'])) {
+            $og_title = htmlspecialchars($meta_data['title'] ?? $meta_data['name'] ?? $og_title);
+            $og_desc = htmlspecialchars(substr($meta_data['overview'] ?? $og_desc, 0, 160)) . '...';
+            $og_image = !empty($meta_data['backdrop_path']) ? "https://image.tmdb.org/t/p/w1280".$meta_data['backdrop_path'] : $og_image;
+        }
+    }
+    ?>
+    <meta property="og:title" content="<?= $og_title ?>">
+    <meta property="og:description" content="<?= $og_desc ?>">
+    <meta property="og:image" content="<?= $og_image ?>">
+    <meta property="og:type" content="website">
+
     <meta name="description" content="Kinema — Discover, rate, and discuss movies and TV shows. Your personal film catalog.">
 
     <!-- Google Fonts -->
@@ -87,28 +136,28 @@ $navGenres = [
                         <div class="nav-dropdown" id="dropdownMovies">
                             <div class="nav-dropdown-inner">
                                 <a href="index.php?page=movies&sort=popularity.desc" class="nav-dropdown-item">
-                                    <i class="fas fa-fire"></i>
+                                    <i class="fas fa-fire" style="color: #ff3b3b;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Popular</span>
                                         <span class="dropdown-item-desc">Most watched by everyone</span>
                                     </div>
                                 </a>
-                                <a href="index.php?page=movies&sort=release_date.desc" class="nav-dropdown-item">
-                                    <i class="fas fa-sparkles"></i>
+                                <a href="index.php?page=movies&sort=primary_release_date.desc" class="nav-dropdown-item">
+                                    <i class="fas fa-bolt" style="color: #00d2ff;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Latest Releases</span>
                                         <span class="dropdown-item-desc">Freshly out of theaters</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=movies&category=upcoming" class="nav-dropdown-item">
-                                    <i class="fas fa-calendar-star"></i>
+                                    <i class="fas fa-calendar-plus" style="color: #FCD34D;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Upcoming</span>
                                         <span class="dropdown-item-desc">Coming soon to cinemas</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=movies&category=now_playing" class="nav-dropdown-item">
-                                    <i class="fas fa-ticket"></i>
+                                    <i class="fas fa-ticket-alt" style="color: #43e97b;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Now Playing</span>
                                         <span class="dropdown-item-desc">Currently in theaters</span>
@@ -126,12 +175,57 @@ $navGenres = [
                             <i class="fas fa-chevron-down nav-caret"></i>
                         </a>
                         <div class="nav-dropdown nav-dropdown-genres" id="dropdownGenres">
-                            <div class="nav-dropdown-inner nav-dropdown-grid">
+                            <div class="dropdown-tabs">
+                                <button class="dropdown-tab-btn <?= !$isTvPage ? 'active' : '' ?>" data-target="genreMovies">Movies</button>
+                                <button class="dropdown-tab-btn <?= $isTvPage ? 'active' : '' ?>" data-target="genreTV">TV Shows</button>
+                            </div>
+                            <div class="nav-dropdown-inner nav-dropdown-grid" id="genreMovies" style="<?= $isTvPage ? 'display: none;' : '' ?>">
                                 <?php foreach ($navGenres as $gid => $gname): ?>
                                 <a href="index.php?page=movies&genre=<?= $gid ?>" class="nav-dropdown-genre-item">
                                     <?= htmlspecialchars($gname) ?>
                                 </a>
                                 <?php endforeach; ?>
+                            </div>
+                            <div class="nav-dropdown-inner nav-dropdown-grid" id="genreTV" style="<?= !$isTvPage ? 'display: none;' : '' ?>">
+                                <?php if(!empty($tvGenreMap)) foreach ($tvGenreMap as $gid => $gname): ?>
+                                <a href="index.php?page=tvshows&genre=<?= $gid ?>" class="nav-dropdown-genre-item">
+                                    <?= htmlspecialchars($gname) ?>
+                                </a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- TV Shows Dropdown -->
+                    <li class="nav-item has-dropdown" id="navTVShows">
+                        <a href="index.php?page=tvshows" class="nav-link <?php echo (isset($_GET['page']) && $_GET['page'] == 'tvshows') ? 'active' : ''; ?>">
+                            <i class="fas fa-tv nav-link-icon"></i>
+                            TV Shows
+                            <i class="fas fa-chevron-down nav-caret"></i>
+                        </a>
+                        <div class="nav-dropdown" id="dropdownTVShows">
+                            <div class="nav-dropdown-inner">
+                                <a href="index.php?page=tvshows&sort=popularity.desc" class="nav-dropdown-item">
+                                    <i class="fas fa-fire" style="color: #ff3b3b;"></i>
+                                    <div>
+                                        <span class="dropdown-item-title">Popular</span>
+                                        <span class="dropdown-item-desc">Most watched TV shows</span>
+                                    </div>
+                                </a>
+                                <a href="index.php?page=tvshows&sort=first_air_date.desc" class="nav-dropdown-item">
+                                    <i class="fas fa-bolt" style="color: #00d2ff;"></i>
+                                    <div>
+                                        <span class="dropdown-item-title">Latest Releases</span>
+                                        <span class="dropdown-item-desc">Freshly aired episodes</span>
+                                    </div>
+                                </a>
+                                <a href="index.php?page=tvshows&sort=vote_average.desc&rating=7" class="nav-dropdown-item">
+                                    <i class="fas fa-star" style="color: #FCD34D;"></i>
+                                    <div>
+                                        <span class="dropdown-item-title">Top Rated</span>
+                                        <span class="dropdown-item-desc">Highly rated by viewers</span>
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     </li>
@@ -153,12 +247,20 @@ $navGenres = [
                     </li>
 
 
-
-                    <!-- Community -->
-                    <li class="nav-item">
-                        <a href="index.php?page=my_reviews" class="nav-link <?php echo (isset($_GET['page']) && $_GET['page'] == 'my_reviews') ? 'active' : ''; ?>">
-                            <i class="fas fa-users nav-link-icon"></i>
-                            Community
+                    <!-- Menu Khusus Mobile (Login, Profil & Bahasa) -->
+                    <li class="nav-item mobile-only-item">
+                        <?php if(!isset($_SESSION['user'])): ?>
+                            <a href="index.php?page=login" class="nav-link"><i class="fas fa-sign-in-alt nav-link-icon"></i> Login</a>
+                            <a href="index.php?page=signup" class="nav-link" style="color: var(--accent);"><i class="fas fa-user-plus nav-link-icon"></i> Sign Up</a>
+                        <?php else: ?>
+                            <a href="index.php?page=user_profile" class="nav-link"><i class="fas fa-user nav-link-icon"></i> My Profile</a>
+                            <a href="index.php?page=profile" class="nav-link"><i class="fas fa-user-cog nav-link-icon"></i> Profile Settings</a>
+                            <a href="index.php?page=logout" class="nav-link" style="color: #ff5c5c;"><i class="fas fa-right-from-bracket nav-link-icon"></i> Logout</a>
+                        <?php endif; ?>
+                        
+                        <!-- Toggle Bahasa Khusus Mobile -->
+                        <a href="#" class="nav-link" onclick="document.cookie='site_lang=' + (document.cookie.includes('id-ID') ? 'en-US' : 'id-ID') + '; path=/; max-age=2592000'; window.location.reload();">
+                            <i class="fas fa-language nav-link-icon"></i> Switch Language (<?= $siteLang === 'id-ID' ? 'ID' : 'EN' ?>)
                         </a>
                     </li>
                 </ul>
@@ -193,14 +295,15 @@ $navGenres = [
 
                 <!-- Theme Switch -->
                 <div class="nav-action-btn" id="themeSwitch" title="Toggle Light/Dark Mode">
-                    <i class="fas fa-sun" id="themeIcon"></i>
+                    <i class="fas fa-sun" id="themeIconSun"></i>
+                    <i class="fas fa-moon" id="themeIconMoon"></i>
                 </div>
 
                 <!-- Notification Bell -->
                 <?php if(isset($_SESSION['user_id'])): ?>
                 <div class="nav-action-btn nav-notification" id="notifBell" title="Notifications">
                     <i class="fas fa-bell"></i>
-                    <span class="notif-badge" id="notifBadge">3</span>
+                    <span class="notif-badge" id="notifBadge" style="display: none;"></span>
                 </div>
                 <div class="nav-notif-dropdown" id="notifDropdown">
                     <div class="notif-header">
@@ -208,29 +311,8 @@ $navGenres = [
                         <a href="#" class="notif-mark-read">Mark all read</a>
                     </div>
                     <div class="notif-list">
-                        <div class="notif-item unread">
-                            <div class="notif-icon"><i class="fas fa-heart"></i></div>
-                            <div class="notif-content">
-                                <p><strong>Someone</strong> liked your review on <em>Inception</em></p>
-                                <span class="notif-time">2 hours ago</span>
-                            </div>
-                        </div>
-                        <div class="notif-item unread">
-                            <div class="notif-icon"><i class="fas fa-user-plus"></i></div>
-                            <div class="notif-content">
-                                <p><strong>CineFan99</strong> started following you</p>
-                                <span class="notif-time">5 hours ago</span>
-                            </div>
-                        </div>
-                        <div class="notif-item">
-                            <div class="notif-icon"><i class="fas fa-star"></i></div>
-                            <div class="notif-content">
-                                <p>New recommendation: <em>Dune Part Three</em></p>
-                                <span class="notif-time">1 day ago</span>
-                            </div>
-                        </div>
                     </div>
-                    <a href="#" class="notif-see-all">See all notifications</a>
+                    <a href="index.php?page=notifications" class="notif-see-all">See all notifications</a>
                 </div>
                 <?php endif; ?>
 
@@ -254,25 +336,44 @@ $navGenres = [
                 ?>
                 <div class="nav-profile" id="navProfile">
                     <div class="nav-profile-trigger" title="<?= htmlspecialchars($uname) ?>">
-                        <div class="profile-avatar" style="background: <?= $activeAvatarBg ?>;"><?= htmlspecialchars($initial) ?></div>
+                        <?php if(!empty($userAvatar)): ?>
+                            <img src="<?= htmlspecialchars($userAvatar) ?>" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="profile-avatar" style="background: <?= $activeAvatarBg ?>;"><?= htmlspecialchars($initial) ?></div>
+                        <?php endif; ?>
                         <span class="profile-name-text"><?= htmlspecialchars($uname) ?></span>
                         <i class="fas fa-chevron-down nav-caret-sm profile-caret"></i>
                     </div>
                     <div class="nav-profile-dropdown" id="profileDropdown">
                         <div class="profile-dropdown-header">
-                            <div class="profile-avatar-lg" style="background: <?= $activeAvatarBg ?>;"><?= htmlspecialchars($initial) ?></div>
+                            <?php if(!empty($userAvatar)): ?>
+                                <img src="<?= htmlspecialchars($userAvatar) ?>" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            <?php else: ?>
+                                <div class="profile-avatar-lg" style="background: <?= $activeAvatarBg ?>;"><?= htmlspecialchars($initial) ?></div>
+                            <?php endif; ?>
                             <div>
                                 <div class="profile-dropdown-name"><?= htmlspecialchars($uname) ?></div>
                                 <div class="profile-dropdown-email">Member</div>
                             </div>
                         </div>
                         <div class="profile-dropdown-divider"></div>
-                        <a href="index.php?page=profile" class="profile-dropdown-item">
+                        <a href="index.php?page=user_profile" class="profile-dropdown-item">
                             <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="index.php?page=watchlist" class="profile-dropdown-item">
+                            <i class="fas fa-bookmark"></i> Watchlist
                         </a>
                         <a href="index.php?page=my_reviews" class="profile-dropdown-item">
                             <i class="fas fa-star"></i> My Reviews
                         </a>
+                        <a href="index.php?page=my_lists" class="profile-dropdown-item">
+                            <i class="fas fa-list"></i> My Playlists
+                        </a>
+                        <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <a href="index.php?page=admin" class="profile-dropdown-item" style="color: var(--accent);">
+                            <i class="fas fa-shield-halved"></i> Admin Panel
+                        </a>
+                        <?php endif; ?>
 
                         <a href="index.php?page=profile" class="profile-dropdown-item">
                             <i class="fas fa-gear"></i> Settings

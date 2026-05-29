@@ -62,6 +62,7 @@ $siteTranslations = [
         'explore_tv_desc' => 'From epic series to the latest reality shows. Adjust the filters below and find the perfect binge-watch for today.',
         'genre' => 'Genre',
         'all_genre' => 'All Genres',
+        'top_cast' => 'Top Cast',
         'year' => 'Year',
         'all_year' => 'All Years',
         'rating' => 'Rating',
@@ -174,6 +175,7 @@ $siteTranslations = [
         'explore_tv_desc' => 'Dari serial epik hingga acara realitas terbaru. Sesuaikan filter di bawah dan temukan tontonan maraton sempurna untuk hari ini.',
         'genre' => 'Genre',
         'all_genre' => 'Semua Genre',
+        'top_cast' => 'Pemeran Utama',
         'year' => 'Tahun',
         'all_year' => 'Semua Tahun',
         'rating' => 'Rating',
@@ -394,16 +396,22 @@ function formatMovies($results, $limit = 8, $type = 'movie') {
     $movies = [];
     if (!$results) return $movies;
     
-    $map = $type === 'tv' ? $tvGenreMap : $genreMap;
-    
-    foreach (array_slice($results, 0, $limit) as $item) {
-        $genre = $type === 'tv' ? "TV Show" : "Movie";
+    foreach ($results as $item) {
+        // Deteksi apakah hasil memiliki media_type sendiri (dari pencarian search/multi), jika tidak ada gunakan parameter fungsi
+        $itemType = isset($item['media_type']) && in_array($item['media_type'], ['movie', 'tv']) ? $item['media_type'] : $type;
+        
+        // Lewati hasil pencarian yang berupa profil aktor/kru
+        if (isset($item['media_type']) && $item['media_type'] === 'person') continue;
+
+        $map = $itemType === 'tv' ? $tvGenreMap : $genreMap;
+        $genre = $itemType === 'tv' ? "TV Show" : "Movie";
+        
         if (!empty($item['genre_ids'])) {
             $genre = $map[$item['genre_ids'][0]] ?? $genre;
         }
         $movies[] = [
             "id" => $item['id'] ?? 0,
-            "type" => $type,
+            "type" => $itemType,
             "title" => $item['title'] ?? $item['original_title'] ?? $item['name'] ?? "Unknown",
             "year" => isset($item['release_date']) && strlen($item['release_date']) >= 4 ? substr($item['release_date'], 0, 4) : (isset($item['first_air_date']) && strlen($item['first_air_date']) >= 4 ? substr($item['first_air_date'], 0, 4) : "-"),
             "genre" => $genre,
@@ -412,6 +420,8 @@ function formatMovies($results, $limit = 8, $type = 'movie') {
             "backdrop" => !empty($item['backdrop_path']) ? "https://image.tmdb.org/t/p/original" . $item['backdrop_path'] : "",
             "overview" => $item['overview'] ?? ""
         ];
+        
+        if (count($movies) >= $limit) break;
     }
     return $movies;
 }
@@ -440,6 +450,17 @@ function discoverMovies($filters = [], $limit = 20, $page = 1) {
     $sortBy = !empty($filters['sort']) ? $filters['sort'] : "popularity.desc";
     $endpoint = "discover/movie?sort_by=" . urlencode($sortBy) . "&page=" . intval($page);
     
+    if (!empty($filters['category'])) {
+        $today = date('Y-m-d');
+        if ($filters['category'] === 'upcoming') {
+            // Menampilkan yang rilis hari ini sampai 3 bulan ke depan
+            $endpoint .= "&primary_release_date.gte=" . $today . "&primary_release_date.lte=" . date('Y-m-d', strtotime('+3 months'));
+        } elseif ($filters['category'] === 'now_playing') {
+            $lastMonth = date('Y-m-d', strtotime('-1 month'));
+            $endpoint .= "&primary_release_date.gte=" . $lastMonth . "&primary_release_date.lte=" . $today;
+        }
+    }
+
     if (!empty($filters['genre'])) {
         $endpoint .= "&with_genres=" . urlencode($filters['genre']);
     }
@@ -525,12 +546,12 @@ function getHeroBanners() {
 
 function getMovieDetails($id) {
     if(empty($id)) return null;
-    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
+    return fetchTMDB("movie/" . intval($id) . "?append_to_response=videos,credits&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
 }
 
 function getMediaDetails($id, $type = 'movie') {
     if(empty($id)) return null;
-    return fetchTMDB($type . "/" . intval($id) . "?append_to_response=videos&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
+    return fetchTMDB($type . "/" . intval($id) . "?append_to_response=videos,credits&include_video_language=id,en,ko,ja,zh,th,es,fr,null");
 }
 
 function getPersonalizedRecommendations($limit = 10) {
@@ -575,7 +596,7 @@ function getSimilarMedia($id, $type = 'movie', $limit = 10) {
 
 function searchMovies($query, $page = 1) {
     if(empty($query)) return [];
-    $data = fetchTMDB("search/movie?query=" . urlencode($query) . "&page=" . intval($page));
+    $data = fetchTMDB("search/multi?query=" . urlencode($query) . "&page=" . intval($page));
     return formatMovies($data['results'] ?? [], 20); // Tampilkan max 20 pencarian
 }
 

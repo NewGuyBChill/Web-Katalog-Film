@@ -19,10 +19,10 @@ global $tvGenreMap;
 global $langMap;
 
 $sortMap = [
-    'popularity.desc' => translateText('sort_pop_desc'),
-    'vote_average.desc' => translateText('sort_rating_desc'),
-    'first_air_date.desc' => translateText('sort_date_desc'),
-    'first_air_date.asc' => translateText('sort_date_asc')
+    'popularity.desc' => '<i class="fas fa-fire" style="color: #ff3b3b; margin-right: 6px;"></i> ' . translateText('sort_pop_desc'),
+    'vote_average.desc' => '<i class="fas fa-star" style="color: #FCD34D; margin-right: 6px;"></i> ' . translateText('sort_rating_desc'),
+    'first_air_date.desc' => '<i class="fas fa-bolt" style="color: #00d2ff; margin-right: 6px;"></i> ' . translateText('sort_date_desc'),
+    'first_air_date.asc' => '<i class="fas fa-history" style="margin-right: 6px;"></i> ' . translateText('sort_date_asc')
 ];
 $currentSortLabel = isset($sortMap[$filters['sort']]) ? $sortMap[$filters['sort']] : translateText('sort_pop_desc');
 ?>

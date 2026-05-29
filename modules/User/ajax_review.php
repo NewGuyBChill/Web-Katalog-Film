@@ -48,14 +48,14 @@ try {
         $review_id = $row['id'];
         $updateSql = "UPDATE reviews SET rating = $rating, review_text = '$review_text', media_title = '$title', media_poster = '$poster', created_at = CURRENT_TIMESTAMP WHERE id = $review_id";
         if ($conn->query($updateSql)) {
-            echo json_encode(['success' => true, 'action' => 'updated', 'review_id' => $review_id, 'user_name' => $_SESSION['user'], 'user_initial' => strtoupper(substr($_SESSION['user'], 0, 1))]);
+            echo json_encode(['success' => true, 'action' => 'updated', 'review_id' => $review_id, 'user_id' => $user_id, 'user_name' => $_SESSION['user'], 'user_initial' => strtoupper(substr($_SESSION['user'], 0, 1))]);
         } else {
             echo json_encode(['success' => false, 'error' => $conn->error]);
         }
     } else {
         $insertSql = "INSERT INTO reviews (user_id, media_id, media_type, media_title, media_poster, rating, review_text) VALUES ($user_id, $media_id, '$media_type', '$title', '$poster', $rating, '$review_text')";
         if ($conn->query($insertSql)) {
-            echo json_encode(['success' => true, 'action' => 'inserted', 'review_id' => $conn->insert_id, 'user_name' => $_SESSION['user'], 'user_initial' => strtoupper(substr($_SESSION['user'], 0, 1))]);
+            echo json_encode(['success' => true, 'action' => 'inserted', 'review_id' => $conn->insert_id, 'user_id' => $user_id, 'user_name' => $_SESSION['user'], 'user_initial' => strtoupper(substr($_SESSION['user'], 0, 1))]);
         } else {
             echo json_encode(['success' => false, 'error' => $conn->error]);
         }

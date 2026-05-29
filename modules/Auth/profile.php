@@ -54,6 +54,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
+                // Handle Upload Avatar
+                if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+                    $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+                    $fileName = $_FILES['avatar']['name'];
+                    $fileTmp = $_FILES['avatar']['tmp_name'];
+                    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    
+                    if (in_array($fileExt, $allowed)) {
+                        $uploadDir = __DIR__ . '/../../assets/uploads/avatars/';
+                        if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
+                        $newFileName = 'avatar_' . $uid . '_' . time() . '.' . $fileExt;
+                        if (move_uploaded_file($fileTmp, $uploadDir . $newFileName)) {
+                            $avatarPath = 'assets/uploads/avatars/' . $newFileName;
+                            $update_query .= ", avatar = '$avatarPath'";
+                        }
+                    } else {
+                        $error = "Format foto tidak didukung (Gunakan JPG, PNG, atau WEBP).";
+                    }
+                }
+
                 if (empty($error)) {
                     $update_query .= " WHERE id = $uid";
                     if ($conn->query($update_query)) {
@@ -72,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Ambil data user saat ini dari database
 $user_data = null;
-$res = $conn->query("SELECT name FROM users WHERE id = $uid");
+$res = $conn->query("SELECT name, avatar FROM users WHERE id = $uid");
 if ($res && $res->num_rows > 0) {
     $user_data = $res->fetch_assoc();
 }
@@ -94,8 +114,13 @@ if ($res && $res->num_rows > 0) {
             </div>
         <?php endif; ?>
 
-        <form action="index.php?page=profile" method="POST" class="auth-form">
+        <form action="index.php?page=profile" method="POST" class="auth-form" enctype="multipart/form-data">
             <input type="hidden" name="action" value="update">
+            <div class="auth-input-group">
+                <label>Foto Profil (Opsional)</label>
+                <input type="file" name="avatar" class="auth-input" accept=".jpg,.jpeg,.png,.webp" style="padding: 10px; background: rgba(255,255,255,0.02);">
+            </div>
+
             <div class="auth-input-group">
                 <label for="username"><?= translateText('new_username') ?></label>
                 <input type="text" name="username" id="username" class="auth-input" value="<?= htmlspecialchars($user_data['name'] ?? $_SESSION['user']) ?>" required>
