@@ -193,7 +193,8 @@
 .nav-dropdown::before {
     content: '';
     position: absolute;
-    top: -12px; /* Sesuai dengan gap 12px (calc(100% + 12px)) */
+    top: -12px;
+    /* Sesuai dengan gap 12px (calc(100% + 12px)) */
     left: 0;
     width: 100%;
     height: 12px;
@@ -810,7 +811,8 @@
 .nav-profile::after {
     content: '';
     position: absolute;
-    bottom: -10px; /* Sesuai dengan gap 10px (calc(100% + 10px)) */
+    bottom: -10px;
+    /* Sesuai dengan gap 10px (calc(100% + 10px)) */
     left: 0;
     width: 100%;
     height: 10px;
@@ -1032,12 +1034,12 @@
         gap: 0.25rem;
         overflow-y: auto;
         border-left: 1px solid rgba(255, 255, 255, 0.06);
-        
+
         /* KUNCI UTAMA SEMBUNYI: */
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
-        
+
         transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, visibility 0.3s ease;
         z-index: 101;
     }
@@ -1063,7 +1065,8 @@
         display: none;
     }
 
-    .nav-dropdown, .nav-dropdown-genres {
+    .nav-dropdown,
+    .nav-dropdown-genres {
         position: static !important;
         transform: none !important;
         width: 100% !important;
@@ -1100,7 +1103,8 @@
         gap: 8px !important;
     }
 
-    .nav-dropdown-item, .nav-dropdown-genre-item {
+    .nav-dropdown-item,
+    .nav-dropdown-genre-item {
         padding: 10px 14px !important;
     }
 
@@ -1120,13 +1124,15 @@
     }
 
     .dropdown-tab-btn {
-        flex: 1; /* Memaksa tombol membagi ruang sama rata (50-50) */
+        flex: 1;
+        /* Memaksa tombol membagi ruang sama rata (50-50) */
         padding: 8px 4px;
         font-size: 0.95rem;
     }
 
     .dropdown-tab-btn.active::after {
-        bottom: -11px; /* Menyesuaikan posisi garis indikator aktif dengan padding baru */
+        bottom: -11px;
+        /* Menyesuaikan posisi garis indikator aktif dengan padding baru */
     }
 
     .nav-search {
@@ -1148,12 +1154,12 @@
         display: none;
     }
 
-        .mobile-only-item {
-            display: block !important;
+    .mobile-only-item {
+        display: block !important;
         margin-top: 1.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         padding-top: 1rem;
-        }
+    }
 }
 
 @media (max-width: 576px) {
@@ -1168,60 +1174,84 @@
         -webkit-backdrop-filter: blur(12px) !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
+
     .nav-container {
-        position: relative; /* Menahan search bar absolute di dalamnya */
-        height: 116px; /* Tinggi ditingkatkan untuk menampung dua baris */
+        position: relative;
+        /* Menahan search bar absolute di dalamnya */
+        height: 116px;
+        /* Tinggi ditingkatkan untuk menampung dua baris */
         padding: 12px 1rem !important;
         width: 100% !important;
         max-width: 100% !important;
-        box-sizing: border-box !important; /* Memastikan padding masuk ke dalam total lebar, tidak mendesak ke luar */
-        align-items: flex-start; /* Sejajarkan logo & tombol aksi di atas */
+        box-sizing: border-box !important;
+        /* Memastikan padding masuk ke dalam total lebar, tidak mendesak ke luar */
+        align-items: flex-start;
+        /* Sejajarkan logo & tombol aksi di atas */
     }
+
     .nav-right {
-        gap: 12px; /* Jarak bernafas ideal antara ikon Tema dan Hamburger */
+        gap: 12px;
+        /* Jarak bernafas ideal antara ikon Tema dan Hamburger */
         margin: 0;
         padding: 0;
     }
+
     .nav-search {
-        position: absolute; /* Lepaskan dari flow flexbox agar tidak mendesak tombol lain */
+        position: absolute;
+        /* Lepaskan dari flow flexbox agar tidak mendesak tombol lain */
         bottom: 12px;
         left: 10px;
         width: 100% !important;
-        max-width: calc(100% - 20px) !important; /* Memberikan space aman kanan-kiri */
+        max-width: calc(100% - 20px) !important;
+        /* Memberikan space aman kanan-kiri */
         box-sizing: border-box !important;
-        height: 42px !important; /* Berikan ruang vertikal yang lebih lega */
-        padding: 0 16px !important; /* Padding kiri-kanan di dalam kotak search */
+        height: 42px !important;
+        /* Berikan ruang vertikal yang lebih lega */
+        padding: 0 16px !important;
+        /* Padding kiri-kanan di dalam kotak search */
     }
+
     .nav-search.is-expanded {
         width: 100% !important;
         max-width: calc(100% - 20px) !important;
         height: 42px !important;
         padding: 0 16px !important;
     }
+
     .nav-search-input {
         font-size: 0.9rem !important;
     }
-    .nav-action-btn, .nav-hamburger {
+
+    .nav-action-btn,
+    .nav-hamburger {
         width: 32px;
         height: 32px;
     }
+
     .nav-hamburger {
-        flex-shrink: 0; /* Mencegah tombol gepeng walau layar sangat sempit */
+        flex-shrink: 0;
+        /* Mencegah tombol gepeng walau layar sangat sempit */
     }
+
     .logo-icon {
         width: 30px;
         height: 30px;
     }
+
     .logo-text {
         font-size: 1.25rem;
     }
+
     .nav-menu {
-        top: 116px; /* Sinkronkan dengan tinggi navbar baru */
+        top: 116px;
+        /* Sinkronkan dengan tinggi navbar baru */
         height: calc(100vh - 116px);
         width: 85vw;
         right: -85vw;
     }
+
     .live-search-results {
-        min-width: 100%; /* Hindari dropdown hasil pencarian menembus layar HP */
+        min-width: 100%;
+        /* Hindari dropdown hasil pencarian menembus layar HP */
     }
 }

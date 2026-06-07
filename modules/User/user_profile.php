@@ -106,10 +106,10 @@ if ($res_casts) {
     <main class="dash-main container" style="min-height: 80vh;">
     
     <!-- Form Pencarian Pengguna -->
-    <div id="userSearchContainer" style="max-width: 600px; margin: 0 auto 2rem auto; position: relative;">
+    <div id="userSearchContainer" style="max-width: 700px; margin: 0 0 2rem 0; position: relative;">
         <form action="index.php" method="GET" style="display: flex; gap: 10px;">
             <input type="hidden" name="page" value="user_profile">
-            <input type="text" id="userSearchInput" name="search_user" value="<?= htmlspecialchars($search_user) ?>" autocomplete="off" placeholder="Cari teman atau pengguna lain..." style="flex-grow: 1; padding: 12px 20px; border-radius: 30px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; font-size: 1rem; transition: 0.3s;">
+            <input type="text" id="userSearchInput" name="search_user" value="<?= htmlspecialchars($search_user) ?>" autocomplete="off" placeholder="Cari teman atau pengguna lain..." style="flex-grow: 1; padding: 12px 20px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; font-size: 1rem; transition: 0.3s;">
             <button type="submit" class="btn-primary" style="padding: 12px 25px; border-radius: 30px;"><i class="fas fa-search"></i></button>
             <?php if(!empty($search_user)): ?>
                 <a href="index.php?page=user_profile" class="btn-secondary" style="padding: 12px 20px; border-radius: 30px; text-decoration: none;"><i class="fas fa-times"></i></a>
@@ -146,130 +146,238 @@ if ($res_casts) {
     </div>
     <?php else: ?>
 
-    <!-- Profil Header (Showcase) -->
-    <div class="user-profile-header review-box" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 3rem; padding: 3rem 2rem;">
-        <?php if(!empty($user_info['avatar'])): ?>
-            <img src="<?= htmlspecialchars($user_info['avatar']) ?>" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-        <?php else: ?>
-            <div style="width: 100px; height: 100px; border-radius: 50%; background: <?= $activeAvatarBg ?>; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 800; color: white; margin-bottom: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                <?= $initial ?>
+    <style>
+    .profile-split-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1.2fr;
+        gap: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+        .profile-split-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .list-card-grid {
+        display: grid; 
+        grid-template-columns: 1fr 2fr 1.5fr 1fr; 
+        background: rgba(0,0,0,0.2); 
+        border-radius: 12px; 
+        padding: 1rem; 
+        align-items: center; 
+        gap: 1rem;
+        transition: transform 0.2s;
+    }
+    .list-card-grid:hover {
+        transform: scale(1.01);
+        background: rgba(0,0,0,0.3);
+    }
+    @media (max-width: 768px) {
+        .list-card-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+        .list-card-grid > div {
+            text-align: left !important;
+        }
+        .list-card-badge {
+            float: none !important;
+            display: inline-block !important;
+        }
+    }
+    .profile-action-btn {
+        padding: 0.5rem 1.2rem;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    .btn-outline-accent {
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        background: transparent;
+    }
+    .btn-outline-accent:hover {
+        background: rgba(0, 210, 255, 0.1);
+    }
+    </style>
+
+    <!-- Tahap 1: Header Halaman -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 10px;">
+            User profile
+        </h1>
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+            <div style="display: flex; gap: 10px;">
+                <?php if ($uid == $current_user_id): ?>
+                    <a href="javascript:window.print()" class="profile-action-btn btn-outline-accent">PRINT</a>
+                    <a href="index.php?page=profile" class="profile-action-btn btn-primary" style="border: none;">EDIT</a>
+                <?php else: 
+                    $follow_btn_class = $is_following ? 'btn-secondary active' : 'btn-primary';
+                    $follow_btn_icon = $is_following ? 'fa-user-check' : 'fa-user-plus';
+                    $follow_btn_text = $is_following ? 'FOLLOWING' : 'FOLLOW';
+                ?>
+                    <button class="profile-action-btn <?= $follow_btn_class ?>" onclick="toggleFollow(this, <?= $uid ?>)" style="border: none; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas <?= $follow_btn_icon ?>"></i> <?= $follow_btn_text ?>
+                    </button>
+                <?php endif; ?>
             </div>
-        <?php endif; ?>
-        <h1 style="font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--text-main);"><?= htmlspecialchars($uname) ?></h1>
-        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem;">Anggota sejak <?= $member_since ?></p>
-        
-        <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-            <div style="text-align: center;">
-                <div style="font-size: 2rem; font-weight: 800; color: var(--accent);"><?= $stats['reviews'] ?></div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">Ulasan</div>
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 2rem; font-weight: 800; color: var(--accent);"><?= $stats['watchlist'] ?></div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">Di Watchlist</div>
-            </div>
-            <a href="index.php?page=user_follows&id=<?= $uid ?>&tab=followers" style="text-align: center; text-decoration: none; display: block; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                <div style="font-size: 2rem; font-weight: 800; color: var(--accent);"><?= $stats['followers'] ?></div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">Pengikut</div>
-            </a>
-            <a href="index.php?page=user_follows&id=<?= $uid ?>&tab=following" style="text-align: center; text-decoration: none; display: block; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                <div style="font-size: 2rem; font-weight: 800; color: var(--accent);"><?= $stats['following'] ?></div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">Mengikuti</div>
-            </a>
         </div>
-        
-        <?php if ($uid == $current_user_id): // Jika ini profil kita sendiri, tampilkan tombol Edit ?>
-            <a href="index.php?page=profile" class="btn-secondary" style="margin-top: 2.5rem; text-decoration: none; border-radius: 30px; padding: 0.6rem 1.5rem;"><i class="fas fa-edit"></i> Edit Akun</a>
-        <?php else: // Jika ini profil orang lain, tampilkan tombol Follow/Unfollow
-            $follow_btn_class = $is_following ? 'btn-secondary active' : 'btn-primary';
-            $follow_btn_icon = $is_following ? 'fa-user-check' : 'fa-user-plus';
-            $follow_btn_text = $is_following ? 'Mengikuti' : 'Ikuti';
-        ?>
-            <button class="<?= $follow_btn_class ?>" onclick="toggleFollow(this, <?= $uid ?>)" style="margin-top: 2.5rem; text-decoration: none; border-radius: 30px; padding: 0.8rem 1.8rem; min-width: 150px; justify-content: center; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas <?= $follow_btn_icon ?>"></i>
-                <span><?= $follow_btn_text ?></span>
-            </button>
-        <?php endif; ?>
     </div>
 
-    <!-- Favorite Cast -->
-    <div class="section-header" style="margin-bottom: 1.5rem;">
-        <h2><i class="fas fa-star" style="color: #FCD34D;"></i> Pemeran Favorit</h2>
-        <p>Aktor dan aktris favorit <?= htmlspecialchars($uname) ?>.</p>
-    </div>
-    
-    <?php if (count($favorite_casts) > 0): ?>
-        <div class="movie-row" style="display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; scrollbar-width: thin; margin-bottom: 3.5rem;">
-            <?php foreach($favorite_casts as $cast): 
-                $castImg = !empty($cast['cast_image']) ? $cast['cast_image'] : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22300%22%20fill%3D%22%23222%22%3E%3Crect%20width%3D%22200%22%20height%3D%22300%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23666%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20text-anchor%3D%22middle%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E";
-            ?>
-            <div style="flex: 0 0 140px; text-align: center; position: relative;">
-                <img src="<?= htmlspecialchars((string)$castImg) ?>" alt="<?= htmlspecialchars((string)$cast['cast_name']) ?>" style="width: 140px; height: 210px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; background: var(--card-bg);">
-                <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars((string)$cast['cast_name']) ?></div>
-            </div>
-            <?php endforeach; ?>
+    <!-- Tahap 2: Grid Atas (3 Kartu Informasi) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Kartu 1: Identitas Utama (Kiri) -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 2.5rem 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <?php if(!empty($user_info['avatar'])): ?>
+                <img src="<?= htmlspecialchars($user_info['avatar']) ?>" alt="Avatar" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin-bottom: 1.2rem; border: 4px solid rgba(255,255,255,0.1);">
+            <?php else: ?>
+                <div style="width: 110px; height: 110px; border-radius: 50%; background: <?= $activeAvatarBg ?>; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 800; color: white; margin-bottom: 1.2rem; border: 4px solid rgba(255,255,255,0.1);">
+                    <?= $initial ?>
+                </div>
+            <?php endif; ?>
+            <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;"><?= htmlspecialchars($uname) ?></h2>
+            <p style="color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.2rem;">ID: #<?= str_pad($uid, 5, '0', STR_PAD_LEFT) ?></p>
+            <p style="color: var(--text-muted); font-size: 0.8rem;"><?= strtolower(str_replace(' ', '', htmlspecialchars($uname))) ?>@celesview.com</p>
         </div>
-    <?php else: ?>
-        <div class="empty-state" style="margin-bottom: 3.5rem; padding: 40px 20px;">
-            <i class="fas fa-users" style="font-size: 2.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i>
-            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Belum Ada Pemeran Favorit</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Pengguna ini belum menambahkan aktor atau aktris favorit ke dalam daftarnya.</p>
-        </div>
-    <?php endif; ?>
 
-    <!-- Feed Aktivitas Ulasan -->
-    <div class="section-header" style="margin-bottom: 1.5rem;">
-        <h2><i class="fas fa-comment-dots" style="color: #4facfe;"></i> Aktivitas Terbaru</h2>
-        <p>Ulasan yang baru saja dibagikan oleh <?= htmlspecialchars($uname) ?>.</p>
-    </div>
-    
-    <div style="max-width: 900px; margin: 0 auto;">
-        <?php if (count($reviews) > 0): ?>
-            <?php foreach($reviews as $rev): 
-                $title = $rev['media_title'] ?? 'Unknown Media';
-                $poster = !empty($rev['media_poster']) ? $rev['media_poster'] : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22300%22%20viewBox%3D%220%200%20200%20300%22%3E%3Crect%20width%3D%22200%22%20height%3D%22300%22%20fill%3D%22%231a1a1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2220%22%20fill%3D%22%23555555%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Poster%3C%2Ftext%3E%3C%2Fsvg%3E";
-                $starsHtml = '';
-                for($i=0; $i<5; $i++) { $starsHtml .= $i < $rev['rating'] ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'; }
-                
-                $activeClass = !empty($rev['is_liked_by_user']) ? 'active' : '';
-            ?>
-            <div class="review-item" style="margin-bottom: 1.5rem; display: flex; gap: 1.5rem; align-items: flex-start;">
-                <!-- Link Poster ke Detail Film -->
-                <a href="index.php?page=details&type=<?= $rev['media_type'] ?>&id=<?= $rev['media_id'] ?>" style="flex-shrink: 0;">
-                    <img src="<?= $poster ?>" alt="Poster" style="width: 100px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: var(--card-bg);">
-                </a>
-                
-                <div style="flex-grow: 1;">
-                    <!-- Header Ulasan -->
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <a href="index.php?page=details&type=<?= $rev['media_type'] ?>&id=<?= $rev['media_id'] ?>" style="color: var(--text-main); text-decoration: none; font-size: 1.2rem; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-main)'">
-                            <?= htmlspecialchars($title) ?>
-                        </a>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);"><?= date('d M Y', strtotime($rev['created_at'])) ?></span>
-                    </div>
-                    
-                    <!-- Bintang -->
-                    <div style="color: #FCD34D; font-size: 0.95rem; margin-bottom: 1rem;"><?= $starsHtml ?></div>
-                    
-                    <!-- Isi Teks Ulasan -->
-                    <p style="line-height: 1.6; margin-bottom: 1rem;"><?= nl2br(htmlspecialchars($rev['review_text'])) ?></p>
-                    
-                    <!-- Tombol Aksi (Like) -->
-                    <div style="display: flex; gap: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; align-items: center;">
-                        <button class="review-like-btn <?= $activeClass ?>" onclick="likeReview(this, <?= $rev['id'] ?>)" style="position: static; margin: 0; padding: 6px 12px;">
-                            <i class="fas fa-heart"></i>
-                            <span class="like-count"><?= $rev['like_count'] ?></span>
-                        </button>
-                    </div>
+        <!-- Kartu 2: Informasi Umum (Tengah) -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 1.8rem; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px;">General information <i class="fas fa-pen" style="color: var(--accent); font-size: 0.75rem; cursor: pointer;"></i></h3>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Registration Date:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;"><?= $member_since ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Account Status:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;">Active Member</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Favorite Casts:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;"><?= count($favorite_casts) ?> Actors</span>
                 </div>
             </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="empty-state">
-                <i class="fas fa-comment-slash" style="font-size: 3.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i>
-                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main);">Belum ada ulasan</h3>
-                <p style="color: var(--text-muted); font-size: 0.95rem;">Pengguna ini belum pernah mengulas media apapun.</p>
+        </div>
+
+        <!-- Kartu 3: Informasi Spesifik (Kanan) -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 1.8rem; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px;">Platform Statistics <i class="fas fa-pen" style="color: var(--accent); font-size: 0.75rem; cursor: pointer;"></i></h3>
             </div>
-        <?php endif; ?>
+            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Reviews Written:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;"><?= $stats['reviews'] ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Watchlist Items:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;"><?= $stats['watchlist'] ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Followers:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;"><?= $stats['followers'] ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Following:</span>
+                    <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 600;"><?= $stats['following'] ?></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tahap 3 & 4: Grid Bawah (Split Layout 60% : 40%) -->
+    <div class="profile-split-grid">
+        
+        <!-- Area Kiri Bawah (Navigasi Tab & Daftar Aktivitas) -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 1.8rem; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <!-- Navigasi Tab -->
+            <div style="display: flex; gap: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;">
+                <div style="padding-bottom: 0.8rem; border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: 600; font-size: 0.9rem; cursor: pointer;">Recent Reviews (<?= count($reviews) ?>)</div>
+                <a href="index.php?page=watchlist" style="padding-bottom: 0.8rem; color: var(--text-muted); font-weight: 500; font-size: 0.9rem; cursor: pointer; text-decoration: none;">Watchlist (<?= $stats['watchlist'] ?>)</a>
+            </div>
+
+            <!-- Daftar Aktivitas (List Cards) -->
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <?php if (count($reviews) > 0): ?>
+                    <?php foreach($reviews as $rev): 
+                        $title = $rev['media_title'] ?? 'Unknown Media';
+                        $starsHtml = '';
+                        for($i=0; $i<5; $i++) { $starsHtml .= $i < $rev['rating'] ? '<i class="fas fa-star" style="color: #FCD34D;"></i>' : '<i class="far fa-star" style="color: #FCD34D;"></i>'; }
+                        $activeClass = !empty($rev['is_liked_by_user']) ? 'active' : '';
+                    ?>
+                    <!-- Internal Card Grid (4 Kolom) -->
+                    <div class="list-card-grid">
+                        <!-- [Tanggal/Waktu] -->
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.3rem;">Time: <?= date('H:i', strtotime($rev['created_at'])) ?></div>
+                            <div style="color: var(--text-main); font-weight: 700; font-size: 0.9rem;"><?= date('d M Y', strtotime($rev['created_at'])) ?></div>
+                        </div>
+                        <!-- [Nama Layanan/Aktivitas] -> Judul Film -->
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.3rem;">Service:</div>
+                            <a href="index.php?page=details&type=<?= $rev['media_type'] ?>&id=<?= $rev['media_id'] ?>" style="color: var(--text-main); font-weight: 600; font-size: 0.9rem; text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%;"><?= htmlspecialchars($title) ?></a>
+                        </div>
+                        <!-- [Nama Penanggung Jawab] -> Rating Bintang -->
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.3rem;">Rating Given:</div>
+                            <div style="font-size: 0.75rem; letter-spacing: 2px;"><?= $starsHtml ?></div>
+                        </div>
+                        <!-- [Badge Status] -> Status Likes -->
+                        <div style="text-align: right;">
+                            <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.3rem; text-align: left;">Status:</div>
+                            <button onclick="likeReview(this, <?= $rev['id'] ?>)" class="list-card-badge <?= $activeClass ?>" style="display: inline-block; background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; float: left; cursor: pointer; transition: 0.3s;">
+                                <i class="fas fa-heart"></i> <span class="like-count"><?= $rev['like_count'] ?></span> Likes
+                            </button>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-comment-slash" style="font-size: 2.5rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i>
+                        No recent activity found.
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Tahap 5: Area Kanan Bawah (Dokumen & Catatan) -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Kartu Atas (Files/Documents -> Favorite Casts) -->
+            <div style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 1.8rem; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);">Favorite Casts</h3>
+                    <a href="#" class="profile-action-btn btn-outline-accent" style="padding: 4px 12px; font-size: 0.75rem;">DOWNLOAD</a>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                    <?php if (count($favorite_casts) > 0): ?>
+                        <?php foreach(array_slice($favorite_casts, 0, 4) as $cast): 
+                            $castImg = !empty($cast['cast_image']) ? $cast['cast_image'] : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%23222%22%3E%3Crect%20width%3D%2240%22%20height%3D%2240%22%2F%3E%3C%2Fsvg%3E";
+                        ?>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <img src="<?= htmlspecialchars((string)$castImg) ?>" style="width: 35px; height: 35px; border-radius: 8px; object-fit: cover;">
+                                <span style="color: var(--text-main); font-size: 0.85rem; font-weight: 500;"><?= htmlspecialchars((string)$cast['cast_name']) ?></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">123kb</span>
+                                <i class="fas fa-download" style="color: var(--text-muted); font-size: 0.8rem; cursor: pointer;"></i>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center;">No favorite casts yet.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
     </div>
     <?php endif; ?>
     </main>

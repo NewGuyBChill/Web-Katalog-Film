@@ -573,7 +573,7 @@ body {
                                     }
                                     
                                     $like_count = $rev['like_count'] ?? 0;
-                                    $activeClass = !empty($rev['is_liked_by_user']) ? 'style="color:#00d2ff;"' : 'style="color:#aaa;"';
+                                    $likeColor = !empty($rev['is_liked_by_user']) ? '#00d2ff' : '#aaa';
                                     
                                     $revReplies = $replies[$rev['id']] ?? [];
                                     $reply_count = count($revReplies);
@@ -596,7 +596,7 @@ body {
                                         <p style='color: #aaa; line-height: 1.6; font-size: 0.9rem; margin-bottom: 1.2rem;'>" . nl2br(htmlspecialchars($rev['review_text'])) . "</p>
                                         
                                         <div style='display: flex; gap: 20px; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);'>
-                                            <button class='like-btn' onclick='toggleLikeReview(event, this, {$rev['id']})' {$activeClass} style='background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; transition: 0.3s;'>
+                                            <button class='like-btn' onclick='toggleLikeReview(event, this, {$rev['id']})' style='background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; transition: 0.3s; color: {$likeColor};'>
                                                 <i class='fas fa-thumbs-up'></i> <span class='like-count'>{$like_count}</span>
                                             </button>
                                             <button class='reply-toggle-btn' onclick='document.getElementById(\"replyArea-{$rev['id']}\").style.display = document.getElementById(\"replyArea-{$rev['id']}\").style.display === \"none\" ? \"block\" : \"none\"' style='background: none; border: none; color: #aaa; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; transition: 0.3s;'>
@@ -732,6 +732,110 @@ function deleteReview(reviewId, btn) {
     .then(data => {
         if(data.success) window.location.reload();
         else alert('Gagal: ' + data.error);
+    });
+}
+
+function toggleLikeReview(event, btn, reviewId) {
+    event.preventDefault();
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        alert("Silakan login untuk menyukai ulasan.");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+    
+    // Determine current state based on style color
+    const isCurrentlyLiked = btn.getAttribute('style').includes('#00d2ff');
+    const action = isCurrentlyLiked ? 'unlike' : 'like';
+
+    fetch('index.php?page=ajax_like_review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `review_id=${reviewId}&action=${action}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            let countSpan = btn.querySelector('.like-count');
+            let count = parseInt(countSpan.innerText) || 0;
+            if (data.action === 'liked') {
+                btn.style.color = '#00d2ff';
+                countSpan.innerText = count + 1;
+            } else if (data.action === 'unliked') {
+                btn.style.color = '#aaa';
+                countSpan.innerText = Math.max(0, count - 1);
+            }
+        } else {
+            if (data.action === 'login') {
+                alert("Silakan login untuk menyukai ulasan.");
+                window.location.href = 'index.php?page=login';
+            } else {
+                alert('Gagal: ' + data.error);
+            }
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+function submitReply(reviewId) {
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        alert("Silakan login untuk membalas ulasan.");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    const input = document.getElementById('replyInput-' + reviewId);
+    const text = input.value.trim();
+    if (text === '') return;
+
+    // Optional: show some loading state on the button
+    const btn = input.nextElementSibling;
+    const originalBtnHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+
+    fetch('index.php?page=ajax_review_reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=add&review_id=${reviewId}&reply_text=${encodeURIComponent(text)}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.innerHTML = originalBtnHtml;
+        btn.disabled = false;
+        
+        if (data.success) {
+            // Append to DOM dynamically
+            const list = document.getElementById('repliesList-' + reviewId);
+            const html = `
+                <div style='background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px;'>
+                    <div style='display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;'>
+                        <div style='width: 25px; height: 25px; background: rgba(255,255,255,0.1); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.7rem; font-weight: bold;'>${data.user_initial}</div>
+                        <strong style='font-size: 0.85rem; color: #ddd;'>${data.user_name}</strong>
+                        <span style='font-size: 0.7rem; color: #666;'>Baru saja</span>
+                    </div>
+                    <p style='margin: 0; color: #aaa; font-size: 0.85rem; padding-left: 35px;'>${data.reply_text}</p>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', html);
+            input.value = '';
+
+            // Update reply count text
+            const toggleBtn = document.querySelector(`button[onclick*="replyArea-${reviewId}"]`);
+            if (toggleBtn) {
+                const countSpan = toggleBtn.querySelector('span');
+                const match = countSpan.innerText.match(/(\d+)/);
+                if (match) {
+                    countSpan.innerText = (parseInt(match[1]) + 1) + ' Replies';
+                }
+            }
+        } else {
+            alert('Gagal membalas: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        btn.innerHTML = originalBtnHtml;
+        btn.disabled = false;
     });
 }
 </script>

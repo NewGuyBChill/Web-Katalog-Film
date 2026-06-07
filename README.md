@@ -1,370 +1,246 @@
-<p align="center">
-  <strong style="font-size: 2rem;">Celes<span style="font-weight: 200;">View</span></strong>
-  <br>
-  <em>Katalog Film & TV Show Berbasis Web — Powered by TMDB API</em>
-</p>
+# CelesView 🎬
+<div align="center">
+  <h3>Interactive Movie & TV Show Catalog</h3>
+  <p>A premium, cinematic web platform that delivers rich media content using real-time data from TMDB.</p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/PHP-Native-777BB4?logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/MySQL-MariaDB-4479A1?logo=mariadb&logoColor=white" alt="MySQL">
-  <img src="https://img.shields.io/badge/API-TMDB-01B4E4?logo=themoviedatabase&logoColor=white" alt="TMDB">
-  <img src="https://img.shields.io/badge/Server-XAMPP-FB7A24?logo=xampp&logoColor=white" alt="XAMPP">
-</p>
-
----
-
-## 📖 Deskripsi
-
-**CelesView** adalah aplikasi web katalog film dan TV show yang dibangun menggunakan **PHP Native** (tanpa framework) dengan arsitektur **modular MVC-like**. Aplikasi ini mengintegrasikan **TMDB (The Movie Database) API** untuk data film real-time dan menggunakan **MySQL/MariaDB** untuk menyimpan data pengguna, ulasan, watchlist, dan fitur sosial.
-
-### ✨ Fitur Utama
-
-| Kategori | Fitur |
-|----------|-------|
-| **Katalog** | Hero banner auto-slide, trending, top picks, upcoming, discover movies/TV shows dengan filter & sorting |
-| **Pencarian** | Live search real-time (AJAX) + halaman hasil pencarian dengan pagination |
-| **Detail Media** | Poster, sinopsis, rating, trailer YouTube, daftar pemeran, rekomendasi AI |
-| **Autentikasi** | Login, signup, logout, forgot password, session management |
-| **Watchlist** | Simpan/hapus film favorit ke database (per akun) |
-| **Review & Rating** | Beri rating bintang (1-5) dan tulis ulasan, edit, hapus |
-| **Sosial** | Like ulasan, balas ulasan, follow/unfollow pengguna, activity feed |
-| **Playlist** | Buat playlist kustom, tambah film ke playlist |
-| **Notifikasi** | Notifikasi real-time (like, follow, reply) dengan badge counter |
-| **Profil** | Profil publik, avatar, statistik, pemeran favorit, pencarian pengguna |
-| **Admin** | Dashboard moderasi, statistik, hapus ulasan (role-based) |
-| **i18n** | Dukungan bilingual (English / Bahasa Indonesia) via cookie |
-| **Tema** | Dark mode (default) + Light mode toggle |
-| **Performa** | File-based API caching, cURL multi-exec parallel, garbage collection otomatis |
+  <!-- Badges -->
+  <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP" />
+  <img src="https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/TMDB_API-01B4E4?style=for-the-badge&logo=themoviedb&logoColor=white" alt="TMDB API" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
+</div>
 
 ---
 
-## 🏗️ Arsitektur Proyek
+## 🌟 Key Features
 
+| Feature | Description |
+|---|---|
+| **Cinematic Hero Slider** | Immersive front-page hero banners with dynamic backdrop fetching, custom Ken Burns animation, and crossfade transitions. |
+| **Live Search AJAX** | Real-time search functionality integrated seamlessly into the navigation bar, offering instant results without page reloads. |
+| **User Rating & Review System** | A comprehensive rating system ala Metacritic, where users can leave scored reviews. A color-coded semantic system indicates critical reception. |
+| **Advanced Filtering & Sort** | Intuitive modal and pill-based filters allowing users to filter content by genres, release date, popularity, and specific ratings asynchronously. |
+| **Split-Card Authentication** | Modern, layout-driven authentication screens (Login & Register) implementing a beautiful split-screen design. |
+| **Personalized Watchlist** | Logged-in users can curate their own watchlist that persists securely in the database. |
+| **Bilingual Support** | Seamless dynamic language toggle (ID/EN) that updates API payloads and frontend interfaces via cookie states. |
+| **Smart Notification System** | Custom polling and rendering for user-centric alerts (likes, recommendations) tied to the platform's social features. |
+
+---
+
+## 🎨 UI/UX Design Philosophy
+
+CelesView was engineered from the ground up to mimic the premium aesthetics of major streaming platforms (like Netflix and HBO Max). The design ethos prioritizes immersion, visual feedback, and frictionless navigation.
+
+### 🌌 Theme "Modern Sci-Fi Dark"
+The interface is intentionally kept dark and restrained. By utilizing a deep, dark slate canvas, we allow the vibrant movie posters, cinematic backdrops, and video trailers to naturally command the user's attention. The UI completely steps back, ensuring that the media artwork remains the undisputed centerpiece. Extensive use of gradient overlays and vignettes ensures text remains highly legible against complex background images.
+
+### 💫 Micro-interactions & Fluidity
+Every interaction on the platform feels tactile and responsive. 
+- **Hover States & Glow:** Elements like the navigation icons and movie posters feature subtle scaling (`transform: scale()`) and dynamic box-shadows (`#00D2FF`) that provide immediate visual feedback. 
+- **Skeleton Loaders:** To prevent layout shifts and jarring transitions, we implement sleek skeleton loading screens while AJAX requests are resolving.
+- **Typing Animations:** A custom JavaScript typing effect within the main search bar serves as a passive micro-interaction, keeping the interface feeling alive even when idle.
+
+### ⚡ Asynchronous UX
+Page reloads are the enemy of immersion. CelesView heavily relies on asynchronous JavaScript (`fetch` / AJAX) to load content dynamically:
+- **Filtering:** Clicking genre pills or dragging the rating slider instantly updates the media grid.
+- **Search:** The predictive dropdown renders real-time TMDB data seamlessly.
+- **Watchlist & Ratings:** Submitting reviews and toggling watchlist states occur in the background, updating the UI instantaneously to maintain a frictionless user flow.
+
+---
+
+## 🖌️ Color Palette & Typography
+
+CelesView employs a carefully curated, highly specific color system to ensure maximum contrast and visual hierarchy.
+
+| Concept | HEX Code | Description |
+|---|---|---|
+| **Main Background** | `#0F0F0F` | Pitch black canvas designed to completely minimize eye strain and simulate a darkened theater environment. |
+| **Surface / Cards** | `#1E293B` | A dark slate blue utilized for modals, dropdowns, and input fields. It creates necessary depth and elevation against the true black background. |
+| **Primary Accent** | `#00D2FF` & `#0EA5E9` | Electric cyan and vivid blue. Used specifically for primary Call-to-Action buttons, active state indicators, hover glowing effects, and essential links. |
+| **Text Primary** | `#F8FAFC` | Off-white text that ensures high readability without the harshness of pure `#FFFFFF`. |
+| **Text Muted** | `#94A3B8` | A cool, bluish-gray utilized for metadata (release year, runtime) and secondary information to establish typographic hierarchy. |
+
+### Semantic Colors (User Rating System)
+We mapped our rating colors explicitly to mirror Metacritic’s universal standards:
+- 🟢 **Universal Acclaim:** `#22c55e` (Score >= 80)
+- 🟡 **Mixed or Average:** `#eab308` (Score 50 - 79)
+- 🔴 **Generally Unfavorable:** `#ef4444` (Score < 50)
+
+---
+
+## 🏗️ Technical Architecture & Database
+
+CelesView is built upon a **Custom MVC-like PHP Architecture**, maximizing raw performance and avoiding unnecessary framework bloat.
+
+### Architecture Highlights
+- **Front Controller Pattern:** All traffic routes exclusively through `index.php?page=...`, enforcing a single point of entry and simplified routing logic.
+- **TMDB API Integration:** Centralized in `config/data.php`, utilizing custom `fetchTMDB()` cURL wrappers.
+- **TTL Caching:** API responses are cached via a bespoke Time-to-Live (TTL) system to strictly minimize external rate-limit hits and drastically improve load times.
+
+### 🗄️ Database Schema (MySQL)
+The relational database is normalized to handle user states, social features, and generated content effectively. Below is the simplified schema structure:
+
+#### `users` (Authentication & Profiles)
+| Column | Type | Attributes | Description |
+|---|---|---|---|
+| `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique user identifier |
+| `name` | VARCHAR(255) | NOT NULL | Display name |
+| `email` | VARCHAR(255) | UNIQUE, NOT NULL | Login credential |
+| `password` | VARCHAR(255) | NOT NULL | Hashed password |
+| `avatar` | VARCHAR(255) | DEFAULT NULL | Profile image path |
+| `role` | ENUM | 'user', 'admin' | Access level |
+
+#### `user_follows` (Social Follow System)
+| Column | Type | Attributes | Description |
+|---|---|---|---|
+| `follower_id` | INT | PRIMARY KEY (Composite) | ID of the user following |
+| `following_id` | INT | PRIMARY KEY (Composite) | ID of the user being followed |
+
+#### `watchlist` (Personalized Watchlists)
+| Column | Type | Attributes | Description |
+|---|---|---|---|
+| `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique record ID |
+| `user_id` | INT | NOT NULL | Reference to `users.id` |
+| `media_id` | INT | NOT NULL | TMDB Media ID |
+| `media_type` | ENUM | 'movie', 'tv' | Type of media |
+
+#### `reviews` (User Reviews & Ratings)
+| Column | Type | Attributes | Description |
+|---|---|---|---|
+| `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique review ID |
+| `user_id` | INT | NOT NULL | Reference to `users.id` |
+| `media_id` | INT | NOT NULL | TMDB Media ID |
+| `media_type` | ENUM | 'movie', 'tv' | Type of media |
+| `rating` | INT | CHECK (1-5) | Metric score |
+| `review_text` | TEXT | NULLABLE | User's written review |
+
+#### `notifications` (Dynamic Alerts)
+| Column | Type | Attributes | Description |
+|---|---|---|---|
+| `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique notification ID |
+| `user_id` | INT | NOT NULL | Reference to `users.id` |
+| `type` | ENUM | 'like', 'follow', ... | Notification category |
+| `title` | VARCHAR(255) | NOT NULL | Short alert title |
+| `message` | TEXT | NULLABLE | Detailed alert body |
+| `is_read` | BOOLEAN | DEFAULT FALSE | Read state toggle |
+
+*(Note: All tables implicitly include a `created_at` TIMESTAMP column).*
+
+### 📁 Directory Structure
+To maintain scalability, the project follows a flat, modular directory structure separated by domains:
+
+```text
+/Web-Katalog-Film
+│
+├── index.php                 # Front Controller & Main Router
+├── README.md                 # Project Documentation
+│
+├── config/
+│   ├── db.php                # MySQL Database Connection Logic
+│   └── data.php              # TMDB API Wrappers, cURL fetch logic, Configs
+│
+├── includes/
+│   ├── header.php            # Global Header, CSS links, Navbar, Search Bar
+│   └── footer.php            # Global Footer, JS scripts execution
+│
+├── assets/
+│   ├── css/                  # Styling system (Modular CSS architecture)
+│   │   ├── style.css         # Main stylesheet & global variables
+│   │   └── components/       # Component-specific styles (navbar, forms, cards)
+│   ├── js/                   # Vanilla JavaScript files (AJAX, Interactions)
+│   └── images/               # Local image assets
+│
+└── modules/                  # Application Modules (Pages & Endpoints)
+    ├── Auth/                 # Authentication (Login, Register)
+    ├── Catalog/              # Content Browsing (Home, Movies, Details, Search)
+    ├── User/                 # Profiles, Reviews, Watchlists, Social Features
+    ├── playlists/            # Custom user playlist generation
+    └── Ajax/                 # Backend endpoint handlers for async JSON/HTML responses
 ```
-Web-Katalog-Film/
-│
-├── index.php                    # 🚪 Entry point & router utama (Front Controller)
-├── .gitignore                   # Mengabaikan config/db.php dari Git
-│
-├── config/                      # ⚙️ Konfigurasi & Service Layer
-│   ├── db.php                   # Koneksi MySQL (mysqli) — DI-GITIGNORE
-│   ├── data.php                 # TMDB API service, helper functions, i18n translations
-│   └── db/
-│       └── if0_42011841_kinema_db.sql  # SQL dump schema + sample data
-│
-├── includes/                    # 🧩 Template Global (Header/Footer)
-│   ├── header.php               # HTML head, navbar, SEO meta, session logic
-│   └── footer.php               # Footer + load script.js
-│
-├── assets/                      # 🎨 Frontend Assets
-│   ├── css/
-│   │   ├── base.css             # CSS variables, reset, typography
-│   │   ├── style.css            # Stylesheet utama (25KB)
-│   │   ├── components/
-│   │   │   ├── navbar.css       # Navbar responsive + dropdowns
-│   │   │   ├── hero.css         # Hero banner section
-│   │   │   ├── cards.css        # Movie cards & grid
-│   │   │   └── auth.css         # Login/signup forms
-│   │   └── themes/
-│   │       └── light-mode.css   # Override variabel untuk mode terang
-│   └── js/
-│       └── script.js            # JavaScript utama (41KB) — semua interaksi client
-│
-├── modules/                     # 📦 Modul Fitur (Halaman & AJAX endpoints)
-│   ├── Catalog/                 # Halaman katalog film
-│   │   ├── home.php             # Homepage (hero, trending, upcoming, top picks)
-│   │   ├── movies.php           # Discover movies + filter
-│   │   ├── tvshows.php          # Discover TV shows + filter
-│   │   ├── details.php          # Detail film/TV (review, cast, similar)
-│   │   ├── search.php           # Halaman hasil pencarian
-│   │   └── person.php           # Detail aktor/aktris
-│   │
-│   ├── Auth/                    # Autentikasi
-│   │   ├── login.php            # Halaman login
-│   │   ├── signup.php           # Halaman registrasi
-│   │   ├── profile.php          # Edit akun (username, password, hapus akun)
-│   │   └── forgot_password.php  # Reset password
-│   │
-│   ├── User/                    # Fitur sosial & profil pengguna
-│   │   ├── user_profile.php     # Profil publik + pencarian pengguna
-│   │   ├── watchlist.php        # Daftar watchlist user
-│   │   ├── my_reviews.php       # Riwayat ulasan user
-│   │   ├── notifications.php    # Halaman notifikasi lengkap
-│   │   ├── user_follows.php     # Daftar followers/following
-│   │   ├── activity_feed.php    # Feed aktivitas
-│   │   ├── ajax_watchlist.php   # API: tambah/hapus watchlist
-│   │   ├── ajax_review.php      # API: CRUD ulasan
-│   │   ├── ajax_follow_user.php # API: follow/unfollow
-│   │   ├── ajax_favorite_cast.php # API: favorit pemeran
-│   │   ├── ajax_search_user.php # API: pencarian pengguna live
-│   │   └── ajax_activity_feed.php # API: load activity feed
-│   │
-│   ├── Api/                     # AJAX endpoints global
-│   │   ├── ajax_search.php      # API: live search film (navbar)
-│   │   ├── ajax_notifications.php # API: fetch & mark-read notifikasi
-│   │   ├── ajax_like_review.php # API: like/unlike ulasan
-│   │   └── ajax_review_reply.php # API: balasan ulasan
-│   │
-│   ├── admin/                   # Panel admin
-│   │   ├── dashboard.php        # Dashboard moderasi
-│   │   └── ajax_admin.php       # API: hapus ulasan (admin)
-│   │
-│   └── playlists/               # Playlist kustom
-│       ├── my_lists.php         # Daftar playlist user
-│       ├── view_list.php        # Detail playlist
-│       └── ajax_playlist.php    # API: CRUD playlist
-│
-├── cache/                       # 📁 Cache file JSON dari TMDB API (auto-generated)
-│
-└── reference/
-    └── HOMEPAGE.png             # Screenshot referensi desain
+
+### 🔄 System Flow (How it works)
+The platform is designed around a synchronous rendering base augmented by asynchronous user interactions:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Router as index.php (Front Controller)
+    participant Module as App Modules (Home, Details)
+    participant Data as config/data.php (TMDB API)
+    participant DB as MySQL Database
+    participant JS as script.js (AJAX Handler)
+
+    %% Initial Page Load (Synchronous)
+    User->>Router: HTTP GET ?page=home
+    Router->>Router: Initialize Session & require header.php
+    Router->>Module: Route to modules/Catalog/home.php
+    
+    par Data Aggregation
+        Module->>Data: fetchTMDB() cURL request
+        Data-->>Module: Return JSON (Movies/TV Shows)
+    and Database Query
+        Module->>DB: Query User State (Watchlist, Reviews)
+        DB-->>Module: Return SQL Data
+    end
+
+    Module->>Router: Compile HTML Markup
+    Router->>User: Deliver synchronous HTML (Fast FCP)
+
+    %% Asynchronous Interactions
+    opt User Interaction
+        User->>JS: Type in Search / Click Filter
+        JS->>Router: AJAX Fetch POST/GET to /modules/Ajax/...
+        Router->>DB: Update/Read Database if necessary
+        Router-->>JS: Return JSON or DOM Fragment
+        JS->>User: Update UI seamlessly (No Reload)
+    end
 ```
 
 ---
 
-## 🔄 Alur Kerja Aplikasi (Application Flow)
+## 🚀 Installation & Local Configuration
 
-### 1. Request Lifecycle
+Follow these steps to deploy CelesView locally via XAMPP or any equivalent AMP stack:
 
-```
-Browser Request
-      │
-      ▼
-  index.php (Front Controller)
-      │
-      ├─ Baca parameter ?page=xxx dari URL
-      ├─ Cocokkan dengan array $routes
-      │
-      ├─ Jika AJAX endpoint → require file, lalu exit (tanpa HTML wrapper)
-      ├─ Jika logout → session_destroy(), redirect
-      │
-      └─ Jika halaman biasa:
-           ├─ require config/data.php (TMDB service + i18n)
-           ├─ require includes/header.php (HTML head + navbar)
-           ├─ require modules/Xxx/halaman.php (konten)
-           └─ require includes/footer.php (footer + script.js)
-```
+### 1. Requirements
+- PHP >= 8.1
+- MySQL / MariaDB
+- cURL enabled in `php.ini`
 
-### 2. Alur Data TMDB API
+### 2. Environment Setup
+1. Clone the repository into your web root directory (e.g., `C:\xampp\htdocs\celesview`).
+2. Start **Apache** and **MySQL** via the XAMPP Control Panel.
+3. Access phpMyAdmin (`http://localhost/phpmyadmin`) and create a new database named `celesview_db` (or as preferred).
+4. Import the provided `.sql` dump file (if available) into the database, or let the backend's auto-migration queries build the required tables.
 
-```
-Module membutuhkan data film
-      │
-      ▼
-  Panggil fungsi helper (getTrendingMovies, discoverMovies, dll.)
-      │
-      ▼
-  fetchTMDB($endpoint)
-      │
-      ├─ Cek cache file (cache/*.json)
-      │   ├─ Cache valid (< 1 jam) → Return data dari cache
-      │   └─ Cache expired / tidak ada → Lanjut ke API
-      │
-      ├─ HTTP request via cURL ke api.themoviedb.org
-      │   ├─ Sukses (200) → Simpan ke cache, return data
-      │   └─ Gagal → Gunakan cache lama jika ada (stale-while-error)
-      │
-      └─ 5% chance: Garbage Collection hapus cache expired (max 30 file)
-```
-
-### 3. Alur Autentikasi
-
-```
-Signup → password_hash() → INSERT ke tabel users → Set session → Redirect
-Login  → SELECT user by email → password_verify() → Set session → Redirect
-Logout → session_destroy() → Redirect ke homepage
-```
-
----
-
-## 🗄️ Skema Database
-
-Database: **`kinema_db`** — 9 tabel:
-
-| Tabel | Fungsi | Relasi |
-|-------|--------|--------|
-| `users` | Data akun (name, email, password hash, avatar, role) | PK: `id` |
-| `reviews` | Ulasan & rating film/TV | FK → `users.id` (CASCADE) |
-| `review_likes` | Like pada ulasan | FK → `reviews.id`, `users.id` (CASCADE) |
-| `review_replies` | Balasan pada ulasan | FK → `reviews.id`, `users.id` |
-| `watchlist` | Daftar tontonan favorit user | FK → `users.id` |
-| `notifications` | Notifikasi (like, follow, reply) | FK → `users.id` (CASCADE) |
-| `user_follows` | Relasi follow antar pengguna | FK → `users.id` |
-| `favorite_casts` | Pemeran favorit user | UNIQUE(`user_id`, `cast_id`) |
-| `custom_playlists` | Playlist kustom | FK → `users.id` |
-| `playlist_items` | Item dalam playlist | FK → `custom_playlists.id` |
-
----
-
-## 🚀 Cara Menjalankan
-
-### Prasyarat
-
-- **XAMPP** (PHP 7.4+ dan MySQL/MariaDB)
-- Ekstensi PHP: `curl`, `mysqli`, `json`, `mbstring` (semua sudah aktif di XAMPP default)
-- Koneksi internet (untuk mengambil data dari TMDB API)
-
-### Langkah-langkah Instalasi
-
-**1. Clone atau Download Repository**
-
-```bash
-cd C:\xampp\htdocs
-git clone https://github.com/NewGuyBChill/Web-Katalog-Film.git celesview/Web-Katalog-Film
-```
-
-**2. Buat File Konfigurasi Database**
-
-Karena `config/db.php` di-gitignore, buat file ini secara manual:
-
+### 3. Application Configuration
+Open the `config/db.php` file and update your MySQL credentials:
 ```php
 <?php
-// config/db.php
 $host = "localhost";
 $user = "root";
-$pass = "";           // Password default XAMPP (kosong)
-$dbname = "kinema_db";
+$pass = "";
+$dbname = "celesview_db"; // Ensure this matches step 2
 
 $conn = new mysqli($host, $user, $pass, $dbname);
-
 if ($conn->connect_error) {
-    die("Koneksi database gagal: " . $conn->connect_error);
+    die("Database Connection Failed: " . $conn->connect_error);
 }
-
-$conn->set_charset("utf8mb4");
 ?>
 ```
 
-**3. Buat Database dan Import Schema**
-
-Buka **phpMyAdmin** (`http://localhost/phpmyadmin`):
-
-1. Buat database baru bernama **`kinema_db`**
-2. Pilih tab **Import**
-3. Upload file `config/db/if0_42011841_kinema_db.sql`
-4. Klik **Go/Execute**
-
-Atau via terminal:
-
-```bash
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS kinema_db"
-mysql -u root kinema_db < config/db/if0_42011841_kinema_db.sql
+### 4. TMDB API Key (Critical)
+To fetch movies and TV shows, you must supply your own TMDB API key.
+Open `config/data.php` and locate line 2:
+```php
+$tmdbApiKey = "YOUR_TMDB_API_KEY_HERE";
 ```
+*Note: You can acquire a free API key by registering at [The Movie Database (TMDB)](https://www.themoviedb.org/).*
 
-**4. Jalankan XAMPP**
-
-1. Buka **XAMPP Control Panel**
-2. Start **Apache** dan **MySQL**
-3. Buka browser ke:
-
+### 5. Launch
+Open your web browser and navigate to:
 ```
 http://localhost/celesview/Web-Katalog-Film/
 ```
-
----
-
-## 🔑 Akun Demo
-
-Dari SQL dump, beberapa akun yang tersedia (password asli tidak diketahui karena di-hash):
-
-| Email | Nama | Role |
-|-------|------|------|
-| `selby@gmail.com` | ehehhe | user |
-| `fathur@gmail.com` | Fathur | user |
-
-Untuk **akses admin**, login dengan akun apapun, lalu kunjungi:
-```
-index.php?page=admin&make_me_admin=1
-```
-
-Atau daftar akun baru via halaman **Sign Up**.
-
----
-
-## 🛠️ Troubleshooting
-
-### ❌ Halaman Blank / Error 500
-
-| Kemungkinan Penyebab | Solusi |
-|---|---|
-| File `config/db.php` belum dibuat | Buat file sesuai instruksi di atas |
-| Database `kinema_db` belum ada | Import SQL schema via phpMyAdmin |
-| Apache/MySQL belum running | Start keduanya di XAMPP Control Panel |
-
-### ❌ "Koneksi database gagal"
-
-| Kemungkinan Penyebab | Solusi |
-|---|---|
-| MySQL belum start | Buka XAMPP → Start MySQL |
-| Port MySQL bentrok | Ubah port di `my.ini` atau matikan service MySQL lain |
-| Credential salah | Pastikan `$user` dan `$pass` di `db.php` sesuai XAMPP Anda |
-
-### ❌ Film/Poster Tidak Muncul
-
-| Kemungkinan Penyebab | Solusi |
-|---|---|
-| Tidak ada koneksi internet | Pastikan PC terhubung ke internet (TMDB API butuh akses online) |
-| API key TMDB expired/invalid | Ganti `$tmdbApiKey` di `config/data.php` dengan key baru dari [themoviedb.org](https://www.themoviedb.org/settings/api) |
-| Cache corrupt | Hapus semua file `.json` di folder `cache/` |
-| cURL extension nonaktif | Buka `php.ini`, pastikan `extension=curl` tidak diawali titik koma (`;`) |
-| SSL error pada cURL | Sudah ditangani (`CURLOPT_SSL_VERIFYPEER = false`), jika masih error pastikan file `cacert.pem` tersedia |
-
-### ❌ 404 — Halaman Tidak Ditemukan
-
-| Kemungkinan Penyebab | Solusi |
-|---|---|
-| Case-sensitive folder di Linux | Pastikan nama folder `modules/Catalog`, `modules/Auth`, `modules/User`, `modules/Api` huruf kapitalnya sesuai. Router sudah memiliki fallback case-insensitive otomatis. |
-| Parameter `?page=` salah | Cek daftar route di `index.php` array `$routes` |
-
-### ❌ Review/Watchlist Tidak Bisa Disimpan
-
-| Kemungkinan Penyebab | Solusi |
-|---|---|
-| Belum login | Login terlebih dahulu |
-| Tabel belum ada di database | Import ulang SQL schema, atau biarkan fitur auto-create table di `details.php` berjalan |
-| Session timeout | Refresh halaman dan login ulang |
-
-### ❌ Lag / Lambat saat Loading
-
-| Kemungkinan Penyebab | Solusi |
-|---|---|
-| DNS IPv6 lag di Windows | Sudah ditangani (`CURLOPT_IPRESOLVE = CURL_IPRESOLVE_V4` dan `$host = "localhost"`) |
-| Cache kosong (cold start) | Request pertama selalu lebih lambat karena harus fetch dari TMDB. Request berikutnya akan cepat karena cache aktif (TTL 1 jam) |
-| `curl_multi_exec` diblokir hosting | Aplikasi otomatis fallback ke sequential `fetchTMDB()` jika hosting tidak mendukung `curl_multi` |
-
----
-
-## ⚙️ Konfigurasi Lanjutan
-
-### Mengubah API Key TMDB
-
-Edit `config/data.php` baris 2:
-
-```php
-$tmdbApiKey = "YOUR_NEW_API_KEY_HERE";
-```
-
-Dapatkan API key gratis di: https://www.themoviedb.org/settings/api
-
-### Mengubah TTL Cache
-
-Default: **3600 detik (1 jam)**. Ubah parameter kedua pada pemanggilan `fetchTMDB()`:
-
-```php
-$data = fetchTMDB("trending/movie/day", 1800); // 30 menit
-```
-
-### Deploy ke Hosting (InfinityFree, dll.)
-
-1. Upload semua file via FTP/File Manager
-2. Buat database MySQL di panel hosting
-3. Sesuaikan `config/db.php` dengan credential hosting
-4. Pastikan folder `cache/` memiliki permission **writable** (`chmod 777`)
-5. Jika hosting memblokir `curl_multi_exec`, aplikasi otomatis fallback
-
----
-
-## 📄 Lisensi
-
-Proyek ini dibuat untuk keperluan edukasi dan portofolio.
-Data film bersumber dari [TMDB API](https://www.themoviedb.org/) — bukan afiliasi resmi.
+You are now ready to explore CelesView! 🍿

@@ -168,31 +168,7 @@
         <?php endforeach; ?>
     </div>
 
-    <!-- Tahap 1: Navbar Atas -->
-    <div style="position: absolute; top: 0; left: 0; width: 100%; z-index: 10;">
-        <nav class="hero-redesign-nav" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 4rem;">
-            <!-- Kiri: Logo -->
-            <div class="hero-logo" style="font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; color: white; display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-play" style="font-size: 1.2rem;"></i>
-                <span><span style="font-weight: 800;">Celes</span><span style="font-weight: 300;">View</span></span>
-            </div>
-            
-            <!-- Tengah: Menu -->
-            <div class="hero-nav-links" style="display: flex; gap: 2.5rem; font-size: 0.9rem; font-weight: 500;">
-                <a href="index.php?page=movies" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px;">Movies <i class="fas fa-chevron-down" style="font-size: 0.6rem; opacity: 0.7;"></i></a>
-                <a href="index.php?page=tv" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px;">TV Shows <i class="fas fa-chevron-down" style="font-size: 0.6rem; opacity: 0.7;"></i></a>
-                <a href="index.php?page=home#explore" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px;">Explore <i class="fas fa-chevron-down" style="font-size: 0.6rem; opacity: 0.7;"></i></a>
-                <a href="#" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px;">Services <i class="fas fa-chevron-down" style="font-size: 0.6rem; opacity: 0.7;"></i></a>
-            </div>
-            
-            <!-- Kanan: CTA & Search -->
-            <div class="hero-nav-actions" style="display: flex; align-items: center; gap: 1.5rem;">
-                <a href="index.php?page=login" style="background: white; color: black; padding: 0.4rem 1.2rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; text-decoration: none;">Login</a>
-                <i class="fas fa-search" style="color: white; font-size: 1.2rem; cursor: pointer;"></i>
-            </div>
-        </nav>
-        <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.1);"></div>
-    </div>
+
 
     <!-- Slider Pagination Dots -->
     <div class="hero-slider-dots" style="position: absolute; bottom: 2rem; right: 4rem; display: flex; gap: 10px; z-index: 20;">
@@ -997,9 +973,12 @@
                         <?php endforeach; ?>
                         
                         <!-- Tombol See More dinamis -->
-                        <div style="grid-column: 1/-1; text-align: center; margin-top: 2.5rem; margin-bottom: 1rem;">
-                            <a href="index.php?page=<?= ($filters['type'] ?? 'movie') === 'tv' ? 'tvshows' : 'movies' ?>" class="hero-btn-primary" style="display: inline-block; padding: 0.8rem 2.5rem; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 1rem; color: #000; background: var(--accent); border: 2px solid var(--accent); transition: all 0.3s ease;">
-                                See More <?= ($filters['type'] ?? 'movie') === 'tv' ? 'TV Shows' : 'Movies' ?> <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                        <div style="grid-column: 1/-1; margin-top: 2.5rem; margin-bottom: 1rem;">
+                            <a href="index.php?page=<?= ($filters['type'] ?? 'movie') === 'tv' ? 'tvshows' : 'movies' ?>" 
+                               style="display: block; width: 100%; padding: 1rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); color: white; font-size: 0.9rem; font-weight: 600; border-radius: 8px; text-align: center; text-decoration: none; transition: 0.3s;"
+                               onmouseover="this.style.background='rgba(255,255,255,0.05)'" 
+                               onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                                <i class="fas fa-plus-circle"></i> Show More
                             </a>
                         </div>
                     <?php else: ?>

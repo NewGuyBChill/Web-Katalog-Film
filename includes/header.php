@@ -108,11 +108,6 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
     <script>
         const userWatchlist = <?= json_encode($userWatchlist) ?>;
         const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
-
-        // Terapkan tema sebelum rendering body untuk mencegah efek FOUC (Berkedip)
-        if (localStorage.getItem('kinema_theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-        }
     </script>
 </head>
 <body>
@@ -129,7 +124,6 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                     <!-- Movies Dropdown -->
                     <li class="nav-item has-dropdown" id="navMovies">
                         <a href="index.php?page=movies" class="nav-link <?php echo (isset($_GET['page']) && $_GET['page'] == 'movies') ? 'active' : ''; ?>">
-                            <i class="fas fa-clapperboard nav-link-icon"></i>
                             Movies
                             <i class="fas fa-chevron-down nav-caret"></i>
                         </a>
@@ -166,7 +160,6 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                     <!-- Genres Dropdown -->
                     <li class="nav-item has-dropdown" id="navGenres">
                         <a href="#" class="nav-link" onclick="event.preventDefault();">
-                            <i class="fas fa-masks-theater nav-link-icon"></i>
                             Genres
                             <i class="fas fa-chevron-down nav-caret"></i>
                         </a>
@@ -195,7 +188,6 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                     <!-- TV Shows Dropdown -->
                     <li class="nav-item has-dropdown" id="navTVShows">
                         <a href="index.php?page=tvshows" class="nav-link <?php echo (isset($_GET['page']) && $_GET['page'] == 'tvshows') ? 'active' : ''; ?>">
-                            <i class="fas fa-tv nav-link-icon"></i>
                             TV Shows
                             <i class="fas fa-chevron-down nav-caret"></i>
                         </a>
@@ -227,18 +219,15 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                     <!-- Menu Khusus Mobile (Login, Profil & Bahasa) -->
                     <li class="nav-item mobile-only-item">
                         <?php if(!isset($_SESSION['user'])): ?>
-                            <a href="index.php?page=login" class="nav-link"><i class="fas fa-sign-in-alt nav-link-icon"></i> Login</a>
-                            <a href="index.php?page=signup" class="nav-link" style="color: var(--accent);"><i class="fas fa-user-plus nav-link-icon"></i> Sign Up</a>
+                            <a href="index.php?page=login" class="nav-link">Login</a>
+                            <a href="index.php?page=signup" class="nav-link" style="color: var(--accent);">Sign Up</a>
                         <?php else: ?>
-                            <a href="index.php?page=user_profile" class="nav-link"><i class="fas fa-user nav-link-icon"></i> My Profile</a>
-                            <a href="index.php?page=profile" class="nav-link"><i class="fas fa-user-cog nav-link-icon"></i> Profile Settings</a>
-                            <a href="index.php?page=logout" class="nav-link" style="color: #ff5c5c;"><i class="fas fa-right-from-bracket nav-link-icon"></i> Logout</a>
+                            <a href="index.php?page=user_profile" class="nav-link">My Profile</a>
+                            <a href="index.php?page=profile" class="nav-link">Profile Settings</a>
+                            <a href="index.php?page=logout" class="nav-link" style="color: #ff5c5c;">Logout</a>
                         <?php endif; ?>
                         
-                        <!-- Toggle Bahasa Khusus Mobile -->
-                        <a href="#" class="nav-link" onclick="document.cookie='site_lang=' + (document.cookie.includes('id-ID') ? 'en-US' : 'id-ID') + '; path=/; max-age=2592000'; window.location.reload();">
-                            <i class="fas fa-language nav-link-icon"></i> Switch Language (<?= $siteLang === 'id-ID' ? 'ID' : 'EN' ?>)
-                        </a>
+
                     </li>
                 </ul>
             </div>
@@ -257,24 +246,9 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                     <div class="live-search-results" id="liveSearchResults"></div>
                 </form>
 
-                <!-- Language Selector -->
-                <div class="nav-lang" id="langContainer">
-                    <div class="nav-lang-trigger" id="langTrigger">
-                        <i class="fas fa-globe"></i>
-                        <span id="currentLang">EN</span>
-                        <i class="fas fa-chevron-down nav-caret-sm"></i>
-                    </div>
-                    <div class="nav-lang-dropdown" id="langDropdown">
-                        <div class="lang-option active" data-lang="EN" data-value="en-US">English</div>
-                        <div class="lang-option" data-lang="ID" data-value="id-ID">Indonesia</div>
-                    </div>
-                </div>
 
-                <!-- Theme Switch -->
-                <div class="nav-action-btn" id="themeSwitch" title="Toggle Light/Dark Mode">
-                    <i class="fas fa-sun" id="themeIconSun"></i>
-                    <i class="fas fa-moon" id="themeIconMoon"></i>
-                </div>
+
+
 
                 <!-- Notification Bell -->
                 <?php if(isset($_SESSION['user_id'])): ?>

@@ -206,110 +206,110 @@ const heroSlider = document.querySelector('.hero');
 const heroContent = document.querySelector('.hero-content');
 const dotsContainer = document.getElementById('heroDots');
 
-// Gunakan data API dari PHP, jika gagal pakai array kosong
-const banners = typeof dynamicBanners !== 'undefined' ? dynamicBanners : [];
+if (heroSlider && heroContent && dotsContainer) {
+    // Gunakan data API dari PHP, jika gagal pakai array kosong
+    const banners = typeof dynamicBanners !== 'undefined' ? dynamicBanners : [];
 
-let currentIndex = 0;
-let slideInterval = 10;
+    let currentIndex = 0;
+    let slideInterval = 10;
 
-function updateSlider(index) {
-    // 1. Simpan background saat ini
-    const currentBg = heroSlider.style.backgroundImage || getComputedStyle(heroSlider).backgroundImage;
+    function updateSlider(index) {
+        // 1. Simpan background saat ini
+        const currentBg = heroSlider.style.backgroundImage || getComputedStyle(heroSlider).backgroundImage;
 
-    // 2. Buat layer bayangan untuk menahan gambar lama (efek crossfade)
-    const tempBg = document.createElement('div');
-    tempBg.style.position = 'absolute';
-    tempBg.style.inset = '0';
-    tempBg.style.backgroundImage = currentBg;
-    tempBg.style.backgroundSize = 'cover';
-    tempBg.style.backgroundPosition = 'center';
-    tempBg.style.zIndex = '0'; // Biarkan di bawah hero-overlay
-    tempBg.style.transition = 'opacity 0.8s ease-in-out';
-    heroSlider.insertBefore(tempBg, heroSlider.firstChild);
+        // 2. Buat layer bayangan untuk menahan gambar lama (efek crossfade)
+        const tempBg = document.createElement('div');
+        tempBg.style.position = 'absolute';
+        tempBg.style.inset = '0';
+        tempBg.style.backgroundImage = currentBg;
+        tempBg.style.backgroundSize = 'cover';
+        tempBg.style.backgroundPosition = 'center';
+        tempBg.style.zIndex = '0'; // Biarkan di bawah hero-overlay
+        tempBg.style.transition = 'opacity 0.8s ease-in-out';
+        heroSlider.insertBefore(tempBg, heroSlider.firstChild);
 
-    heroContent.classList.add('fade-out');
+        heroContent.classList.add('fade-out');
 
-    setTimeout(() => {
-        currentIndex = index;
-        const data = banners[currentIndex];
+        setTimeout(() => {
+            currentIndex = index;
+            const data = banners[currentIndex];
 
-        // 3. Ganti gambar background utama (kini ada di belakang layer bayangan)
-        heroSlider.style.backgroundImage = data.bg;
+            // 3. Ganti gambar background utama (kini ada di belakang layer bayangan)
+            heroSlider.style.backgroundImage = data.bg;
 
-        document.querySelector('.hero h1').innerHTML = data.title;
-        document.querySelector('.hero .meta').innerHTML = data.meta;
-        if (document.querySelector('.hero .synopsis')) {
-            document.querySelector('.hero .synopsis').innerHTML = data.synopsis.substring(0, 150) + "...";
-        }
-        const heroRating = document.getElementById('heroRating');
-        if (heroRating) {
-            heroRating.innerHTML = `<i class="fas fa-star"></i> ${data.rating}`;
-        }
-        const detailsBtn = document.querySelector('.hero .btn-secondary');
-        if (detailsBtn) {
-            detailsBtn.setAttribute('onclick', `window.location.href='index.php?page=details&type=${data.type || 'movie'}&id=${data.id}'`);
-        }
-        const trailerBtn = document.querySelector('.hero .btn-primary');
-        if (trailerBtn) {
-            const watchTxt = typeof langStrings !== 'undefined' ? langStrings.watchTrailer : 'Watch Trailer';
-            const noTrailerTxt = typeof langStrings !== 'undefined' ? langStrings.noTrailer : 'Tidak Ada Trailer';
-            if (data.trailer && data.trailer !== '#') {
-                trailerBtn.style.opacity = '1';
-                trailerBtn.style.cursor = 'pointer';
-                trailerBtn.disabled = false;
-                trailerBtn.innerHTML = `<i class="fas fa-play"></i> ${watchTxt}`;
-                trailerBtn.setAttribute('onclick', `openTrailerModal('${data.trailer}')`);
-            } else {
-                trailerBtn.style.opacity = '0.5';
-                trailerBtn.style.cursor = 'not-allowed';
-                trailerBtn.disabled = true;
-                trailerBtn.innerHTML = `<i class="fas fa-play"></i> ${noTrailerTxt}`;
-                trailerBtn.removeAttribute('onclick');
+            document.querySelector('.hero h1').innerHTML = data.title;
+            document.querySelector('.hero .meta').innerHTML = data.meta;
+            if (document.querySelector('.hero .synopsis')) {
+                document.querySelector('.hero .synopsis').innerHTML = data.synopsis.substring(0, 150) + "...";
             }
+            const heroRating = document.getElementById('heroRating');
+            if (heroRating) {
+                heroRating.innerHTML = `<i class="fas fa-star"></i> ${data.rating}`;
+            }
+            const detailsBtn = document.querySelector('.hero .btn-secondary');
+            if (detailsBtn) {
+                detailsBtn.setAttribute('onclick', `window.location.href='index.php?page=details&type=${data.type || 'movie'}&id=${data.id}'`);
+            }
+            const trailerBtn = document.querySelector('.hero .btn-primary');
+            if (trailerBtn) {
+                const watchTxt = typeof langStrings !== 'undefined' ? langStrings.watchTrailer : 'Watch Trailer';
+                const noTrailerTxt = typeof langStrings !== 'undefined' ? langStrings.noTrailer : 'Tidak Ada Trailer';
+                if (data.trailer && data.trailer !== '#') {
+                    trailerBtn.style.opacity = '1';
+                    trailerBtn.style.cursor = 'pointer';
+                    trailerBtn.disabled = false;
+                    trailerBtn.innerHTML = `<i class="fas fa-play"></i> ${watchTxt}`;
+                    trailerBtn.setAttribute('onclick', `openTrailerModal('${data.trailer}')`);
+                } else {
+                    trailerBtn.style.opacity = '0.5';
+                    trailerBtn.style.cursor = 'not-allowed';
+                    trailerBtn.disabled = true;
+                    trailerBtn.innerHTML = `<i class="fas fa-play"></i> ${noTrailerTxt}`;
+                    trailerBtn.removeAttribute('onclick');
+                }
+            }
+
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+
+            // 4. Mulai memudarkan layer bayangan perlahan
+            setTimeout(() => tempBg.style.opacity = '0', 50);
+
+            // 5. Bersihkan elemen layer bayangan setelah animasinya selesai
+            setTimeout(() => tempBg.remove(), 850);
+
+            heroContent.classList.remove('fade-out');
+        }, 600);
+    }
+
+    // Buat Dots
+    if (banners.length > 0) {
+        banners.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                updateSlider(i);
+                startAutoSlide();
+            });
+            dotsContainer.appendChild(dot);
+        });
+
+        function startAutoSlide() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                let next = (currentIndex + 1) % banners.length;
+                updateSlider(next);
+            }, 5000);
         }
 
-        document.querySelectorAll('.dot').forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentIndex);
-        });
+        startAutoSlide();
 
-        // 4. Mulai memudarkan layer bayangan perlahan
-        setTimeout(() => tempBg.style.opacity = '0', 50);
-
-        // 5. Bersihkan elemen layer bayangan setelah animasinya selesai
-        setTimeout(() => tempBg.remove(), 850);
-
-        heroContent.classList.remove('fade-out');
-    }, 600);
-}
-
-// Buat Dots
-if (banners.length > 0) {
-    banners.forEach((_, i) => {
-        const dot = document.createElement('div');
-        dot.classList.add('dot');
-        if (i === 0) dot.classList.add('active');
-        dot.addEventListener('click', () => {
-            updateSlider(i);
-            startAutoSlide();
-        });
-        dotsContainer.appendChild(dot);
-    });
-}
-
-function startAutoSlide() {
-    clearInterval(slideInterval);
-    slideInterval = setInterval(() => {
-        let next = (currentIndex + 1) % banners.length;
-        updateSlider(next);
-    }, 5000);
-}
-
-if (banners.length > 0) {
-    startAutoSlide();
-
-    // Jeda otomatis saat kursor berada di area hero agar pengguna bisa membaca sinopsis
-    heroSlider.addEventListener('mouseenter', () => clearInterval(slideInterval));
-    heroSlider.addEventListener('mouseleave', startAutoSlide);
+        // Jeda otomatis saat kursor berada di area hero agar pengguna bisa membaca sinopsis
+        heroSlider.addEventListener('mouseenter', () => clearInterval(slideInterval));
+        heroSlider.addEventListener('mouseleave', startAutoSlide);
+    }
 }
 
 // Mengambil elemen HTML untuk search bar & logika dropdown bahasa
@@ -317,31 +317,7 @@ const searchTrigger = document.getElementById('searchTrigger');
 const searchContainer = document.getElementById('navSearch') || document.getElementById('searchContainer');
 const searchInput = document.getElementById('searchInput');
 const clearSearch = document.getElementById('clearSearch');
-const langContainer = document.getElementById('langContainer');
-const langTrigger = document.getElementById('langTrigger');
-const langDropdown = document.getElementById('langDropdown');
-const currentLangText = document.getElementById('currentLang');
 
-// Cek cookie bahasa saat ini (default: en-US)
-const getSiteLang = () => {
-    const match = document.cookie.match(/(^| )site_lang=([^;]+)/);
-    return match ? match[2] : 'en-US';
-};
-const currentSiteLang = getSiteLang();
-
-if (currentLangText) {
-    currentLangText.innerText = currentSiteLang === 'id-ID' ? 'ID' : 'EN';
-}
-
-if (langDropdown) {
-    // Render ulang pilihan bahasa hanya untuk EN dan ID
-    langDropdown.innerHTML = `
-        <div class="lang-option ${currentSiteLang === 'en-US' ? 'active' : ''}" data-lang="EN" data-value="en-US">English</div>
-        <div class="lang-option ${currentSiteLang === 'id-ID' ? 'active' : ''}" data-lang="ID" data-value="id-ID">Indonesia</div>
-    `;
-}
-
-const langOptions = document.querySelectorAll('.lang-option');
 
 if (searchTrigger) {
     searchTrigger.addEventListener('click', (e) => {
@@ -507,31 +483,7 @@ if (searchInput) {
     setTimeout(typePlaceholder, 1000);
 }
 
-if (langTrigger && langDropdown) {
-    langTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        langDropdown.classList.toggle('show');
-    });
-}
 
-if (langOptions.length > 0) {
-    langOptions.forEach(option => {
-        option.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const selectedLang = e.target.getAttribute('data-value');
-            // Simpan preferensi bahasa ke Cookie (berlaku 30 hari)
-            document.cookie = "site_lang=" + selectedLang + "; path=/; max-age=" + (60 * 60 * 24 * 30);
-            // Reload halaman agar PHP mengambil data TMDB dalam bahasa yang baru
-            window.location.reload();
-        });
-    });
-}
-
-if (langContainer && langDropdown) {
-    document.addEventListener('click', (e) => {
-        if (!langContainer.contains(e.target)) langDropdown.classList.remove('show');
-    });
-}
 
 // Fitur Drag to Scroll untuk baris film (Trending & Top Picks)
 const movieRows = document.querySelectorAll('.movie-row');
@@ -922,22 +874,7 @@ document.querySelectorAll('.grid-movie-card').forEach((card, index) => {
     }, (delay + 0.8) * 1000);
 });
 
-// --- Theme Switcher (Dark/Light Mode) ---
-const themeSwitch = document.getElementById('themeSwitch');
 
-if (themeSwitch) {
-    themeSwitch.addEventListener('click', () => {
-        // Cukup toggle class di HTML dan CSS akan menangani semua animasi dengan mulus
-        document.documentElement.classList.toggle('light-mode');
-
-        // Simpan preferensi ke localStorage
-        if (document.documentElement.classList.contains('light-mode')) {
-            localStorage.setItem('kinema_theme', 'light');
-        } else {
-            localStorage.setItem('kinema_theme', 'dark');
-        }
-    });
-}
 
 // --- Fitur Show/Hide Password ---
 function togglePassword(inputId, icon) {
