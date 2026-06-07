@@ -230,22 +230,6 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                         </div>
                     </li>
 
-                    <!-- Top Rated -->
-                    <li class="nav-item">
-                        <a href="index.php?page=movies&sort=vote_average.desc&rating=7" class="nav-link <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'vote_average.desc') ? 'active' : ''; ?>">
-                            <i class="fas fa-trophy nav-link-icon"></i>
-                            Top Rated
-                        </a>
-                    </li>
-
-                    <!-- Trending -->
-                    <li class="nav-item">
-                        <a href="index.php?page=home#trending" class="nav-link">
-                            <i class="fas fa-arrow-trend-up nav-link-icon"></i>
-                            Trending
-                        </a>
-                    </li>
-
 
                     <!-- Menu Khusus Mobile (Login, Profil & Bahasa) -->
                     <li class="nav-item mobile-only-item">

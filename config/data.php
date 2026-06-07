@@ -436,6 +436,24 @@ function getTopPicks() {
     return formatMovies($data['results'] ?? []);
 }
 
+function getTrendingPersons($limit = 10) {
+    $data = fetchTMDB("trending/person/week");
+    $persons = [];
+    if (!empty($data['results'])) {
+        foreach ($data['results'] as $item) {
+            $persons[] = [
+                "id" => $item['id'] ?? 0,
+                "name" => $item['name'] ?? "Unknown",
+                "role" => $item['known_for_department'] ?? "Acting",
+                "image" => !empty($item['profile_path']) ? "https://image.tmdb.org/t/p/w500" . $item['profile_path'] : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22500%22%20height%3D%22750%22%20viewBox%3D%220%200%20500%20750%22%3E%3Crect%20width%3D%22500%22%20height%3D%22750%22%20fill%3D%22%231a1a1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2230%22%20fill%3D%22%23555555%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ENo%20Photo%3C%2Ftext%3E%3C%2Fsvg%3E",
+                "known_for" => array_map(function($k) { return $k['title'] ?? $k['name'] ?? ''; }, array_slice($item['known_for'] ?? [], 0, 2))
+            ];
+            if (count($persons) >= $limit) break;
+        }
+    }
+    return $persons;
+}
+
 function getPopularMovies($limit = 20) {
     $data = fetchTMDB("movie/popular");
     return formatMovies($data['results'] ?? [], $limit);
@@ -501,7 +519,7 @@ function discoverTVShows($filters = [], $limit = 20, $page = 1) {
 
 function getHeroBanners() {
     $data = fetchTMDB("movie/now_playing");
-    $movies = formatMovies($data['results'] ?? [], 4);
+    $movies = formatMovies($data['results'] ?? [], 5);
     $banners = [];
     
     // Kumpulkan endpoint video untuk dieksekusi secara paralel
@@ -519,11 +537,13 @@ function getHeroBanners() {
         if(!empty($m['backdrop'])) {
             // Cari video trailer dari YouTube
             $trailerUrl = "#";
+            $ytThumbnail = "";
             $vidData = $videosData[$m['id']] ?? [];
             if (!empty($vidData['results'])) {
                 foreach ($vidData['results'] as $video) {
                     if ($video['site'] === 'YouTube' && ($video['type'] === 'Trailer' || $video['type'] === 'Teaser')) {
                         $trailerUrl = "https://www.youtube.com/watch?v=" . $video['key'];
+                        $ytThumbnail = "https://img.youtube.com/vi/" . $video['key'] . "/mqdefault.jpg";
                         break;
                     }
                 }
@@ -533,11 +553,13 @@ function getHeroBanners() {
                 "id" => $m['id'],
                 "type" => $m['type'] ?? 'movie',
                 "bg" => "url('" . $m['backdrop'] . "')",
+                "poster" => $m['image'],
                 "title" => $m['title'],
                 "meta" => $m['year'] . " • " . $m['genre'],
                 "synopsis" => $m['overview'],
                 "rating" => $m['rating'],
-                "trailer" => $trailerUrl
+                "trailer" => $trailerUrl,
+                "yt_thumbnail" => $ytThumbnail
             ];
         }
     }

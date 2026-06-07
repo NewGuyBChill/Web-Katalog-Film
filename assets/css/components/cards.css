@@ -215,31 +215,32 @@
 .grid-movie-card {
     position: relative;
     cursor: pointer;
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 12px;
-    background: #121212;
-    border: 1px solid #262626;
+    transition: transform 0.3s ease;
+    background: transparent;
+    border: none;
     padding: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
     animation: fadeInUpCard 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
 
 .grid-movie-card:hover {
     transform: translate3d(0, -8px, 0);
-    border-color: #444;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
 }
 
 .grid-movie-img-wrap {
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid #262626;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.grid-movie-card:hover .grid-movie-img-wrap {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .grid-movie-img-wrap img {
