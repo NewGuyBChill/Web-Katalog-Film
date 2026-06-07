@@ -112,15 +112,9 @@
                         <?= htmlspecialchars((string)substr($hero['synopsis'] ?? '', 0, 200)) ?>...
                     </p>
                     <div class="fade-up-3" style="display: flex; gap: 1rem;">
-                        <?php if (isset($hero['trailer']) && $hero['trailer'] !== "#"): ?>
-                        <button class="hero-btn-primary" style="background: #00d2ff; color: black; padding: 1rem 2.5rem; border-radius: 50px; font-weight: 800; font-size: 1rem; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);" onclick="openTrailerModal('<?= $hero['trailer'] ?>')">
-                            <i class="fas fa-play"></i> PLAY TRAILER
+                        <button class="hero-btn-primary watchlist-btn-detail" style="background: white; color: black; padding: 1rem 2.5rem; border-radius: 50px; font-weight: 800; font-size: 1rem; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);" data-id="<?= $hero['id'] ?? 0 ?>" data-type="<?= $hero['type'] ?? 'movie' ?>" onclick="toggleWatchlistDetail(event, this, '<?= $hero['id'] ?? 0 ?>', '<?= $hero['type'] ?? 'movie' ?>', '<?= addslashes(htmlspecialchars((string)($hero['title'] ?? ''))) ?>', '<?= $hero['poster'] ?? '' ?>')">
+                            <i class="fas fa-heart" style="transition: color 0.3s ease;"></i> <span class="btn-text">ADD TO WATCHLIST</span>
                         </button>
-                        <?php else: ?>
-                        <button class="hero-btn-primary" style="background: rgba(255,255,255,0.5); color: black; padding: 1rem 2.5rem; border-radius: 50px; font-weight: 800; font-size: 1rem; border: none; cursor: not-allowed; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                            <i class="fas fa-play"></i> NO TRAILER
-                        </button>
-                        <?php endif; ?>
                         
                         <a href="index.php?page=details&id=<?= $hero['id'] ?? 0 ?>&type=<?= $hero['type'] ?? 'movie' ?>" class="hero-btn-secondary" style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(255,255,255,0.5); cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; backdrop-filter: blur(5px); transition: all 0.3s ease;">
                             <i class="fas fa-info-circle"></i> INFO
@@ -381,6 +375,678 @@
             </style>
         </section>
         <?php endif; ?>
+
+    <!-- NEW ANIME LAYOUT START -->
+    <?php 
+    global $genreMap, $tvGenreMap, $langMap;
+    $filters = [
+        'genre' => $_GET['genre'] ?? '',
+        'year' => $_GET['year'] ?? '',
+        'rating' => $_GET['rating'] ?? '',
+        'sort' => $_GET['sort'] ?? 'popularity.desc',
+        'type' => $_GET['type'] ?? 'movie',
+        'lang' => $_GET['lang'] ?? ''
+    ];
+    
+    if (($filters['type'] ?? 'movie') === 'tv') {
+        $animeMoviesList = discoverTVShows($filters, 18, 1);
+        $activeGenreMap = $tvGenreMap;
+    } else {
+        $animeMoviesList = discoverMovies($filters, 18, 1);
+        $activeGenreMap = $genreMap;
+    }
+    
+    $animeTrending = getTrendingMovies(); 
+    $animeFeatured = !empty($animeMoviesList) ? $animeMoviesList[0] : (!empty($animeTrending) ? $animeTrending[0] : null);
+    ?>
+
+    <section class="anime-main-layout">
+        <!-- CSS Internal untuk Layout Baru -->
+        <style>
+            .anime-main-layout {
+                padding-top: 20px;
+                background-color: var(--bg-color);
+                color: var(--text-main);
+                font-family: 'Inter', sans-serif;
+                overflow-x: hidden;
+            }
+
+            /* Tahap 1: Hero Banner Dinamis */
+            .anime-hero {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: linear-gradient(135deg, #111, #1a1a1a);
+                border-radius: 20px;
+                margin: 0 4rem 2rem 4rem;
+                padding: 3rem 4rem;
+                position: relative;
+                overflow: visible; /* Untuk efek pop-out */
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+            .anime-hero-left {
+                flex: 1;
+                z-index: 2;
+                max-width: 60%;
+            }
+            .anime-hero-left h1 {
+                font-size: 3.5rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+                line-height: 1.1;
+            }
+            .anime-hero-left p {
+                font-size: 1.1rem;
+                color: var(--text-muted);
+                margin-bottom: 2rem;
+                line-height: 1.6;
+            }
+            .anime-hero-actions {
+                display: flex;
+                gap: 1rem;
+            }
+            .anime-btn-primary {
+                background: var(--accent);
+                color: #000;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                font-weight: 800;
+                text-decoration: none;
+                transition: all 0.3s;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .anime-btn-primary:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px var(--accent);
+            }
+            .anime-btn-secondary {
+                background: rgba(255,255,255,0.1);
+                color: #fff;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                font-weight: 800;
+                text-decoration: none;
+                border: 1px solid rgba(255,255,255,0.2);
+                transition: all 0.3s;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .anime-btn-secondary:hover {
+                background: rgba(255,255,255,0.2);
+                transform: scale(1.05);
+            }
+            .anime-hero-right {
+                flex: 1;
+                position: relative;
+                height: 400px;
+                z-index: 1;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+            .anime-hero-img {
+                height: 120%; /* Pop-out effect */
+                position: absolute;
+                bottom: -10%;
+                right: 0;
+                object-fit: contain;
+                filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));
+                animation: floating 4s ease-in-out infinite;
+            }
+
+            @keyframes floating {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-15px); }
+                100% { transform: translateY(0px); }
+            }
+
+            .fade-in-up-1 { animation: fadeUp 0.8s ease-out forwards; animation-delay: 0.1s; opacity: 0; }
+            .fade-in-up-2 { animation: fadeUp 0.8s ease-out forwards; animation-delay: 0.3s; opacity: 0; }
+            .fade-in-up-3 { animation: fadeUp 0.8s ease-out forwards; animation-delay: 0.5s; opacity: 0; }
+
+            @keyframes fadeUp {
+                0% { opacity: 0; transform: translateY(30px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Tahap 2: Bar Pencarian & Filter Multi-Dropdown */
+            .anime-filter-container {
+                margin: 0 4rem 2rem 4rem;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 1.5rem;
+            }
+            .anime-search-row {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+            .anime-search-input {
+                flex: 1;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                background: #000;
+                border: 1px solid #333;
+                color: #fff;
+                font-size: 1rem;
+                transition: all 0.3s;
+            }
+            .anime-search-input:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+            }
+            .anime-search-btn {
+                background: var(--accent);
+                color: #000;
+                padding: 0 2.5rem;
+                border-radius: 8px;
+                font-weight: 800;
+                border: none;
+                cursor: pointer;
+                transition: 0.3s;
+                font-size: 1rem;
+            }
+            .anime-search-btn:hover { background: #fff; transform: scale(1.02); }
+
+            .anime-dropdown-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            .anime-select {
+                background: #000;
+                border: 1px solid #333;
+                color: #fff;
+                padding: 0.8rem 1.2rem;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                min-width: 150px;
+                flex: 1;
+            }
+            .anime-select:focus { outline: none; border-color: var(--accent); }
+
+            /* Tahap 3: Struktur Konten Utama (Split Grid) */
+            .anime-split-grid {
+                display: grid;
+                grid-template-columns: 70% 28%;
+                gap: 2%;
+                margin: 0 4rem 4rem 4rem;
+                position: relative;
+            }
+
+            .anime-section-title {
+                font-size: 1.5rem;
+                font-weight: 800;
+                border-bottom: 2px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.8rem;
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+            }
+            .anime-section-title span {
+                border-bottom: 3px solid var(--accent);
+                padding-bottom: 0.8rem;
+                margin-bottom: -1rem; /* Align with bottom border */
+            }
+
+            /* Tahap 4: Desain Card & Sidebar List */
+            .new-release-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 1.5rem;
+                transition: opacity 0.3s ease;
+            }
+            .anime-card {
+                background: #111;
+                border-radius: 8px;
+                overflow: hidden;
+                text-decoration: none;
+                color: #fff;
+                transition: all 0.3s ease-in-out;
+                position: relative;
+                border: 1px solid transparent;
+            }
+            .anime-card-img-wrap {
+                position: relative;
+                width: 100%;
+                padding-top: 150%; /* 2:3 aspect ratio */
+                overflow: hidden;
+            }
+            .anime-card img {
+                position: absolute;
+                top: 0; left: 0; width: 100%; height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease-in-out;
+            }
+            .anime-card:hover {
+                border-color: var(--accent);
+                box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+                transform: translateY(-5px); /* Setara scale-105 untuk kontainer */
+            }
+            .anime-card:hover img {
+                transform: scale(1.05); /* Membesar halus */
+            }
+            .anime-card-info {
+                padding: 1rem;
+            }
+            .anime-card-title {
+                font-size: 0.95rem;
+                font-weight: 600;
+                margin-bottom: 0.3rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .anime-card-meta {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+            }
+
+            .trending-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .trending-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.5rem;
+                border-radius: 8px;
+                text-decoration: none;
+                color: #fff;
+                transition: all 0.3s ease-in-out;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+            .trending-item:hover {
+                transform: translateX(10px); /* Bergeser mulus ke kanan (translate-x-1) */
+                background: rgba(255,255,255,0.05);
+                border-color: var(--accent);
+            }
+            .trending-num {
+                font-size: 2.5rem;
+                font-weight: 900;
+                color: transparent;
+                -webkit-text-stroke: 1px #555;
+                min-width: 40px;
+                text-align: center;
+                transition: all 0.3s;
+            }
+            .trending-item:hover .trending-num {
+                -webkit-text-stroke: 1px var(--accent);
+                color: rgba(0, 210, 255, 0.1);
+            }
+            .trending-item img {
+                width: 60px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .trending-info {
+                flex: 1;
+                overflow: hidden;
+            }
+            .trending-title {
+                font-size: 0.95rem;
+                font-weight: 600;
+                margin-bottom: 0.2rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .trending-meta {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+            }
+
+            .ajax-loading {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+
+            @media (max-width: 1024px) {
+                .anime-split-grid { grid-template-columns: 1fr; }
+                .anime-hero { flex-direction: column; padding: 2rem; margin: 1rem; }
+                .anime-hero-right { display: none; }
+                .anime-hero-left { max-width: 100%; }
+            }
+
+            /* --- INLINE FILTER STYLES --- */
+            .inline-filter-box {
+                background: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 1.5rem;
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            .filter-section {
+                display: flex;
+                flex-direction: column;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .filter-section:last-child { border-bottom: none; padding-bottom: 0; }
+            .filter-section-title {
+                font-size: 1.1rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+            }
+            .filter-pill-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+            .filter-pill input { display: none; }
+            .filter-pill .pill-content {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.6rem 1.2rem;
+                border-radius: 9999px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: var(--text-muted);
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+            }
+            .filter-pill .check-icon { display: none; font-size: 0.75rem; }
+            .filter-pill input:checked + .pill-content {
+                border-color: var(--accent);
+                color: #000;
+                background: var(--accent);
+            }
+            .filter-pill input:checked + .pill-content .check-icon {
+                display: inline-block;
+                color: #000;
+            }
+            .filter-pill .pill-content:active { transform: scale(0.95); }
+            
+            .dual-slider-container { padding: 0 10px; margin-bottom: 10px; }
+            .slider-labels {
+                display: flex; justify-content: space-between;
+                margin-bottom: 1rem; font-weight: bold; font-size: 0.95rem;
+            }
+            .slider-track {
+                position: relative; width: 100%; height: 6px;
+                background: rgba(255, 255, 255, 0.1); border-radius: 3px;
+            }
+            .slider-fill {
+                position: absolute; height: 100%; background: var(--accent); border-radius: 3px;
+                left: 0%; width: 100%;
+            }
+            .dual-slider-container input[type="range"] {
+                position: absolute; top: -7px; left: 0; width: 100%;
+                appearance: none; background: none; pointer-events: none;
+            }
+            .dual-slider-container input[type="range"]::-webkit-slider-thumb {
+                appearance: none; pointer-events: all; width: 20px; height: 20px;
+                border-radius: 50%; background: var(--bg-color); border: 3px solid var(--accent);
+                cursor: pointer;
+            }
+        </style>
+
+
+
+        <!-- TAHAP 2: Header & Inline Filter Box -->
+        <div class="anime-filter-container" style="display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem;">Explore Movies & TV Shows</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">Find your next favorite watch by filtering through genres, release years, and the latest trends.</p>
+                </div>
+                <button onclick="toggleFilterBox()" class="anime-btn-primary" style="padding: 0.8rem 2rem; border-radius: 9999px; cursor: pointer; border: none; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; background: var(--accent); color: #000; font-weight: bold; transition: 0.3s;">
+                    <i class="fas fa-filter"></i> Filters
+                </button>
+            </div>
+
+            <!-- TAHAP 1: Inline Filter Box -->
+            <div class="inline-filter-box" id="inlineFilterBox" style="display: none; transition: opacity 0.3s ease;">
+                <form id="ajaxFilterForm" onsubmit="event.preventDefault();">
+                    <input type="hidden" name="type" id="hiddenTypeFilter" value="<?= htmlspecialchars($filters['type'] ?? 'movie') ?>">
+                    
+                    <!-- TAHAP 3 & 4: Genre (Pills) -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Genre</h4>
+                        <div class="filter-pill-group">
+                            <label class="filter-pill">
+                                <input type="radio" name="genre" value="" <?= empty($filters['genre']) ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> Semua Genre</span>
+                            </label>
+                            <?php foreach($activeGenreMap as $id => $name): ?>
+                            <label class="filter-pill">
+                                <input type="radio" name="genre" value="<?= $id ?>" <?= $filters['genre'] == $id ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> <?= htmlspecialchars($name) ?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- TAHAP 3 & 4: Release Year (Pills) -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Release Year</h4>
+                        <div class="filter-pill-group">
+                            <label class="filter-pill">
+                                <input type="radio" name="year" value="" <?= empty($filters['year']) ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> Semua Tahun</span>
+                            </label>
+                            <?php for($y = date('Y'); $y >= 2000; $y -= 2): ?>
+                            <label class="filter-pill">
+                                <input type="radio" name="year" value="<?= $y ?>" <?= $filters['year'] == $y ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> <?= $y ?></span>
+                            </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+
+                    <!-- TAHAP 3 & 4: Language (Pills) -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Language</h4>
+                        <div class="filter-pill-group">
+                            <label class="filter-pill">
+                                <input type="radio" name="lang" value="" <?= empty($filters['lang']) ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> Semua Bahasa</span>
+                            </label>
+                            <?php global $langMap; if(!empty($langMap)) foreach($langMap as $code => $name): ?>
+                            <label class="filter-pill">
+                                <input type="radio" name="lang" value="<?= $code ?>" <?= ($filters['lang'] ?? '') == $code ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> <?= htmlspecialchars($name) ?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- TAHAP 3 & 4: Sort By (Pills) -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Sort By</h4>
+                        <div class="filter-pill-group">
+                            <label class="filter-pill">
+                                <input type="radio" name="sort" value="popularity.desc" <?= (empty($filters['sort']) || $filters['sort'] == 'popularity.desc') ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> Paling Populer</span>
+                            </label>
+                            <label class="filter-pill">
+                                <?php $dateSortValue = ($filters['type'] ?? 'movie') === 'tv' ? 'first_air_date.desc' : 'primary_release_date.desc'; ?>
+                                <input type="radio" name="sort" value="<?= $dateSortValue ?>" <?= $filters['sort'] == $dateSortValue ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> Rilis Terbaru</span>
+                            </label>
+                            <label class="filter-pill">
+                                <input type="radio" name="sort" value="vote_average.desc" <?= $filters['sort'] == 'vote_average.desc' ? 'checked' : '' ?> onchange="triggerDebouncedAjax()">
+                                <span class="pill-content"><i class="fas fa-check check-icon"></i> Rating Tertinggi</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- TAHAP 5: Dual Thumb Slider (Rating Range) -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Minimum Rating</h4>
+                        <div class="dual-slider-container">
+                            <div class="slider-labels">
+                                <span>5.0</span>
+                                <span id="ratingLabelVal" style="color: #fff;"><?= !empty($filters['rating']) ? number_format((float)$filters['rating'], 1) : '5.0' ?></span>
+                                <span>9.0</span>
+                            </div>
+                            <div class="slider-track">
+                                <div class="slider-fill" id="sliderFill" style="width: 0%;"></div>
+                                <input type="range" name="rating" min="5" max="9" step="0.5" value="<?= !empty($filters['rating']) ? $filters['rating'] : 5 ?>" oninput="updateSliderUI(this.value)" onchange="triggerDebouncedAjax()">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- TAHAP 3: Struktur Konten Utama (Split Grid) -->
+        <div class="anime-split-grid">
+            
+            <!-- Kolom Kiri: New Release -->
+            <div class="left-col">
+                <div class="anime-section-title">
+                    <span>
+                        <select class="type-dropdown" onchange="document.getElementById('hiddenTypeFilter').value = this.value; triggerDebouncedAjax();" style="background: transparent; color: #fff; font-size: inherit; font-weight: inherit; border: none; outline: none; cursor: pointer; text-transform: uppercase; appearance: none; -webkit-appearance: none; padding-right: 15px;">
+                            <option value="movie" <?= ($filters['type'] ?? 'movie') == 'movie' ? 'selected' : '' ?> style="color: #000; text-transform: uppercase;">MOVIES</option>
+                            <option value="tv" <?= ($filters['type'] ?? 'movie') == 'tv' ? 'selected' : '' ?> style="color: #000; text-transform: uppercase;">TV SHOWS</option>
+                        </select>
+                        <i class="fas fa-chevron-down" style="font-size: 0.8rem; margin-left: -10px; pointer-events: none; color: var(--accent);"></i>
+                    </span>
+                </div>
+                
+                <div class="new-release-grid" id="ajaxContentArea">
+                    <!-- TAHAP 4: Desain Card dengan Hover Transisi -->
+                    <?php if(!empty($animeMoviesList) && is_array($animeMoviesList)): ?>
+                        <?php foreach($animeMoviesList as $movie): ?>
+                        <?php $itemType = ($filters['type'] ?? 'movie') === 'tv' ? 'tv' : 'movie'; ?>
+                        <a href="index.php?page=details&type=<?= $itemType ?>&id=<?= $movie['id'] ?>" class="anime-card">
+                            <div class="anime-card-img-wrap">
+                                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
+                            </div>
+                            <div class="anime-card-info">
+                                <div class="anime-card-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
+                                <div class="anime-card-meta"><i class="fas fa-star" style="color: #FCD34D;"></i> <?= htmlspecialchars((string)$movie['rating']) ?> &bull; <?= htmlspecialchars((string)$movie['year']) ?></div>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>Tidak ada konten yang ditemukan berdasarkan filter tersebut.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Top Trending Sidebar -->
+            <div class="right-col">
+                <div class="anime-section-title">
+                    <span>TOP TRENDING</span>
+                </div>
+                <div class="trending-list">
+                    <?php 
+                    $trendingForSidebar = array_slice($animeTrending ?? [], 0, 10);
+                    $rank = 1;
+                    foreach($trendingForSidebar as $trend): 
+                    ?>
+                    <a href="index.php?page=details&id=<?= $trend['id'] ?>" class="trending-item">
+                        <div class="trending-num"><?= str_pad($rank++, 2, '0', STR_PAD_LEFT) ?></div>
+                        <img src="<?= htmlspecialchars((string)($trend['poster_path'] ?? $trend['image'])) ?>" alt="Poster">
+                        <div class="trending-info">
+                            <div class="trending-title"><?= htmlspecialchars((string)$trend['title']) ?></div>
+                            <div class="trending-meta"><i class="fas fa-fire" style="color: #ff3b3b;"></i> Sedang Panas</div>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrasi Skrip AJAX Bawaan (Memperbarui Konten Tanpa Reload) -->
+        <script>
+        let debounceTimer;
+
+        // Toggle Filter Box Visibility
+        function toggleFilterBox() {
+            const box = document.getElementById('inlineFilterBox');
+            if (box.style.display === 'none') {
+                box.style.display = 'flex';
+                // Trigger smooth fade if needed
+                setTimeout(() => box.style.opacity = '1', 10);
+            } else {
+                box.style.display = 'none';
+                box.style.opacity = '0';
+            }
+        }
+
+        // Inisialisasi UI Slider saat dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            const ratingInput = document.querySelector('input[name="rating"]');
+            if(ratingInput) updateSliderUI(ratingInput.value);
+        });
+
+        // Update Slider UI Visual
+        function updateSliderUI(val) {
+            document.getElementById('ratingLabelVal').innerText = parseFloat(val).toFixed(1);
+            const min = 5;
+            const max = 9;
+            const percent = ((val - min) / (max - min)) * 100;
+            document.getElementById('sliderFill').style.width = percent + '%';
+        }
+
+        // Debounced AJAX Trigger untuk Pill/Slider
+        function triggerDebouncedAjax() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                doAjaxFilter();
+            }, 300); // Debounce 300ms
+        }
+
+        // Fungsi AJAX Utama
+        function doAjaxFilter() {
+            const form = document.getElementById('ajaxFilterForm');
+            if(!form) return;
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+            
+            // Tambahkan transisi visual loading skeleton
+            const contentArea = document.getElementById('ajaxContentArea');
+            if(contentArea) contentArea.classList.add('ajax-loading');
+            
+            // Memanfaatkan routing bawaan dan mengambil parsial HTML, kita ambil dari page=home
+            fetch('index.php?page=home&' + params.toString())
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.getElementById('ajaxContentArea');
+                
+                if(newContent && contentArea) {
+                    contentArea.innerHTML = newContent.innerHTML;
+                }
+                if(contentArea) contentArea.classList.remove('ajax-loading');
+                
+                // Perbarui URL bar di browser secara otomatis
+                window.history.pushState({}, '', 'index.php?page=home&' + params.toString());
+            })
+            .catch(err => {
+                console.error('AJAX Fetch Error:', err);
+                if(contentArea) contentArea.classList.remove('ajax-loading');
+            });
+        }
+        </script>
+    </section>
+    <!-- NEW ANIME LAYOUT END -->
 
     <!-- Recommended For You (Fitur Personal) -->
     <?php 

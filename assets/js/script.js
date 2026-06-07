@@ -18,7 +18,7 @@ if (topProgressBar) {
             setTimeout(() => topProgressBar.remove(), 400);
         }, 300);
     });
-    
+
     // Timeout maksimal 3 detik untuk berjaga-jaga membuang bar jika terjadi error loading
     setTimeout(() => { clearInterval(interval); if (document.getElementById('topProgressBar')) topProgressBar.remove(); }, 3000);
 }
@@ -41,7 +41,7 @@ window.addEventListener('scroll', () => {
     if (!isScrolling) {
         window.requestAnimationFrame(() => {
             const currentScrollY = window.scrollY;
-            
+
             // Tampilkan/sembunyikan tombol Scroll to Top
             if (scrollToTopBtn) {
                 if (currentScrollY > 400) {
@@ -50,7 +50,7 @@ window.addEventListener('scroll', () => {
                     scrollToTopBtn.classList.remove('show');
                 }
             }
-                
+
             if (navbar) {
                 // Abaikan scroll negatif (bouncing effect di Mac/iOS) agar navbar tidak glitch
                 if (currentScrollY <= 0) {
@@ -58,7 +58,7 @@ window.addEventListener('scroll', () => {
                     lastScrollY = currentScrollY;
                 } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
                     // Jika scroll ke bawah dan sudah melewati 80px (tinggi navbar), sembunyikan
-                    navbar.classList.add('navbar-hidden'); 
+                    navbar.classList.add('navbar-hidden');
                 } else {
                     navbar.classList.remove('navbar-hidden'); // Scroll ke atas: Tampilkan
                 }
@@ -81,7 +81,7 @@ if (navHamburger && navMenu) {
         navMenu.classList.toggle('show');
         if (navMobileOverlay) navMobileOverlay.classList.toggle('show');
     });
-    
+
     if (navMobileOverlay) {
         navMobileOverlay.addEventListener('click', () => {
             navHamburger.classList.remove('active');
@@ -89,7 +89,7 @@ if (navHamburger && navMenu) {
             navMobileOverlay.classList.remove('show');
         });
     }
-    
+
     // Mobile dropdown toggle for .has-dropdown items
     document.querySelectorAll('.nav-item.has-dropdown').forEach(item => {
         const link = item.querySelector('.nav-link');
@@ -123,7 +123,7 @@ if (notifBell && notifDropdown) {
         }
     });
 
-    window.loadNotifications = function() {
+    window.loadNotifications = function () {
         if (typeof isLoggedIn === 'undefined' || !isLoggedIn) return;
 
         fetch('index.php?page=ajax_notifications')
@@ -147,8 +147,8 @@ if (notifBell && notifDropdown) {
                             data.notifications.forEach(notif => {
                                 const unreadClass = notif.is_read == 0 ? 'unread' : '';
                                 const dateObj = new Date(notif.created_at);
-                                const dateStr = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) + ' ' + dateObj.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-                                
+                                const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) + ' ' + dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
                                 // Ubah ikon secara dinamis berdasarkan nilai 'type' di database
                                 let iconClass = 'fa-bell';
                                 if (notif.type === 'like') iconClass = 'fa-heart';
@@ -182,22 +182,22 @@ if (notifBell && notifDropdown) {
         markReadBtn.addEventListener('click', (e) => {
             e.preventDefault();
             if (typeof isLoggedIn === 'undefined' || !isLoggedIn) return;
-            
+
             fetch('index.php?page=ajax_notifications', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'action=mark_all_read'
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI Instan tanpa me-reload/me-request ulang dari database
-                    if (notifBadge) notifBadge.style.display = 'none';
-                    document.querySelectorAll('.notif-item.unread').forEach(item => {
-                        item.classList.remove('unread'); // Hilangkan background penanda dan titik biru
-                    });
-                }
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI Instan tanpa me-reload/me-request ulang dari database
+                        if (notifBadge) notifBadge.style.display = 'none';
+                        document.querySelectorAll('.notif-item.unread').forEach(item => {
+                            item.classList.remove('unread'); // Hilangkan background penanda dan titik biru
+                        });
+                    }
+                });
         });
     }
 }
@@ -215,7 +215,7 @@ let slideInterval = 10;
 function updateSlider(index) {
     // 1. Simpan background saat ini
     const currentBg = heroSlider.style.backgroundImage || getComputedStyle(heroSlider).backgroundImage;
-    
+
     // 2. Buat layer bayangan untuk menahan gambar lama (efek crossfade)
     const tempBg = document.createElement('div');
     tempBg.style.position = 'absolute';
@@ -228,14 +228,14 @@ function updateSlider(index) {
     heroSlider.insertBefore(tempBg, heroSlider.firstChild);
 
     heroContent.classList.add('fade-out');
-    
+
     setTimeout(() => {
         currentIndex = index;
         const data = banners[currentIndex];
-        
+
         // 3. Ganti gambar background utama (kini ada di belakang layer bayangan)
         heroSlider.style.backgroundImage = data.bg;
-        
+
         document.querySelector('.hero h1').innerHTML = data.title;
         document.querySelector('.hero .meta').innerHTML = data.meta;
         if (document.querySelector('.hero .synopsis')) {
@@ -267,17 +267,17 @@ function updateSlider(index) {
                 trailerBtn.removeAttribute('onclick');
             }
         }
-        
+
         document.querySelectorAll('.dot').forEach((dot, i) => {
             dot.classList.toggle('active', i === currentIndex);
         });
-        
+
         // 4. Mulai memudarkan layer bayangan perlahan
-        setTimeout(() => tempBg.style.opacity = '0', 50); 
-        
+        setTimeout(() => tempBg.style.opacity = '0', 50);
+
         // 5. Bersihkan elemen layer bayangan setelah animasinya selesai
         setTimeout(() => tempBg.remove(), 850);
-        
+
         heroContent.classList.remove('fade-out');
     }, 600);
 }
@@ -290,7 +290,7 @@ if (banners.length > 0) {
         if (i === 0) dot.classList.add('active');
         dot.addEventListener('click', () => {
             updateSlider(i);
-            startAutoSlide(); 
+            startAutoSlide();
         });
         dotsContainer.appendChild(dot);
     });
@@ -306,7 +306,7 @@ function startAutoSlide() {
 
 if (banners.length > 0) {
     startAutoSlide();
-    
+
     // Jeda otomatis saat kursor berada di area hero agar pengguna bisa membaca sinopsis
     heroSlider.addEventListener('mouseenter', () => clearInterval(slideInterval));
     heroSlider.addEventListener('mouseleave', startAutoSlide);
@@ -365,7 +365,7 @@ if (searchInput && clearSearch) {
                 const isIndo = document.cookie.includes("site_lang=id-ID");
                 const searchingText = isIndo ? "Mencari..." : "Searching...";
                 liveSearchResults.innerHTML = `<div style="padding: 15px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> ${searchingText}</div>`;
-                
+
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
                     fetch(`index.php?page=ajax_search&q=${encodeURIComponent(searchInput.value)}`)
@@ -407,12 +407,12 @@ if (searchInput && clearSearch) {
             clearTimeout(debounceTimer);
         }
     });
-    
+
     // Munculkan langsung jika input sudah ada isinya dari awal (saat berada di halaman hasil pencarian)
     if (searchInput.value.length > 0) {
         clearSearch.classList.add('show');
     }
-    
+
     // 1. Tampilkan kembali hasil pencarian dan perpanjang ukuran bar saat terfokus
     searchInput.addEventListener('focus', () => {
         if (searchContainer) searchContainer.classList.add('is-expanded');
@@ -420,7 +420,7 @@ if (searchInput && clearSearch) {
             liveSearchResults.classList.add('show');
         }
     });
-    
+
     // 2. Tutup live search dan menciutkan ukuran bar HANYA jika klik di luar area container pencarian
     document.addEventListener('click', (e) => {
         if (searchContainer && !searchContainer.contains(e.target)) {
@@ -428,7 +428,7 @@ if (searchInput && clearSearch) {
             searchContainer.classList.remove('is-expanded');
         }
     });
-    
+
     // 3. Kosongkan isi text box dengan 'mousedown' agar blur dan penyusutan elemen tidak ter-trigger
     clearSearch.addEventListener('mousedown', (e) => {
         e.preventDefault(); // Mencegah input kehilangan fokus secara instan, bar tetap memanjang!
@@ -466,7 +466,7 @@ if (searchInput) {
     // Berhenti saat diklik (fokus) dan tampilkan teks default
     searchInput.addEventListener('focus', () => {
         isPaused = true;
-        searchInput.setAttribute('placeholder', isIndo ? 'Cari film...' : 'Search movies...'); 
+        searchInput.setAttribute('placeholder', isIndo ? 'Cari film...' : 'Search movies...');
     });
 
     // Lanjutkan animasi di mana ia berhenti saat kursor keluar (blur)
@@ -479,9 +479,9 @@ if (searchInput) {
             setTimeout(typePlaceholder, 300); // Cek secara berkala (tunggu) sampai fokus hilang
             return;
         }
-        
+
         const currentText = placeholderTexts[textIndex];
-        
+
         if (isDeleting) {
             searchInput.setAttribute('placeholder', currentText.substring(0, charIndex - 1));
             charIndex--;
@@ -502,7 +502,7 @@ if (searchInput) {
         }
         setTimeout(typePlaceholder, typingDelay);
     }
-    
+
     // Mulai animasi
     setTimeout(typePlaceholder, 1000);
 }
@@ -520,7 +520,7 @@ if (langOptions.length > 0) {
             e.stopPropagation();
             const selectedLang = e.target.getAttribute('data-value');
             // Simpan preferensi bahasa ke Cookie (berlaku 30 hari)
-            document.cookie = "site_lang=" + selectedLang + "; path=/; max-age=" + (60*60*24*30);
+            document.cookie = "site_lang=" + selectedLang + "; path=/; max-age=" + (60 * 60 * 24 * 30);
             // Reload halaman agar PHP mengambil data TMDB dalam bahasa yang baru
             window.location.reload();
         });
@@ -595,7 +595,7 @@ document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
 });
 
 // Tutup dropdown jika user mengklik di luar area dropdown
-window.addEventListener('click', function(e) {
+window.addEventListener('click', function (e) {
     if (!e.target.closest('.custom-dropdown')) {
         document.querySelectorAll('.custom-dropdown .dropdown-menu.show').forEach(menu => {
             menu.classList.remove('show');
@@ -611,13 +611,13 @@ document.querySelectorAll('.dropdown-tab-btn').forEach(btn => {
 
         const targetId = btn.getAttribute('data-target');
         const container = btn.closest('.nav-dropdown-genres');
-        
+
         if (container) {
             container.querySelectorAll('.dropdown-tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
+
             container.querySelectorAll('.nav-dropdown-grid').forEach(grid => grid.style.display = 'none');
-            
+
             const targetGrid = container.querySelector('#' + targetId);
             if (targetGrid) targetGrid.style.display = 'grid';
         }
@@ -666,13 +666,13 @@ function toggleWatchlist(e, btn) {
 
     const movieId = btn.getAttribute('data-id');
     const title = btn.getAttribute('data-title');
-    
+
     let posterPath = '';
     const imgEl = btn.previousElementSibling;
     if (imgEl && imgEl.tagName === 'IMG') {
         posterPath = imgEl.src;
     }
-    
+
     let mediaType = btn.getAttribute('data-type');
     if (!mediaType) {
         mediaType = 'movie';
@@ -685,9 +685,28 @@ function toggleWatchlist(e, btn) {
     const action = isActive ? 'remove' : 'add';
 
     if (isActive) {
-        btn.classList.remove('active');
+        document.querySelectorAll(`.watchlist-btn[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.remove('active');
+        });
+        document.querySelectorAll(`.watchlist-btn-detail[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.remove('active-fav');
+            const i = b.querySelector('i');
+            if (i) i.style.color = '';
+            const t = b.querySelector('.btn-text');
+            if (t) t.textContent = 'ADD TO WATCHLIST';
+        });
     } else {
-        btn.classList.add('active');
+        document.querySelectorAll(`.watchlist-btn[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.add('active');
+        });
+        document.querySelectorAll(`.watchlist-btn-detail[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.add('active-fav');
+            const i = b.querySelector('i');
+            if (i) i.style.color = '#ff3b3b';
+            const t = b.querySelector('.btn-text');
+            if (t) t.textContent = 'ADDED TO WATCHLIST';
+        });
+
         btn.style.transform = 'scale(1.3)'; // Efek interaktif detak jantung
         setTimeout(() => btn.style.transform = '', 200);
     }
@@ -697,14 +716,14 @@ function toggleWatchlist(e, btn) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=${action}&media_id=${movieId}&media_type=${mediaType}&title=${encodeURIComponent(title)}&poster_path=${encodeURIComponent(posterPath)}`
     })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) {
-            console.error("Gagal", data.error);
-            if (isActive) btn.classList.add('active');
-            else btn.classList.remove('active');
-        }
-    });
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                console.error("Gagal", data.error);
+                if (isActive) btn.classList.add('active');
+                else btn.classList.remove('active');
+            }
+        });
 }
 
 function toggleWatchlistDetail(e, btn, movieId, mediaType, title, posterPath) {
@@ -717,15 +736,35 @@ function toggleWatchlistDetail(e, btn, movieId, mediaType, title, posterPath) {
     }
 
     const icon = btn.querySelector('i');
+    const textSpan = btn.querySelector('.btn-text');
     const isActive = btn.classList.contains('active-fav');
     const action = isActive ? 'remove' : 'add';
 
     if (isActive) {
-        btn.classList.remove('active-fav');
-        if(icon) icon.style.color = '';
+        // Remove from all identical buttons on page
+        document.querySelectorAll(`.watchlist-btn-detail[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.remove('active-fav');
+            const i = b.querySelector('i');
+            if (i) i.style.color = '';
+            const t = b.querySelector('.btn-text');
+            if (t) t.textContent = 'ADD TO WATCHLIST';
+        });
+        document.querySelectorAll(`.watchlist-btn[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.remove('active');
+        });
     } else {
-        btn.classList.add('active-fav');
-        if(icon) icon.style.color = '#ff3b3b';
+        // Add to all identical buttons on page
+        document.querySelectorAll(`.watchlist-btn-detail[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.add('active-fav');
+            const i = b.querySelector('i');
+            if (i) i.style.color = '#ff3b3b';
+            const t = b.querySelector('.btn-text');
+            if (t) t.textContent = 'ADDED TO WATCHLIST';
+        });
+        document.querySelectorAll(`.watchlist-btn[data-id="${movieId}"][data-type="${mediaType}"]`).forEach(b => {
+            b.classList.add('active');
+        });
+
         btn.style.transform = 'scale(1.05)';
         setTimeout(() => btn.style.transform = '', 200);
     }
@@ -737,9 +776,80 @@ function toggleWatchlistDetail(e, btn, movieId, mediaType, title, posterPath) {
     }).then(r => r.json()).catch(err => console.error(err));
 }
 
+function addToPlaylist(playlistId, movieId, mediaType, title, posterPath, elem) {
+    if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        alert("Please login first!");
+        window.location.href = 'index.php?page=login';
+        return;
+    }
+
+    fetch('index.php?page=ajax_playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=add&playlist_id=${playlistId}&media_id=${movieId}&media_type=${mediaType}&media_title=${encodeURIComponent(title)}&media_poster=${encodeURIComponent(posterPath)}`
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            // Update main button
+            const btn = document.getElementById('mainPlaylistBtn');
+            if (btn) {
+                btn.classList.add('active-fav');
+                const icon = btn.querySelector('i');
+                if (icon) { icon.className = 'fas fa-check'; icon.style.color = '#00d2ff'; }
+                const textSpan = btn.querySelector('.btn-text');
+                if (textSpan) textSpan.textContent = 'ADDED TO PLAYLIST';
+                btn.style.transform = 'scale(1.05)';
+                setTimeout(() => btn.style.transform = '', 200);
+            }
+            // Hide dropdown
+            const dd = document.getElementById('playlistDropdown');
+            if (dd) dd.classList.remove('show');
+            alert('Berhasil ditambahkan ke playlist!');
+        } else {
+            alert(data.error || "Gagal menambahkan");
+        }
+    }).catch(err => console.error(err));
+}
+
+function createNewPlaylist(movieId, mediaType, title, posterPath) {
+    const input = document.getElementById('newPlaylistName');
+    const name = input.value.trim();
+    if (!name) {
+        alert('Masukkan nama playlist!');
+        return;
+    }
+
+    fetch('index.php?page=ajax_playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=create_playlist&name=${encodeURIComponent(name)}`
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            input.value = '';
+            const msg = document.getElementById('emptyPlaylistMsg');
+            if (msg) msg.remove();
+            
+            // Tambahkan ke UI
+            const container = document.getElementById('playlistContainer');
+            const a = document.createElement('a');
+            a.href = "javascript:void(0)";
+            a.style = "display:block; padding:10px; color: white; text-decoration: none; border-bottom: 1px solid #222;";
+            a.onclick = function() {
+                addToPlaylist(data.id, movieId, mediaType, title, posterPath, this);
+            };
+            a.innerHTML = `<i class="fas fa-folder" style="color: #00d2ff; margin-right: 5px;"></i> ${data.name}`;
+            container.appendChild(a);
+            
+            // Otomatis tambahkan film ke playlist yang baru dibuat
+            addToPlaylist(data.id, movieId, mediaType, title, posterPath, a);
+        } else {
+            alert('Gagal membuat playlist');
+        }
+    }).catch(err => console.error(err));
+}
+
 function initWatchlistButtons() {
     if (typeof isLoggedIn === 'undefined' || !isLoggedIn || typeof userWatchlist === 'undefined') return;
-    
+
     document.querySelectorAll('.watchlist-btn').forEach(btn => {
         const id = btn.getAttribute('data-id');
         const type = btn.getAttribute('data-type') || 'movie';
@@ -748,7 +858,7 @@ function initWatchlistButtons() {
             btn.classList.add('active');
         }
     });
-    
+
     document.querySelectorAll('.watchlist-btn-detail').forEach(btn => {
         const id = btn.getAttribute('data-id');
         const type = btn.getAttribute('data-type') || 'movie';
@@ -756,7 +866,9 @@ function initWatchlistButtons() {
         if (id && userWatchlist.some(watchId => String(watchId) === compositeId)) {
             btn.classList.add('active-fav');
             const icon = btn.querySelector('i');
-            if(icon) icon.style.color = '#ff3b3b';
+            if (icon) icon.style.color = '#ff3b3b';
+            const textSpan = btn.querySelector('.btn-text');
+            if (textSpan) textSpan.textContent = 'ADDED TO WATCHLIST';
         }
     });
 }
@@ -778,9 +890,9 @@ document.body.insertAdjacentHTML('beforeend', modalHTML);
 function openTrailerModal(url) {
     const modal = document.getElementById('trailerModal');
     const iframe = document.getElementById('trailerIframe');
-    if(modal && iframe) {
+    if (modal && iframe) {
         let embedUrl = url;
-        if(url.includes('watch?v=')) {
+        if (url.includes('watch?v=')) {
             embedUrl = url.replace('watch?v=', 'embed/') + '?autoplay=1';
         }
         iframe.src = embedUrl;
@@ -791,7 +903,7 @@ function openTrailerModal(url) {
 function closeTrailerModal() {
     const modal = document.getElementById('trailerModal');
     const iframe = document.getElementById('trailerIframe');
-    if(modal && iframe) {
+    if (modal && iframe) {
         modal.classList.remove('show');
         iframe.src = ''; // Hentikan video saat modal ditutup
     }
@@ -802,7 +914,7 @@ document.querySelectorAll('.grid-movie-card').forEach((card, index) => {
     // Berikan jeda bertingkat: 0s, 0.05s, 0.1s, dst. Max delay 1.5 detik
     const delay = Math.min(index * 0.05, 1.5);
     card.style.animationDelay = `${delay}s`;
-    
+
     // Kunci kartu: Hapus paksa properti animasi setelah selesai (animasi 0.6s + jeda). 
     // Ini secara permanen mencegah browser me-restart animasi (efek tawuran/melompat) saat tombol Tema ditekan!
     setTimeout(() => {
@@ -817,7 +929,7 @@ if (themeSwitch) {
     themeSwitch.addEventListener('click', () => {
         // Cukup toggle class di HTML dan CSS akan menangani semua animasi dengan mulus
         document.documentElement.classList.toggle('light-mode');
-        
+
         // Simpan preferensi ke localStorage
         if (document.documentElement.classList.contains('light-mode')) {
             localStorage.setItem('kinema_theme', 'light');
@@ -877,19 +989,19 @@ function likeReview(button, reviewId) {
         method: 'POST',
         body: formData
     })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.success) {
-            // Jika gagal, kembalikan UI ke state semula
-            console.error('Like action failed:', data.error);
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                // Jika gagal, kembalikan UI ke state semula
+                console.error('Like action failed:', data.error);
+                button.classList.toggle('active');
+                likeCountSpan.textContent = currentLikes; // Kembalikan angka semula
+            }
+        }).catch(err => {
+            console.error('Network error:', err);
             button.classList.toggle('active');
-            likeCountSpan.textContent = currentLikes; // Kembalikan angka semula
-        }
-    }).catch(err => {
-        console.error('Network error:', err);
-        button.classList.toggle('active');
-        likeCountSpan.textContent = currentLikes; // Batalkan animasi like jika error jaringan
-    });
+            likeCountSpan.textContent = currentLikes; // Batalkan animasi like jika error jaringan
+        });
 }
 
 // --- Fitur Favorite Cast ---
@@ -925,13 +1037,13 @@ function toggleFavoriteCast(e, btn, castId, castName, castImage) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=${action}&cast_id=${castId}&cast_name=${encodeURIComponent(castName)}&cast_image=${encodeURIComponent(castImage)}`
     })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) {
-            console.error("Gagal", data.error);
-        }
-    })
-    .catch(err => console.error(err));
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                console.error("Gagal", data.error);
+            }
+        })
+        .catch(err => console.error(err));
 }
 
 // --- Fitur Follow User ---
@@ -968,12 +1080,12 @@ function toggleFollow(btn, followingId) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `action=${action}&following_id=${followingId}`
     })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) {
-            console.error("Follow action failed:", data.error);
-            // Jika gagal, kembalikan UI ke state semula (opsional, tapi disarankan)
-        }
-    })
-    .catch(err => console.error("Follow action failed:", err));
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                console.error("Follow action failed:", data.error);
+                // Jika gagal, kembalikan UI ke state semula (opsional, tapi disarankan)
+            }
+        })
+        .catch(err => console.error("Follow action failed:", err));
 }
