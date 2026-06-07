@@ -1142,6 +1142,323 @@
     </section>
     <?php endif; ?>
 
+<!-- User Rating Section -->
+<style>
+.ur-section {
+    margin: 3rem auto;
+    color: var(--text-main);
+}
+.ur-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.ur-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+}
+.ur-nav {
+    display: flex;
+    gap: 0.8rem;
+}
+.ur-nav-btn {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.ur-nav-btn:hover {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+}
+.ur-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 2rem;
+    padding-top: 1rem;
+    scroll-behavior: smooth;
+}
+.ur-carousel::-webkit-scrollbar {
+    display: none;
+}
+.ur-card {
+    scroll-snap-align: center;
+    flex: 0 0 16rem;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(1.5rem);
+}
+.ur-card.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.ur-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255,255,255,0.2);
+}
+.ur-top-bleed {
+    height: 60px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+.ur-content {
+    position: relative;
+    z-index: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.ur-poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.ur-movie-info {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+.ur-movie-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.4rem;
+}
+.ur-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    align-self: flex-start;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.ur-divider {
+    height: 1px;
+    background-color: rgba(255,255,255,0.1);
+    margin: 1rem 0;
+}
+.ur-score-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+}
+.ur-score-text-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 65%;
+}
+.ur-score-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+.ur-score-word {
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.ur-score-sub {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.ur-score-box {
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.ur-skeleton {
+    animation: urPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes urPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.ur-skel-block {
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 4px;
+}
+</style>
+
+<section class="container ur-section">
+    <div class="ur-header">
+        <h2 class="ur-title"><i class="fas fa-thumbs-up" style="color: var(--accent); margin-right: 10px;"></i> User Rating</h2>
+        <div class="ur-nav">
+            <button class="ur-nav-btn" onclick="scrollUserRating(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="ur-nav-btn" onclick="scrollUserRating(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+    
+    <div class="ur-carousel" id="userRatingCarousel">
+        <!-- Skeletons rendered by JS -->
+    </div>
+</section>
+
+<script>
+function scrollUserRating(direction) {
+    const carousel = document.getElementById('userRatingCarousel');
+    carousel.scrollBy({ left: direction * 280, behavior: 'smooth' });
+}
+
+function getURColorClass(score) {
+    if (score >= 80) return '#22c55e'; // Green
+    if (score >= 50) return '#eab308'; // Yellow
+    return '#ef4444'; // Red
+}
+
+function getURScoreText(score) {
+    if (score >= 80) return 'Universal Acclaim';
+    if (score >= 50) return 'Mixed or Average';
+    return 'Generally Unfavorable';
+}
+
+function renderURSkeletons() {
+    const carousel = document.getElementById('userRatingCarousel');
+    let html = '';
+    for(let i=0; i<6; i++) {
+        html += `
+        <div class="ur-card ur-skeleton" style="opacity: 1; transform: translateY(0);">
+            <div class="ur-content">
+                <div class="ur-skel-block" style="width: 100%; aspect-ratio: 2/3; border-radius: 8px; margin-top: 10px;"></div>
+                <div class="ur-movie-info">
+                    <div class="ur-skel-block" style="height: 1.2rem; width: 80%; margin-bottom: 0.5rem;"></div>
+                    <div class="ur-skel-block" style="height: 1rem; width: 30%;"></div>
+                </div>
+                <div class="ur-divider"></div>
+                <div class="ur-score-section">
+                    <div class="ur-score-text-container" style="flex: 1;">
+                        <div class="ur-skel-block" style="height: 0.6rem; width: 60%; margin-bottom: 4px;"></div>
+                        <div class="ur-skel-block" style="height: 0.8rem; width: 80%;"></div>
+                    </div>
+                    <div class="ur-skel-block" style="width: 3.2rem; height: 3.2rem; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>`;
+    }
+    carousel.innerHTML = html;
+}
+
+function fetchUserRatings() {
+    renderURSkeletons();
+    const apiKey = 'ac2e690e071692fe9f8e181d6370f6c7';
+    
+    // Fetch 3 kategori rating untuk menjamin keberagaman warna (Merah, Kuning, Hijau)
+    const reqLow = fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&vote_average.gte=1.0&vote_average.lte=4.9&vote_count.gte=150&page=1`).then(r => r.json());
+    const reqMed = fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&vote_average.gte=5.0&vote_average.lte=7.5&vote_count.gte=300&page=1`).then(r => r.json());
+    const reqHigh = fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&vote_average.gte=8.0&vote_count.gte=500&page=1`).then(r => r.json());
+    
+    Promise.all([reqLow, reqMed, reqHigh])
+        .then(([lowData, medData, highData]) => {
+            let combined = [];
+            // Ambil 5 film paling populer dari masing-masing kategori
+            if(lowData.results) combined.push(...lowData.results.slice(0, 5));
+            if(medData.results) combined.push(...medData.results.slice(0, 5));
+            if(highData.results) combined.push(...highData.results.slice(0, 5));
+            
+            // Urutkan dari rating terendah ke tertinggi sesuai permintaan
+            combined.sort((a, b) => a.vote_average - b.vote_average);
+            
+            const carousel = document.getElementById('userRatingCarousel');
+            carousel.innerHTML = '';
+            
+            if (combined.length > 0) {
+                combined.forEach((movie, index) => {
+                    const score = Math.round(movie.vote_average * 10);
+                    const colorHex = getURColorClass(score);
+                    const scoreText = getURScoreText(score);
+                    const year = movie.release_date ? movie.release_date.split('-')[0] : '';
+                    const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Poster';
+                    
+                    const card = document.createElement('a');
+                    card.href = `index.php?page=details&type=movie&id=${movie.id}`;
+                    card.className = 'ur-card';
+                    card.style.transitionDelay = `${index * 80}ms`;
+                    
+                    card.innerHTML = `
+                        <div class="ur-top-bleed" style="background-color: ${colorHex};"></div>
+                        <div class="ur-content">
+                            <img src="${posterUrl}" alt="${movie.title}" class="ur-poster" loading="lazy">
+                            <div class="ur-movie-info">
+                                <div class="ur-movie-title" title="${movie.title}">${movie.title}</div>
+                                <div class="ur-badge">Movie${year ? ' • '+year : ''}</div>
+                            </div>
+                            <div class="ur-divider"></div>
+                            <div class="ur-score-section">
+                                <div class="ur-score-text-container">
+                                    <span class="ur-score-label">TMDB SCORE</span>
+                                    <span class="ur-score-word">${scoreText}</span>
+                                    <span class="ur-score-sub">Based on user ratings</span>
+                                </div>
+                                <div class="ur-score-box" style="background-color: ${colorHex};">
+                                    ${score}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    carousel.appendChild(card);
+                    
+                    setTimeout(() => {
+                        card.classList.add('show');
+                    }, 50);
+                });
+            } else {
+                carousel.innerHTML = '<p style="text-align:center; width:100%; color:var(--text-muted);">Gagal memuat data rating.</p>';
+            }
+        })
+        .catch(err => {
+            console.error("Failed to fetch User Ratings:", err);
+            document.getElementById('userRatingCarousel').innerHTML = '<p style="text-align:center; width:100%; color:var(--text-muted);">Gagal memuat data rating.</p>';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', fetchUserRatings);
+</script>
 
 <!-- Upcoming Movies -->
 <section class="container">
