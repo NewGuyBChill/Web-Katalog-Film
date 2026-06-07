@@ -797,6 +797,23 @@
                 border-radius: 50%; background: var(--bg-color); border: 3px solid var(--accent);
                 cursor: pointer;
             }
+            
+            /* Custom Type Dropdown */
+            .custom-type-options.show {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateY(10px) !important;
+            }
+            .custom-type-selected i.rotate {
+                transform: rotate(180deg);
+            }
+            .custom-type-option:hover {
+                background: rgba(255,255,255,0.05);
+                color: var(--accent) !important;
+            }
+            .custom-type-option:hover i {
+                color: var(--accent) !important;
+            }
         </style>
 
 
@@ -914,13 +931,20 @@
             
             <!-- Kolom Kiri: New Release -->
             <div class="left-col">
-                <div class="anime-section-title">
-                    <span>
-                        <select class="type-dropdown" onchange="document.getElementById('hiddenTypeFilter').value = this.value; triggerDebouncedAjax();" style="background: transparent; color: #fff; font-size: inherit; font-weight: inherit; border: none; outline: none; cursor: pointer; text-transform: uppercase; appearance: none; -webkit-appearance: none; padding-right: 15px;">
-                            <option value="movie" <?= ($filters['type'] ?? 'movie') == 'movie' ? 'selected' : '' ?> style="color: #000; text-transform: uppercase;">MOVIES</option>
-                            <option value="tv" <?= ($filters['type'] ?? 'movie') == 'tv' ? 'selected' : '' ?> style="color: #000; text-transform: uppercase;">TV SHOWS</option>
-                        </select>
-                        <i class="fas fa-chevron-down" style="font-size: 0.8rem; margin-left: -10px; pointer-events: none; color: var(--accent);"></i>
+                <div class="anime-section-title" style="overflow: visible; z-index: 50;">
+                    <span class="custom-type-dropdown-container" style="position: relative; display: inline-block; cursor: pointer; user-select: none;" onclick="toggleTypeDropdown(event)">
+                        <div class="custom-type-selected" style="display: flex; align-items: center; gap: 8px;">
+                            <?= ($filters['type'] ?? 'movie') == 'tv' ? 'TV SHOWS' : 'MOVIES' ?>
+                            <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: var(--accent); transition: transform 0.3s ease;"></i>
+                        </div>
+                        <div class="custom-type-options" style="position: absolute; top: 100%; left: 0; background: #111; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.5rem 0; min-width: 150px; z-index: 999; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                            <div class="custom-type-option <?= ($filters['type'] ?? 'movie') == 'movie' ? 'active' : '' ?>" onclick="selectTypeFilter('movie')" style="padding: 0.8rem 1.5rem; font-size: 1.1rem; color: #fff; transition: all 0.2s; display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                                <i class="fas fa-film" style="color: <?= ($filters['type'] ?? 'movie') == 'movie' ? 'var(--accent)' : '#666' ?>; width: 20px; text-align: center;"></i> MOVIES
+                            </div>
+                            <div class="custom-type-option <?= ($filters['type'] ?? 'movie') == 'tv' ? 'active' : '' ?>" onclick="selectTypeFilter('tv')" style="padding: 0.8rem 1.5rem; font-size: 1.1rem; color: #fff; transition: all 0.2s; display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                                <i class="fas fa-tv" style="color: <?= ($filters['type'] ?? 'movie') == 'tv' ? 'var(--accent)' : '#666' ?>; width: 20px; text-align: center;"></i> TV SHOWS
+                            </div>
+                        </div>
                     </span>
                 </div>
                 
@@ -975,6 +999,42 @@
         <!-- Integrasi Skrip AJAX Bawaan (Memperbarui Konten Tanpa Reload) -->
         <script>
         let debounceTimer;
+
+        // Custom Type Dropdown Logic
+        function toggleTypeDropdown(e) {
+            e.stopPropagation();
+            const options = document.querySelector('.custom-type-options');
+            const icon = document.querySelector('.custom-type-selected i');
+            if (options) {
+                options.classList.toggle('show');
+                icon.classList.toggle('rotate');
+            }
+        }
+
+        function selectTypeFilter(type) {
+            document.getElementById('hiddenTypeFilter').value = type;
+            const selectedText = document.querySelector('.custom-type-selected');
+            selectedText.innerHTML = (type === 'tv' ? 'TV SHOWS' : 'MOVIES') + ' <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: var(--accent); transition: transform 0.3s ease;"></i>';
+            
+            // Re-bind click event to text
+            triggerDebouncedAjax();
+            
+            // Highlight selected in dropdown
+            const opts = document.querySelectorAll('.custom-type-option');
+            opts.forEach(opt => {
+                opt.querySelector('i').style.color = '#666';
+            });
+            event.currentTarget.querySelector('i').style.color = 'var(--accent)';
+        }
+
+        document.addEventListener('click', function(e) {
+            const options = document.querySelector('.custom-type-options');
+            const icon = document.querySelector('.custom-type-selected i');
+            if(options && options.classList.contains('show')) {
+                options.classList.remove('show');
+                icon.classList.remove('rotate');
+            }
+        });
 
         // Toggle Filter Box Visibility
         function toggleFilterBox() {
@@ -1082,43 +1142,6 @@
     </section>
     <?php endif; ?>
 
-    <!-- Trends Now -->
-    <section class="container">
-        <div class="section-header" style="display: flex; flex-direction: column; gap: 15px;">
-            <h2><i class="fas fa-fire" style="color: var(--accent); margin-right: 10px;"></i> Trends Now</h2>
-            <div class="category-pills" style="display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none;">
-                <a href="index.php?page=movies&genre=28" class="filter-btn active" style="padding: 0.4rem 1.2rem; white-space: nowrap;">Action</a>
-                <a href="index.php?page=movies&genre=12" class="filter-btn" style="padding: 0.4rem 1.2rem; white-space: nowrap;">Adventure</a>
-                <a href="index.php?page=movies&genre=35" class="filter-btn" style="padding: 0.4rem 1.2rem; white-space: nowrap;">Comedy</a>
-                <a href="index.php?page=movies&genre=18" class="filter-btn" style="padding: 0.4rem 1.2rem; white-space: nowrap;">Drama</a>
-                <a href="index.php?page=movies&genre=10749" class="filter-btn" style="padding: 0.4rem 1.2rem; white-space: nowrap;">Romance</a>
-                <a href="index.php?page=movies&genre=878" class="filter-btn" style="padding: 0.4rem 1.2rem; white-space: nowrap;">Sci-Fi</a>
-            </div>
-        </div>
-        <div class="movie-row" id="trending-row">
-            <?php 
-            foreach($trendingMovies as $movie): 
-            ?>
-            <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
-                <div class="grid-movie-img-wrap">
-                <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
-                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
-                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="grid-movie-quick-view">
-                        <div class="quick-view-title"><?= translateText('synopsis') ?></div>
-                        <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
-                    </div>
-                </div>
-                <div class="grid-movie-info">
-                <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
-                <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
-                </div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </section>
 
 <!-- Upcoming Movies -->
 <section class="container">
