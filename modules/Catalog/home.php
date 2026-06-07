@@ -389,10 +389,10 @@
     ];
     
     if (($filters['type'] ?? 'movie') === 'tv') {
-        $animeMoviesList = discoverTVShows($filters, 18, 1);
+        $animeMoviesList = discoverTVShows($filters, 24, 1);
         $activeGenreMap = $tvGenreMap;
     } else {
-        $animeMoviesList = discoverMovies($filters, 18, 1);
+        $animeMoviesList = discoverMovies($filters, 24, 1);
         $activeGenreMap = $genreMap;
     }
     
@@ -758,20 +758,26 @@
                 border-radius: 9999px;
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 color: var(--text-muted);
+                background-color: var(--card-bg);
                 font-size: 0.9rem;
                 font-weight: 600;
                 cursor: pointer;
-                transition: all 0.2s ease-in-out;
+                transition: all 0.3s ease-in-out;
             }
             .filter-pill .check-icon { display: none; font-size: 0.75rem; }
             .filter-pill input:checked + .pill-content {
                 border-color: var(--accent);
-                color: #000;
-                background: var(--accent);
+                color: var(--accent);
+                background: rgba(0, 210, 255, 0.1);
+                box-shadow: 0 0 12px rgba(0, 210, 255, 0.4);
             }
             .filter-pill input:checked + .pill-content .check-icon {
                 display: inline-block;
-                color: #000;
+                color: var(--accent);
+            }
+            .filter-pill .pill-content:hover {
+                border-color: var(--accent-hover);
+                color: var(--accent-hover);
             }
             .filter-pill .pill-content:active { transform: scale(0.95); }
             
@@ -787,6 +793,7 @@
             .slider-fill {
                 position: absolute; height: 100%; background: var(--accent); border-radius: 3px;
                 left: 0%; width: 100%;
+                box-shadow: 0 0 8px rgba(0, 210, 255, 0.6);
             }
             .dual-slider-container input[type="range"] {
                 position: absolute; top: -7px; left: 0; width: 100%;
@@ -794,25 +801,50 @@
             }
             .dual-slider-container input[type="range"]::-webkit-slider-thumb {
                 appearance: none; pointer-events: all; width: 20px; height: 20px;
-                border-radius: 50%; background: var(--bg-color); border: 3px solid var(--accent);
+                border-radius: 50%; background: var(--card-bg); border: 2px solid var(--accent);
                 cursor: pointer;
+                box-shadow: 0 0 12px rgba(0, 210, 255, 0.8);
+                transition: all 0.3s ease-in-out;
+            }
+            .dual-slider-container input[type="range"]::-webkit-slider-thumb:hover {
+                border-color: var(--accent-hover);
+                box-shadow: 0 0 18px rgba(14, 165, 233, 1);
             }
             
             /* Custom Type Dropdown */
+            .custom-type-dropdown-container {
+                transition: all 0.3s ease-in-out;
+            }
+            .custom-type-selected {
+                transition: color 0.3s ease-in-out;
+            }
+            .custom-type-selected:hover {
+                color: var(--accent-hover);
+            }
+            .custom-type-options {
+                background: var(--card-bg) !important;
+            }
             .custom-type-options.show {
                 opacity: 1 !important;
                 visibility: visible !important;
                 transform: translateY(10px) !important;
+                border-color: var(--accent) !important;
+                box-shadow: 0 10px 30px rgba(0, 210, 255, 0.15), 0 0 15px rgba(0, 210, 255, 0.3) !important;
             }
             .custom-type-selected i.rotate {
                 transform: rotate(180deg);
+                color: var(--accent);
+                text-shadow: 0 0 8px rgba(0, 210, 255, 0.8);
+            }
+            .custom-type-option {
+                transition: all 0.3s ease-in-out;
             }
             .custom-type-option:hover {
-                background: rgba(255,255,255,0.05);
-                color: var(--accent) !important;
+                background: rgba(0, 210, 255, 0.1) !important;
+                color: var(--accent-hover) !important;
             }
             .custom-type-option:hover i {
-                color: var(--accent) !important;
+                color: var(--accent-hover) !important;
             }
         </style>
 
@@ -963,6 +995,13 @@
                             </div>
                         </a>
                         <?php endforeach; ?>
+                        
+                        <!-- Tombol See More dinamis -->
+                        <div style="grid-column: 1/-1; text-align: center; margin-top: 2.5rem; margin-bottom: 1rem;">
+                            <a href="index.php?page=<?= ($filters['type'] ?? 'movie') === 'tv' ? 'tvshows' : 'movies' ?>" class="hero-btn-primary" style="display: inline-block; padding: 0.8rem 2.5rem; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 1rem; color: #000; background: var(--accent); border: 2px solid var(--accent); transition: all 0.3s ease;">
+                                See More <?= ($filters['type'] ?? 'movie') === 'tv' ? 'TV Shows' : 'Movies' ?> <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                            </a>
+                        </div>
                     <?php else: ?>
                         <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
                             <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
@@ -1114,11 +1153,18 @@
     if (!empty($personalized) && isset($_SESSION['user'])): 
     ?>
     <section class="container">
-        <div class="section-header">
-            <h2 style="color: var(--accent);"><i class="fas fa-magic"></i> <?= translateText('recommended_for_you') ?></h2>
-            <p><?= translateText('based_on_rating') ?></p>
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: none;">
+            <div>
+                <h2 style="color: #fff; margin-bottom: 0;"><?= translateText('recommended_for_you') ?></h2>
+                <p style="margin-top: 5px; color: var(--text-muted); font-size: 0.9rem;"><?= translateText('based_on_rating') ?></p>
+            </div>
+            <div class="ur-nav" style="margin-bottom: 10px;">
+                <button class="ur-nav-btn" onclick="document.getElementById('personalized-row').scrollBy({ left: -300, behavior: 'smooth' })"><i class="fas fa-chevron-left"></i></button>
+                <button class="ur-nav-btn" onclick="document.getElementById('personalized-row').scrollBy({ left: 300, behavior: 'smooth' })"><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
-        <div class="movie-row" id="personalized-row">
+        <div class="movie-row" id="personalized-row" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <style>#personalized-row::-webkit-scrollbar { display: none; }</style>
             <?php foreach($personalized as $movie): ?>
             <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
                 <div class="grid-movie-img-wrap">
@@ -1169,7 +1215,7 @@
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.2);
     background: transparent;
-    color: #fff;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1198,7 +1244,7 @@
 .ur-card {
     scroll-snap-align: center;
     flex: 0 0 16rem;
-    background-color: #1a1a1a;
+    background-color: var(--card-bg);
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255,255,255,0.05);
@@ -1206,7 +1252,7 @@
     flex-direction: column;
     position: relative;
     text-decoration: none;
-    color: #fff;
+    color: var(--text-main);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     opacity: 0;
@@ -1327,9 +1373,12 @@
 </style>
 
 <section class="container ur-section">
-    <div class="ur-header">
-        <h2 class="ur-title"><i class="fas fa-thumbs-up" style="color: var(--accent); margin-right: 10px;"></i> User Rating</h2>
-        <div class="ur-nav">
+    <div class="ur-header" style="align-items: flex-end;">
+        <div>
+            <h2 class="ur-title" style="margin-bottom: 5px;">User Rating</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Discover what audiences are saying. Explore titles based on real community scores.</p>
+        </div>
+        <div class="ur-nav" style="margin-bottom: 5px;">
             <button class="ur-nav-btn" onclick="scrollUserRating(-1)"><i class="fas fa-chevron-left"></i></button>
             <button class="ur-nav-btn" onclick="scrollUserRating(1)"><i class="fas fa-chevron-right"></i></button>
         </div>
@@ -1460,67 +1509,6 @@ function fetchUserRatings() {
 document.addEventListener('DOMContentLoaded', fetchUserRatings);
 </script>
 
-<!-- Upcoming Movies -->
-<section class="container">
-    <div class="section-header">
-        <h2><?= translateText('upcoming_movies') ?></h2>
-    </div>
-    <div class="movie-row" id="upcoming-row">
-        <?php 
-        $upcomingMovies = getUpcomingMovies();
-        foreach($upcomingMovies as $movie): 
-        ?>
-        <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
-            <div class="grid-movie-img-wrap">
-                <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
-                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
-                <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="grid-movie-quick-view">
-                    <div class="quick-view-title"><?= translateText('synopsis') ?></div>
-                    <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
-                </div>
-            </div>
-            <div class="grid-movie-info">
-                <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
-                <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
-            </div>
-        </a>
-        <?php endforeach; ?>
-    </div>
-</section>
-    
-    <!-- Top Picks -->
-    <section class="container">
-        <div class="section-header">
-            <h2><?= translateText('top_picks') ?></h2>
-        </div>
-        <div class="movie-row" id="top-picks-row">
-            <?php 
-            $topPicks = getTopPicks();
-            foreach($topPicks as $movie): 
-            ?>
-            <a href="index.php?page=details&type=<?= $movie['type'] ?? 'movie' ?>&id=<?= $movie['id'] ?>" class="movie-card grid-movie-card" style="text-decoration: none; color: inherit;">
-                <div class="grid-movie-img-wrap">
-                    <div class="grid-movie-rating"><i class="fas fa-star"></i> <?= htmlspecialchars((string)$movie['rating']) ?></div>
-                <img src="<?= htmlspecialchars((string)$movie['image']) ?>" alt="<?= htmlspecialchars((string)$movie['title']) ?>">
-                    <div class="watchlist-btn" data-id="<?= $movie['id'] ?>" data-type="<?= $movie['type'] ?? 'movie' ?>" data-title="<?= htmlspecialchars((string)$movie['title']) ?>" onclick="toggleWatchlist(event, this)">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="grid-movie-quick-view">
-                        <div class="quick-view-title"><?= translateText('synopsis') ?></div>
-                        <div class="quick-view-synopsis"><?= htmlspecialchars((string)$movie['overview']) ?: translateText('no_synopsis') ?></div>
-                    </div>
-                </div>
-                <div class="grid-movie-info">
-                <div class="grid-movie-title"><?= htmlspecialchars((string)$movie['title']) ?></div>
-                <div class="grid-movie-meta"><?= htmlspecialchars((string)$movie['year']) ?> &bull; <?= htmlspecialchars((string)$movie['genre']) ?></div>
-                </div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </section>
 
     <!-- Top Actors -->
     <section class="container">

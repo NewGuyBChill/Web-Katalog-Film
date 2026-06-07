@@ -21,7 +21,9 @@ if ($res) {
     }
 }
 ?>
-<main style="padding-top: 120px; min-height: 80vh;" class="container">
+<div class="dashboard-container">
+    <?php require_once __DIR__ . '/../../includes/account_sidebar.php'; ?>
+    <main class="dash-main container" style="min-height: 80vh;">
     <div class="movies-header">
         <div class="header-titles">
             <h2><?= translateText('my_watchlist') ?></h2>
@@ -60,4 +62,5 @@ if ($res) {
             </div>
         <?php endif; ?>
     </div>
-</main>
+    </main>
+</div>

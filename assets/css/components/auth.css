@@ -23,7 +23,7 @@
 .auth-card h2 {
     font-size: 2rem;
     margin-bottom: 0.5rem;
-    color: #fff;
+    color: var(--text-main);
 }
 
 .auth-card p {
@@ -55,7 +55,7 @@
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    color: white;
+    color: var(--text-main);
     font-size: 1rem;
     outline: none;
     transition: 0.3s;
@@ -139,7 +139,7 @@
 }
 
 .profile-name {
-    color: white;
+    color: var(--text-main);
     font-weight: 600;
     font-size: 0.95rem;
     display: flex;
@@ -162,7 +162,7 @@
     position: absolute;
     top: 120%;
     right: 0;
-    background: #1a1a1a;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 0.5rem;
     width: 220px;
@@ -170,7 +170,7 @@
     flex-direction: column;
     z-index: 1001;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-    border: 1px solid #333;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     opacity: 0;
     visibility: hidden;
     transform: translateY(15px) scale(0.95);
@@ -199,7 +199,7 @@
 
 .user-dropdown a:hover {
     background: rgba(0, 210, 255, 0.1);
-    color: var(--accent);
+    color: var(--accent-hover);
 }
 
 .user-dropdown .logout-btn:hover {
@@ -256,13 +256,13 @@
 }
 
 .tab-btn:hover {
-    color: #fff;
+    color: var(--text-main);
     background: rgba(255, 255, 255, 0.05);
 }
 
 .tab-btn.active {
-    color: #000;
+    color: var(--bg-color);
     background: var(--accent);
     border-color: var(--accent);
-    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
 }

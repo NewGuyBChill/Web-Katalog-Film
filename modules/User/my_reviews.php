@@ -15,7 +15,9 @@ if ($res) {
     while($row = $res->fetch_assoc()) { $reviews[] = $row; }
 }
 ?>
-<main style="padding-top: 120px; min-height: 80vh;" class="container">
+<div class="dashboard-container">
+    <?php require_once __DIR__ . '/../../includes/account_sidebar.php'; ?>
+    <main class="dash-main container" style="min-height: 80vh;">
     <div class="movies-header">
         <div class="header-titles">
             <h2><?= translateText('my_reviews') ?></h2>
@@ -49,7 +51,8 @@ if ($res) {
             <div class="empty-state"><i class="fas fa-star" style="font-size: 3.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i><h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: white;"><?= translateText('empty_reviews') ?></h3><p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;"><?= translateText('empty_reviews_desc') ?></p><a href="index.php?page=movies" class="btn-primary" style="text-decoration: none;"><?= translateText('explore_review_now') ?></a></div>
         <?php endif; ?>
     </div>
-</main>
+    </main>
+</div>
 
 <script>
 function deleteReview(reviewId, btn) {

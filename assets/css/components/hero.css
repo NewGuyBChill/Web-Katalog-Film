@@ -12,7 +12,7 @@
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to right, rgba(8, 8, 8, 1) 0%, rgba(8, 8, 8, 0.6) 40%, transparent 100%), linear-gradient(to top, var(--bg-color) 0%, transparent 20%);
+    background: linear-gradient(to right, rgba(15, 15, 15, 1) 0%, rgba(15, 15, 15, 0.6) 40%, transparent 100%), linear-gradient(to top, var(--bg-color) 0%, transparent 20%);
 }
 
 .hero-content {
@@ -42,9 +42,9 @@
 }
 
 .badge.resolution {
-    background: #222;
+    background: var(--card-bg);
     color: white;
-    border: 1px solid #444;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .badge.rating {
@@ -108,17 +108,20 @@
 }
 
 .btn-primary:hover {
+    background: var(--accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.6);
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(30, 41, 59, 0.8);
+    border-color: var(--accent-hover);
+    color: var(--accent-hover);
 }

@@ -101,7 +101,9 @@ if ($res_casts) {
 }
 ?>
 
-<main style="padding-top: 100px; min-height: 80vh;" class="container">
+<div class="dashboard-container">
+    <?php require_once __DIR__ . '/../../includes/account_sidebar.php'; ?>
+    <main class="dash-main container" style="min-height: 80vh;">
     
     <!-- Form Pencarian Pengguna -->
     <div id="userSearchContainer" style="max-width: 600px; margin: 0 auto 2rem auto; position: relative;">
@@ -270,7 +272,8 @@ if ($res_casts) {
         <?php endif; ?>
     </div>
     <?php endif; ?>
-</main>
+    </main>
+</div>
 
 <script>
 const userSearchInput = document.getElementById('userSearchInput');

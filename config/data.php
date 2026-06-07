@@ -437,10 +437,22 @@ function getTopPicks() {
 }
 
 function getTrendingPersons($limit = 10) {
-    $data = fetchTMDB("trending/person/week");
+    // Fetch top popular actors globally (which includes diverse nationalities)
+    $data1 = fetchTMDB("person/popular?page=1");
+    $data2 = fetchTMDB("person/popular?page=2");
+    $data3 = fetchTMDB("person/popular?page=3");
+    
+    $results = array_merge($data1['results'] ?? [], $data2['results'] ?? [], $data3['results'] ?? []);
+    
+    // Shuffle the results to get a mix of famous actors from various countries each time
+    shuffle($results);
+
     $persons = [];
-    if (!empty($data['results'])) {
-        foreach ($data['results'] as $item) {
+    if (!empty($results)) {
+        foreach ($results as $item) {
+            // Hanya ambil aktor/aktris (Acting)
+            if (($item['known_for_department'] ?? '') !== 'Acting') continue;
+
             $persons[] = [
                 "id" => $item['id'] ?? 0,
                 "name" => $item['name'] ?? "Unknown",

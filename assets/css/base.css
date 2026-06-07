@@ -1,10 +1,11 @@
 :root {
-    --bg-color: #121212;
-    --nav-bg: rgba(8, 8, 8, 0.85);
-    --accent: #00d2ff;
-    --text-main: #ffffff;
-    --text-muted: #a0a0a0;
-    --card-bg: #111;
+    --bg-color: #0F0F0F;
+    --nav-bg: rgba(15, 15, 15, 0.85);
+    --accent: #00D2FF;
+    --accent-hover: #0EA5E9;
+    --text-main: #F1F5F9;
+    --text-muted: #94A3B8;
+    --card-bg: #1E293B;
 }
 
 html, body {

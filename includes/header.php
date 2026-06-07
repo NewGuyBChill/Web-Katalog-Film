@@ -136,28 +136,24 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                         <div class="nav-dropdown" id="dropdownMovies">
                             <div class="nav-dropdown-inner">
                                 <a href="index.php?page=movies&sort=popularity.desc" class="nav-dropdown-item">
-                                    <i class="fas fa-fire" style="color: #ff3b3b;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Popular</span>
                                         <span class="dropdown-item-desc">Most watched by everyone</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=movies&sort=primary_release_date.desc" class="nav-dropdown-item">
-                                    <i class="fas fa-bolt" style="color: #00d2ff;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Latest Releases</span>
                                         <span class="dropdown-item-desc">Freshly out of theaters</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=movies&category=upcoming" class="nav-dropdown-item">
-                                    <i class="fas fa-calendar-plus" style="color: #FCD34D;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Upcoming</span>
                                         <span class="dropdown-item-desc">Coming soon to cinemas</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=movies&category=now_playing" class="nav-dropdown-item">
-                                    <i class="fas fa-ticket-alt" style="color: #43e97b;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Now Playing</span>
                                         <span class="dropdown-item-desc">Currently in theaters</span>
@@ -206,21 +202,18 @@ $isTvPage = (isset($_GET['page']) && $_GET['page'] == 'tvshows');
                         <div class="nav-dropdown" id="dropdownTVShows">
                             <div class="nav-dropdown-inner">
                                 <a href="index.php?page=tvshows&sort=popularity.desc" class="nav-dropdown-item">
-                                    <i class="fas fa-fire" style="color: #ff3b3b;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Popular</span>
                                         <span class="dropdown-item-desc">Most watched TV shows</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=tvshows&sort=first_air_date.desc" class="nav-dropdown-item">
-                                    <i class="fas fa-bolt" style="color: #00d2ff;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Latest Releases</span>
                                         <span class="dropdown-item-desc">Freshly aired episodes</span>
                                     </div>
                                 </a>
                                 <a href="index.php?page=tvshows&sort=vote_average.desc&rating=7" class="nav-dropdown-item">
-                                    <i class="fas fa-star" style="color: #FCD34D;"></i>
                                     <div>
                                         <span class="dropdown-item-title">Top Rated</span>
                                         <span class="dropdown-item-desc">Highly rated by viewers</span>

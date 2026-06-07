@@ -40,7 +40,9 @@ if ($res) {
     while($row = $res->fetch_assoc()) $playlists[] = $row;
 }
 ?>
-<main class="container" style="padding-top: 120px; min-height: 80vh;">
+<div class="dashboard-container">
+    <?php require_once __DIR__ . '/../../includes/account_sidebar.php'; ?>
+    <main class="dash-main container" style="min-height: 80vh;">
     <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
         <div style="margin-bottom: 0;">
             <h2 style="font-size: 2.2rem; font-weight: 800;"><i class="fas fa-list" style="color: var(--accent);"></i> Daftar Kustom Saya</h2>
@@ -68,7 +70,8 @@ if ($res) {
             <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;"><i class="fas fa-folder-open" style="font-size: 3.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i><h3 style="font-size: 1.5rem; color: white; margin-bottom: 0.5rem;">Belum Ada Daftar</h3><p style="color: var(--text-muted); font-size: 0.95rem;">Mulai kumpulkan dan atur film favoritmu ke dalam daftar kustom.</p></div>
         <?php endif; ?>
     </div>
-</main>
+    </main>
+</div>
 
 <!-- Modal Form Tambah Daftar (Popup) -->
 <div id="createListModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
