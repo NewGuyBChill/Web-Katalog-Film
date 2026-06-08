@@ -54,17 +54,26 @@ $activeAvatarBg = $avatarColors[$colorIndex];
 
 // 2. Ambil Statistik
 $stats = ['reviews' => 0, 'watchlist' => 0, 'followers' => 0, 'following' => 0];
-$res_rev = $conn->query("SELECT COUNT(id) as count FROM reviews WHERE user_id = $uid");
-if ($res_rev) $stats['reviews'] = $res_rev->fetch_assoc()['count'];
+try {
+    // Auto-create tabel relasi sosial jika belum ada di database
+    @$conn->query("CREATE TABLE IF NOT EXISTS user_follows (id INT AUTO_INCREMENT PRIMARY KEY, follower_id INT NOT NULL, following_id INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY unique_follow (follower_id, following_id))");
+    @$conn->query("CREATE TABLE IF NOT EXISTS favorite_casts (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, cast_id INT NOT NULL, cast_name VARCHAR(255), cast_image VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY unique_cast (user_id, cast_id))");
+    @$conn->query("CREATE TABLE IF NOT EXISTS review_likes (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, review_id INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY unique_like (user_id, review_id))");
+} catch (Exception $e) {}
 
-$res_watch = $conn->query("SELECT COUNT(id) as count FROM watchlist WHERE user_id = $uid");
-if ($res_watch) $stats['watchlist'] = $res_watch->fetch_assoc()['count'];
+try {
+    $res_rev = $conn->query("SELECT COUNT(id) as count FROM reviews WHERE user_id = $uid");
+    if ($res_rev) $stats['reviews'] = $res_rev->fetch_assoc()['count'];
 
-$res_followers = $conn->query("SELECT COUNT(id) as count FROM user_follows WHERE following_id = $uid");
-if ($res_followers) $stats['followers'] = $res_followers->fetch_assoc()['count'];
+    $res_watch = $conn->query("SELECT COUNT(id) as count FROM watchlist WHERE user_id = $uid");
+    if ($res_watch) $stats['watchlist'] = $res_watch->fetch_assoc()['count'];
 
-$res_following = $conn->query("SELECT COUNT(id) as count FROM user_follows WHERE follower_id = $uid");
-if ($res_following) $stats['following'] = $res_following->fetch_assoc()['count'];
+    $res_followers = $conn->query("SELECT COUNT(id) as count FROM user_follows WHERE following_id = $uid");
+    if ($res_followers) $stats['followers'] = $res_followers->fetch_assoc()['count'];
+
+    $res_following = $conn->query("SELECT COUNT(id) as count FROM user_follows WHERE follower_id = $uid");
+    if ($res_following) $stats['following'] = $res_following->fetch_assoc()['count'];
+} catch (Exception $e) {}
 
 // 3. Ambil Feed Aktivitas / Ulasan Terbaru
 $reviews = [];
@@ -75,30 +84,53 @@ if ($current_user_id > 0 && $uid != $current_user_id) {
     if ($res_follow_check && $res_follow_check->num_rows > 0) {
         $is_following = true;
     }
+    try {
+        $res_follow_check = $conn->query("SELECT id FROM user_follows WHERE follower_id = $current_user_id AND following_id = $uid");
+        if ($res_follow_check && $res_follow_check->num_rows > 0) {
+            $is_following = true;
+        }
+    } catch (Exception $e) {}
 }
 
-$res_reviews = $conn->query("
-    SELECT r.*, 
-           (SELECT COUNT(id) FROM review_likes WHERE review_id = r.id) as like_count,
-           (SELECT COUNT(id) FROM review_likes WHERE review_id = r.id AND user_id = $current_user_id) as is_liked_by_user
-    FROM reviews r 
-    WHERE user_id = $uid 
-    ORDER BY created_at DESC LIMIT 15
-");
-if ($res_reviews) {
-    while($row = $res_reviews->fetch_assoc()) {
-        $reviews[] = $row;
-    }
+// 3. Ambil Feed Aktivitas / Ulasan Terbaru
+$reviews = [];
+$current_user_id = $_SESSION['user_id'] ?? 0;
+$is_following = false;
+if ($current_user_id > 0 && $uid != $current_user_id) {
+    try {
+        $res_follow_check = $conn->query("SELECT id FROM user_follows WHERE follower_id = $current_user_id AND following_id = $uid");
+        if ($res_follow_check && $res_follow_check->num_rows > 0) {
+            $is_following = true;
+        }
+    } catch (Exception $e) {}
 }
+
+try {
+    $res_reviews = $conn->query("
+        SELECT r.*, 
+               (SELECT COUNT(id) FROM review_likes WHERE review_id = r.id) as like_count,
+               (SELECT COUNT(id) FROM review_likes WHERE review_id = r.id AND user_id = $current_user_id) as is_liked_by_user
+        FROM reviews r 
+        WHERE user_id = $uid 
+        ORDER BY created_at DESC LIMIT 15
+    ");
+    if ($res_reviews) {
+        while($row = $res_reviews->fetch_assoc()) {
+            $reviews[] = $row;
+        }
+    }
+} catch (Exception $e) {}
 
 // 4. Ambil Pemeran Favorit
 $favorite_casts = [];
-$res_casts = $conn->query("SELECT * FROM favorite_casts WHERE user_id = $uid ORDER BY created_at DESC");
-if ($res_casts) {
-    while($row = $res_casts->fetch_assoc()) {
-        $favorite_casts[] = $row;
+try {
+    $res_casts = $conn->query("SELECT * FROM favorite_casts WHERE user_id = $uid ORDER BY created_at DESC");
+    if ($res_casts) {
+        while($row = $res_casts->fetch_assoc()) {
+            $favorite_casts[] = $row;
+        }
     }
-}
+} catch (Exception $e) {}
 ?>
 
 <div class="dashboard-container">

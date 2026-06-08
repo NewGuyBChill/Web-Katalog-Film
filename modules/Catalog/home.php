@@ -1016,7 +1016,7 @@
 
         <!-- Integrasi Skrip AJAX Bawaan (Memperbarui Konten Tanpa Reload) -->
         <script>
-        let debounceTimer;
+        let filterDebounceTimer;
 
         // Custom Type Dropdown Logic
         function toggleTypeDropdown(e) {
@@ -1084,8 +1084,8 @@
 
         // Debounced AJAX Trigger untuk Pill/Slider
         function triggerDebouncedAjax() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
+            clearTimeout(filterDebounceTimer);
+            filterDebounceTimer = setTimeout(() => {
                 doAjaxFilter();
             }, 300); // Debounce 300ms
         }

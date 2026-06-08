@@ -349,9 +349,10 @@ if (searchInput && clearSearch) {
                         .then(data => {
                             if (data.length > 0) {
                                 let html = '';
-                                data.forEach(item => {
+                                data.forEach((item, index) => {
+                                    const delay = index * 0.05;
                                     html += `
-                                        <a href="index.php?page=details&type=${item.type || 'movie'}&id=${item.id}" class="live-search-item">
+                                            <a href="index.php?page=details&type=${item.type || 'movie'}&id=${item.id}" class="live-search-item" style="animation-delay: ${delay}s;">
                                             <img src="${item.image}" alt="Poster" class="live-search-poster">
                                             <div class="live-search-info">
                                                 <div class="live-search-title">${item.title}</div>
@@ -361,9 +362,10 @@ if (searchInput && clearSearch) {
                                     `;
                                 });
                                 const seeAllText = isIndo ? "Lihat semua hasil" : "See all results";
+                                    const delaySeeAll = data.length * 0.05;
                                 html += `
-                                    <a href="index.php?page=search&q=${encodeURIComponent(searchInput.value)}" style="display: block; text-align: center; padding: 10px; color: var(--accent); font-size: 0.85rem; font-weight: 600; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.1);">
-                                        ${seeAllText} <i class="fas fa-arrow-right" style="font-size: 0.8rem; margin-left: 4px;"></i>
+                                        <a href="index.php?page=search&q=${encodeURIComponent(searchInput.value)}" class="live-search-item" style="justify-content: center; color: var(--accent); font-weight: 600; border-bottom: none; border-top: 1px solid rgba(255,255,255,0.1); animation-delay: ${delaySeeAll}s;">
+                                            ${seeAllText} <i class="fas fa-arrow-right" style="font-size: 0.8rem; margin-left: 4px; margin-top: 2px;"></i>
                                     </a>
                                 `;
                                 liveSearchResults.innerHTML = html;
