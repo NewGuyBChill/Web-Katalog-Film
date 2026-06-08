@@ -28,6 +28,42 @@ $currentSortLabel = isset($sortMap[$filters['sort']]) ? $sortMap[$filters['sort'
 ?>
 
 <main style="padding-top: 120px; min-height: 80vh;" class="container">
+    <style>
+        @media (max-width: 600px) {
+            .mobile-scroll-row {
+                display: flex !important;
+                overflow-x: auto !important;
+                flex-wrap: nowrap !important;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                padding-bottom: 1.5rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                gap: 1rem;
+                
+                /* Edge-to-edge full width hack */
+                width: 100vw;
+                position: relative;
+                left: 50%;
+                right: 50%;
+                margin-left: -50vw !important;
+                margin-right: -50vw !important;
+            }
+            .mobile-scroll-row::-webkit-scrollbar {
+                display: none;
+            }
+            .mobile-scroll-row .grid-movie-card {
+                flex: 0 0 calc(45vw - 1rem);
+                max-width: 160px;
+                scroll-snap-align: center;
+            }
+            .pagination-wrapper {
+                margin-top: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
     <div class="movies-header" id="explore">
         <div class="header-titles">
             <h2><?= translateText('explore_tv') ?></h2>
@@ -113,8 +149,8 @@ $currentSortLabel = isset($sortMap[$filters['sort']]) ? $sortMap[$filters['sort'
         </div>
     </div>
     
-    <div class="movies-grid">
-        <?php if(!empty($moviesList) && is_array($moviesList)): ?>
+    <?php if(!empty($moviesList) && is_array($moviesList)): ?>
+        <div class="movies-grid mobile-scroll-row">
             <?php foreach($moviesList as $movie): ?>
             <!-- PERHATIKAN parameter type=tv pada link di bawah -->
             <a href="index.php?page=details&type=tv&id=<?= $movie['id'] ?>" class="grid-movie-card" style="text-decoration: none; color: inherit;">
@@ -135,26 +171,26 @@ $currentSortLabel = isset($sortMap[$filters['sort']]) ? $sortMap[$filters['sort'
                 </div>
             </a>
             <?php endforeach; ?>
+        </div>
 
-            <!-- Pagination TV Shows -->
-            <div class="pagination-wrapper">
-                <div class="pagination">
-                    <?php if($currentPage > 1): ?><a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1, 'tvshows') ?>#explore" class="page-btn"><i class="fas fa-chevron-left"></i></a><?php else: ?><button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button><?php endif; ?>
-                    <?php if($currentPage > 2): ?><a href="<?= buildFilterUrl($filters, 'p', 1, 'tvshows') ?>#explore" class="page-btn">1</a><?php if($currentPage > 3): ?><span class="page-dots">...</span><?php endif; ?><?php endif; ?>
-                    <?php if($currentPage > 1): ?><a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1, 'tvshows') ?>#explore" class="page-btn"><?= $currentPage - 1 ?></a><?php endif; ?>
-                    <span class="page-btn active"><?= $currentPage ?></span>
-                    <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1, 'tvshows') ?>#explore" class="page-btn"><?= $currentPage + 1 ?></a>
-                    <?php if($currentPage == 1): ?><a href="<?= buildFilterUrl($filters, 'p', 3, 'tvshows') ?>#explore" class="page-btn">3</a><?php endif; ?>
-                    <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1, 'tvshows') ?>#explore" class="page-btn"><i class="fas fa-chevron-right"></i></a>
-                </div>
+        <!-- Pagination TV Shows -->
+        <div class="pagination-wrapper">
+            <div class="pagination">
+                <?php if($currentPage > 1): ?><a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1, 'tvshows') ?>#explore" class="page-btn"><i class="fas fa-chevron-left"></i></a><?php else: ?><button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button><?php endif; ?>
+                <?php if($currentPage > 2): ?><a href="<?= buildFilterUrl($filters, 'p', 1, 'tvshows') ?>#explore" class="page-btn">1</a><?php if($currentPage > 3): ?><span class="page-dots">...</span><?php endif; ?><?php endif; ?>
+                <?php if($currentPage > 1): ?><a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1, 'tvshows') ?>#explore" class="page-btn"><?= $currentPage - 1 ?></a><?php endif; ?>
+                <span class="page-btn active"><?= $currentPage ?></span>
+                <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1, 'tvshows') ?>#explore" class="page-btn"><?= $currentPage + 1 ?></a>
+                <?php if($currentPage == 1): ?><a href="<?= buildFilterUrl($filters, 'p', 3, 'tvshows') ?>#explore" class="page-btn">3</a><?php endif; ?>
+                <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1, 'tvshows') ?>#explore" class="page-btn"><i class="fas fa-chevron-right"></i></a>
             </div>
-        <?php else: ?>
-            <div class="empty-state">
-                <i class="fas fa-search" style="font-size: 3.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i>
-                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: white;"><?= translateText('no_movies') ?></h3>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;"><?= translateText('no_movies_desc') ?></p>
-                <a href="index.php?page=tvshows" class="reset-btn" style="margin: 0;"><i class="fas fa-sync-alt"></i> <?= translateText('clear_filter') ?></a>
-            </div>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php else: ?>
+        <div class="empty-state">
+            <i class="fas fa-search" style="font-size: 3.5rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: white;"><?= translateText('no_movies') ?></h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;"><?= translateText('no_movies_desc') ?></p>
+            <a href="index.php?page=tvshows" class="reset-btn" style="margin: 0;"><i class="fas fa-sync-alt"></i> <?= translateText('clear_filter') ?></a>
+        </div>
+    <?php endif; ?>
 </main>

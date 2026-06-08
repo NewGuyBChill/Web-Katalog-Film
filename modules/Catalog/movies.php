@@ -111,6 +111,41 @@ if (!empty($filters['category'])) {
         .anime-card-info { padding: 1rem; }
         .anime-card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .anime-card-meta { font-size: 0.8rem; color: var(--text-muted); }
+
+        @media (max-width: 600px) {
+            .mobile-scroll-row {
+                display: flex !important;
+                overflow-x: auto !important;
+                flex-wrap: nowrap !important;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                padding-bottom: 1.5rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                gap: 1rem;
+                
+                /* Edge-to-edge full width hack */
+                width: 100vw;
+                position: relative;
+                left: 50%;
+                right: 50%;
+                margin-left: -50vw !important;
+                margin-right: -50vw !important;
+            }
+            .mobile-scroll-row::-webkit-scrollbar {
+                display: none;
+            }
+            .mobile-scroll-row .anime-card {
+                flex: 0 0 calc(45vw - 1rem);
+                max-width: 160px;
+                scroll-snap-align: center;
+            }
+            .pagination-wrapper {
+                margin-top: 1rem;
+                text-align: center;
+            }
+        }
     </style>
 
     <div class="anime-filter-container">
@@ -223,8 +258,8 @@ if (!empty($filters['category'])) {
         </div>
     </div>
     
-    <div class="new-release-grid">
-        <?php if(!empty($moviesList) && is_array($moviesList)): ?>
+    <?php if(!empty($moviesList) && is_array($moviesList)): ?>
+        <div class="new-release-grid mobile-scroll-row">
             <?php foreach($moviesList as $movie): ?>
             <a href="index.php?page=details&type=movie&id=<?= $movie['id'] ?>" class="anime-card">
                 <div class="anime-card-img-wrap">
@@ -236,49 +271,49 @@ if (!empty($filters['category'])) {
                 </div>
             </a>
             <?php endforeach; ?>
+        </div>
 
-            <!-- Pagination -->
-            <div class="pagination-wrapper">
-                <div class="pagination">
-                    <!-- Prev Button -->
-                    <?php if($currentPage > 1): ?>
-                        <a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1) ?>#explore" class="page-btn" title="<?= translateText('prev') ?>"><i class="fas fa-chevron-left"></i></a>
-                    <?php else: ?>
-                        <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
-                    <?php endif; ?>
+        <!-- Pagination -->
+        <div class="pagination-wrapper">
+            <div class="pagination">
+                <!-- Prev Button -->
+                <?php if($currentPage > 1): ?>
+                    <a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1) ?>#explore" class="page-btn" title="<?= translateText('prev') ?>"><i class="fas fa-chevron-left"></i></a>
+                <?php else: ?>
+                    <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                <?php endif; ?>
 
-                    <!-- Page 1 & Dots -->
-                    <?php if($currentPage > 2): ?>
-                        <a href="<?= buildFilterUrl($filters, 'p', 1) ?>#explore" class="page-btn">1</a>
-                        <?php if($currentPage > 3): ?><span class="page-dots">...</span><?php endif; ?>
-                    <?php endif; ?>
+                <!-- Page 1 & Dots -->
+                <?php if($currentPage > 2): ?>
+                    <a href="<?= buildFilterUrl($filters, 'p', 1) ?>#explore" class="page-btn">1</a>
+                    <?php if($currentPage > 3): ?><span class="page-dots">...</span><?php endif; ?>
+                <?php endif; ?>
 
-                    <!-- Prev Page -->
-                    <?php if($currentPage > 1): ?>
-                        <a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1) ?>#explore" class="page-btn"><?= $currentPage - 1 ?></a>
-                    <?php endif; ?>
+                <!-- Prev Page -->
+                <?php if($currentPage > 1): ?>
+                    <a href="<?= buildFilterUrl($filters, 'p', $currentPage - 1) ?>#explore" class="page-btn"><?= $currentPage - 1 ?></a>
+                <?php endif; ?>
 
-                    <!-- Current Page -->
-                    <span class="page-btn active"><?= $currentPage ?></span>
+                <!-- Current Page -->
+                <span class="page-btn active"><?= $currentPage ?></span>
 
-                    <!-- Next Pages -->
-                    <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1) ?>#explore" class="page-btn"><?= $currentPage + 1 ?></a>
-                    <?php if($currentPage == 1): ?><a href="<?= buildFilterUrl($filters, 'p', 3) ?>#explore" class="page-btn">3</a><?php endif; ?>
+                <!-- Next Pages -->
+                <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1) ?>#explore" class="page-btn"><?= $currentPage + 1 ?></a>
+                <?php if($currentPage == 1): ?><a href="<?= buildFilterUrl($filters, 'p', 3) ?>#explore" class="page-btn">3</a><?php endif; ?>
 
-                    <!-- Next Button -->
-                    <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1) ?>#explore" class="page-btn" title="<?= translateText('next') ?>"><i class="fas fa-chevron-right"></i></a>
-                </div>
+                <!-- Next Button -->
+                <a href="<?= buildFilterUrl($filters, 'p', $currentPage + 1) ?>#explore" class="page-btn" title="<?= translateText('next') ?>"><i class="fas fa-chevron-right"></i></a>
             </div>
-        <?php else: ?>
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
-                <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p>Tidak ada film yang ditemukan berdasarkan filter tersebut.</p>
-                <a href="index.php?page=movies" class="anime-btn-primary" style="margin-top: 1rem; display: inline-block;">
-                    <i class="fas fa-sync-alt"></i> Reset Filter
-                </a>
-            </div>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php else: ?>
+        <div style="text-align: center; padding: 3rem; color: var(--text-muted); width: 100%;">
+            <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>Tidak ada film yang ditemukan berdasarkan filter tersebut.</p>
+            <a href="index.php?page=movies" class="anime-btn-primary" style="margin-top: 1rem; display: inline-block;">
+                <i class="fas fa-sync-alt"></i> Reset Filter
+            </a>
+        </div>
+    <?php endif; ?>
     
     <script>
     function toggleFilterBox() {

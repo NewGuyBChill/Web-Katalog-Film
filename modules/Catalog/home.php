@@ -80,6 +80,49 @@
 .trailer-card .play-icon-container {
     transition: all 0.3s ease;
 }
+
+/* Mobile Responsiveness for Hero */
+@media (max-width: 768px) {
+    .hero-redesign {
+        height: 100vh !important;
+        min-height: 600px;
+    }
+    .hero-content-wrapper {
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        padding: 80px 20px 80px 20px !important;
+    }
+    .hero-col-left {
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        text-align: center !important;
+        align-items: center !important;
+        margin-bottom: 2rem;
+    }
+    .hero-col-left h1 {
+        font-size: 2.2rem !important;
+    }
+    .hero-col-left p {
+        font-size: 0.9rem !important;
+        margin-bottom: 1.5rem !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .hero-col-left .fade-up-3 {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .hero-col-right {
+        display: none !important; /* Sembunyikan review & trailer di mobile agar tidak sempit */
+    }
+    .hero-slider-dots {
+        right: 50% !important;
+        transform: translateX(50%);
+        bottom: 20px !important;
+    }
+}
 </style>
 
 <header class="hero-redesign" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background-color: var(--bg-color);">
@@ -101,7 +144,7 @@
             <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,15,15,1) 0%, rgba(15,15,15,0.4) 20%, transparent 100%); z-index: 2;"></div>
 
             <!-- Tahap 3: Animasi Entrance & Layout Konten -->
-            <div style="position: relative; z-index: 3; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 120px 4rem 4rem 4rem; box-sizing: border-box;">
+            <div class="hero-content-wrapper" style="position: relative; z-index: 3; width: 100%; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 120px 4rem 4rem 4rem; box-sizing: border-box;">
                 
                 <!-- Tahap 4: Penyempurnaan Kolom Kiri -->
                 <div class="hero-col-left" style="display: flex; flex-direction: column; justify-content: center; position: relative; max-width: 500px; text-align: left; padding-left: 2rem;">
@@ -341,12 +384,15 @@
                 }
                 @media (max-width: 768px) {
                     .featured-today-card {
-                        padding: 2rem;
-                        background-image: linear-gradient(to top, #121212 0%, #121212 5%, rgba(18,18,18,0.7) 30%, transparent 100%), linear-gradient(to bottom, #121212 0%, transparent 3%, transparent 97%, #121212 100%), var(--featured-bg) !important;
+                        padding: 1.5rem;
+                        min-height: 400px;
+                        background-image: linear-gradient(to top, #121212 0%, #121212 5%, rgba(18,18,18,0.7) 40%, transparent 100%), var(--featured-bg) !important;
                         background-position: center top !important;
                         align-items: flex-end;
                     }
-                    .featured-today-title { font-size: 2rem; }
+                    .featured-today-title { font-size: 1.8rem; }
+                    .featured-today-actions { flex-direction: column; width: 100%; }
+                    .featured-today-actions a, .featured-today-actions button { width: 100%; justify-content: center; }
                 }
             </style>
         </section>
@@ -365,10 +411,10 @@
     ];
     
     if (($filters['type'] ?? 'movie') === 'tv') {
-        $animeMoviesList = discoverTVShows($filters, 24, 1);
+        $animeMoviesList = discoverTVShows($filters, 20, 1);
         $activeGenreMap = $tvGenreMap;
     } else {
-        $animeMoviesList = discoverMovies($filters, 24, 1);
+        $animeMoviesList = discoverMovies($filters, 20, 1);
         $activeGenreMap = $genreMap;
     }
     
@@ -695,6 +741,58 @@
                 .anime-hero { flex-direction: column; padding: 2rem; margin: 1rem; }
                 .anime-hero-right { display: none; }
                 .anime-hero-left { max-width: 100%; }
+            }
+            @media (max-width: 768px) {
+                .anime-split-grid { margin: 0 1rem 2rem 1rem; }
+                .anime-hero { margin: 1rem; padding: 1.5rem; border-radius: 12px; }
+                .anime-hero-left h1 { font-size: 2rem; }
+                .anime-filter-container { margin: 0 1rem 2rem 1rem; padding: 1rem; }
+                .anime-search-row { flex-direction: column; }
+                .new-release-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.8rem; }
+                .anime-hero-actions { flex-direction: column; width: 100%; }
+                .anime-hero-actions a { width: 100%; justify-content: center; }
+                .trending-item { padding: 0.5rem; }
+                .trending-num { font-size: 2rem; min-width: 30px; }
+            }
+
+            @media (max-width: 600px) {
+                .anime-split-grid {
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                }
+                .anime-section-title, .right-col {
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                }
+                .new-release-grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    gap: 6px !important;
+                    padding-left: 0.5rem;
+                    padding-right: 0.5rem;
+                    margin-bottom: 1.5rem !important;
+                }
+                .new-release-grid .anime-card {
+                    max-width: none;
+                    flex: auto;
+                }
+                .new-release-grid .anime-card-img-wrap {
+                    padding-top: 100% !important; /* Membuat gambar menjadi persegi */
+                    border-radius: 6px;
+                }
+                .new-release-grid .anime-card-info {
+                    display: none !important; /* Sembunyikan teks agar grid lebih rapi & padat */
+                }
+                .new-release-grid > div[style*="grid-column: 1/-1"] {
+                    grid-column: 1 / -1 !important;
+                    display: block !important;
+                    margin-top: 1.5rem !important;
+                }
+                .new-release-grid > div[style*="grid-column: 1/-1"] > a {
+                    width: 100%;
+                    display: block !important;
+                    padding: 1rem !important;
+                }
             }
 
             /* --- INLINE FILTER STYLES --- */

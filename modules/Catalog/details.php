@@ -359,6 +359,27 @@ body {
 .similar-rating span { font-size: 0.7rem; letter-spacing: 2px; }
 .btn-load-more { width: 100%; padding: 1rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); color: white; font-size: 0.9rem; font-weight: 600; border-radius: 8px; margin-top: 3rem; cursor: pointer; transition: 0.3s; }
 .btn-load-more:hover { background: rgba(255,255,255,0.05); }
+
+/* --- RESPONSIVE MOBILE STYLES --- */
+@media (max-width: 768px) {
+    .detail-hero-content { padding: 2rem 1rem; }
+    .hero-title { font-size: 1.8rem; }
+    .hero-year { font-size: 1.2rem; }
+    .hero-bottom-info { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .hero-actions { flex-wrap: wrap; }
+    
+    .detail-grid-container { flex-direction: column; padding: 0 1rem 2rem 1rem; gap: 2rem; margin-top: -2rem; }
+    .detail-col-left { flex: none; width: 100%; max-width: 250px; margin: 0 auto; }
+    .detail-col-right { padding-top: 0; }
+    
+    .movie-title-small { font-size: 1.5rem; flex-wrap: wrap; }
+    .movie-metadata-row { flex-wrap: wrap; gap: 10px; }
+    
+    .split-content { flex-direction: column; gap: 2rem; }
+    
+    .similar-section { padding: 0 1rem 2rem 1rem; }
+    .similar-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+}
 </style>
 
 <!-- Tahap 2: Hero Banner Sinematik -->

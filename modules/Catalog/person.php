@@ -31,11 +31,19 @@ usort($credits, function($a, $b) {
 });
 $credits = array_slice($credits, 0, 24); // Ambil 24 karya paling populer
 ?>
-
-<main class="detail-main container" style="padding-top: 120px;">
-    <div style="display: flex; flex-wrap: wrap; gap: 3rem; margin-bottom: 4rem;">
+<style>
+@media (max-width: 768px) {
+    .person-container { padding-top: 100px !important; }
+    .person-layout { gap: 1.5rem !important; }
+    .person-left { flex: 0 0 100% !important; max-width: 250px; margin: 0 auto; }
+    .person-name { font-size: 2rem !important; margin-bottom: 1rem !important; }
+    .person-movies { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+}
+</style>
+<main class="detail-main container person-container" style="padding-top: 120px;">
+    <div class="person-layout" style="display: flex; flex-wrap: wrap; gap: 3rem; margin-bottom: 4rem;">
         <!-- Foto & Info Pribadi -->
-        <div style="flex: 0 0 300px; width: 100%;">
+        <div class="person-left" style="flex: 0 0 300px; width: 100%;">
             <img src="<?= $profile_img ?>" alt="<?= htmlspecialchars($name) ?>" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 2rem;">
             
             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Informasi Pribadi</h3>
@@ -56,13 +64,13 @@ $credits = array_slice($credits, 0, 24); // Ambil 24 karya paling populer
 
         <!-- Biografi & Karya -->
         <div style="flex: 1; min-width: 300px;">
-            <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);"><?= htmlspecialchars($name) ?></h1>
+            <h1 class="person-name" style="font-size: 3rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);"><?= htmlspecialchars($name) ?></h1>
             
             <h3 style="font-size: 1.3rem; margin-bottom: 0.8rem; color: var(--accent);">Biografi</h3>
             <p style="color: #ccc; line-height: 1.7; font-size: 1.05rem; margin-bottom: 3rem; white-space: pre-line;"><?= htmlspecialchars($biography) ?></p>
             
             <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Dikenal Lewat (Karya Terpopuler)</h3>
-            <div class="movies-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px;">
+            <div class="movies-grid person-movies" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px;">
                 <?php if(count($credits) > 0): ?>
                     <?php foreach($credits as $credit): 
                         $media_type = $credit['media_type'] ?? 'movie';
