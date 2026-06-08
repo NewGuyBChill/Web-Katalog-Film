@@ -411,10 +411,10 @@
     ];
     
     if (($filters['type'] ?? 'movie') === 'tv') {
-        $animeMoviesList = discoverTVShows($filters, 20, 1);
+        $animeMoviesList = discoverTVShows($filters, 15, 1);
         $activeGenreMap = $tvGenreMap;
     } else {
-        $animeMoviesList = discoverMovies($filters, 20, 1);
+        $animeMoviesList = discoverMovies($filters, 15, 1);
         $activeGenreMap = $genreMap;
     }
     
@@ -766,22 +766,25 @@
                 }
                 .new-release-grid {
                     display: grid !important;
-                    grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 6px !important;
-                    padding-left: 0.5rem;
-                    padding-right: 0.5rem;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 8px !important;
+                    padding-left: 0.8rem;
+                    padding-right: 0.8rem;
                     margin-bottom: 1.5rem !important;
                 }
                 .new-release-grid .anime-card {
                     max-width: none;
                     flex: auto;
                 }
-                .new-release-grid .anime-card-img-wrap {
-                    padding-top: 100% !important; /* Membuat gambar menjadi persegi */
-                    border-radius: 6px;
-                }
                 .new-release-grid .anime-card-info {
-                    display: none !important; /* Sembunyikan teks agar grid lebih rapi & padat */
+                    padding: 0.5rem !important;
+                }
+                .new-release-grid .anime-card-title {
+                    font-size: 0.75rem;
+                    margin-bottom: 0.2rem;
+                }
+                .new-release-grid .anime-card-meta {
+                    font-size: 0.65rem;
                 }
                 .new-release-grid > div[style*="grid-column: 1/-1"] {
                     grid-column: 1 / -1 !important;
