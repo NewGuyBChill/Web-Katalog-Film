@@ -166,6 +166,10 @@ if (!empty($user_data['name'])) {
 .dash-input:focus {
     border-color: var(--accent);
 }
+.dash-select {
+    appearance: none;
+    background: rgba(0,0,0,0.2) url("data:image/svg+xml;charset=UTF-8,%3csvg fill='%23ffffff' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e") no-repeat right 10px center;
+}
 .dash-row {
     display: flex;
     gap: 1.5rem;
@@ -302,12 +306,12 @@ if (!empty($user_data['name'])) {
                             <input type="text" id="lastNameInput" class="dash-input" value="<?= htmlspecialchars($user_data['last_name']) ?>">
                         </div>
                         <!-- Hidden input to keep existing logic working -->
-                        <input type="hidden" name="username" id="realUsername" value="<?= htmlspecialchars($user_data['name']) ?>">
+                    <input type="hidden" name="username" id="realUsername" value="<?= htmlspecialchars($user_data['name'] ?? '') ?>">
                     </div>
 
                     <div class="dash-form-group">
                         <label>Country</label>
-                        <select name="country" class="dash-input" style="appearance: none; background: rgba(0,0,0,0.2) url('data:image/svg+xml;utf8,<svg fill=\"%23ffffff\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>') no-repeat right 10px center;">
+                    <select name="country" class="dash-input dash-select">
                             <option value="Serbia" <?= ($user_data['country'] == 'Serbia') ? 'selected' : '' ?>>Serbia</option>
                             <option value="Indonesia" <?= ($user_data['country'] == 'Indonesia') ? 'selected' : '' ?>>Indonesia</option>
                             <option value="USA" <?= ($user_data['country'] == 'USA') ? 'selected' : '' ?>>United States</option>
@@ -321,7 +325,7 @@ if (!empty($user_data['name'])) {
 
                     <div class="dash-form-group">
                         <label>Gender</label>
-                        <select name="gender" class="dash-input" style="appearance: none; background: rgba(0,0,0,0.2) url('data:image/svg+xml;utf8,<svg fill=\"%23ffffff\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>') no-repeat right 10px center;">
+                        <select name="gender" class="dash-input dash-select">
                             <option value="Male" <?= ($user_data['gender'] == 'Male') ? 'selected' : '' ?>>Male</option>
                             <option value="Female" <?= ($user_data['gender'] == 'Female') ? 'selected' : '' ?>>Female</option>
                             <option value="Other" <?= ($user_data['gender'] == 'Other') ? 'selected' : '' ?>>Other</option>
@@ -330,7 +334,7 @@ if (!empty($user_data['name'])) {
 
                     <div class="dash-form-group">
                         <label>Email Address</label>
-                        <input type="email" name="email" class="dash-input" value="<?= htmlspecialchars($user_data['email']) ?>" readonly style="opacity: 0.7;">
+                        <input type="email" name="email" class="dash-input" value="<?= htmlspecialchars($user_data['email'] ?? '') ?>" readonly style="opacity: 0.7;">
                     </div>
                     
                     <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
@@ -341,15 +345,15 @@ if (!empty($user_data['name'])) {
                     <div class="dash-form-group">
                         <label>Birthday</label>
                         <div class="dash-row" style="gap:1rem;">
-                            <select name="dob_month" class="dash-input" style="appearance: none; background: rgba(0,0,0,0.2) url('data:image/svg+xml;utf8,<svg fill=\"%23ffffff\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>') no-repeat right 10px center;">
+                        <select name="dob_month" class="dash-input dash-select">
                                 <option value="May">May</option>
                                 <option value="June">June</option>
                             </select>
-                            <select name="dob_day" class="dash-input" style="appearance: none; background: rgba(0,0,0,0.2) url('data:image/svg+xml;utf8,<svg fill=\"%23ffffff\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>') no-repeat right 10px center;">
+                        <select name="dob_day" class="dash-input dash-select">
                                 <option value="27">27</option>
                                 <option value="28">28</option>
                             </select>
-                            <select name="dob_year" class="dash-input" style="appearance: none; background: rgba(0,0,0,0.2) url('data:image/svg+xml;utf8,<svg fill=\"%23ffffff\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>') no-repeat right 10px center;">
+                        <select name="dob_year" class="dash-input dash-select">
                                 <option value="2000">2000</option>
                                 <option value="2001">2001</option>
                             </select>
@@ -358,7 +362,7 @@ if (!empty($user_data['name'])) {
 
                     <div class="dash-form-group">
                         <label>Update Timezone</label>
-                        <select name="timezone" class="dash-input" style="appearance: none; background: rgba(0,0,0,0.2) url('data:image/svg+xml;utf8,<svg fill=\"%23ffffff\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>') no-repeat right 10px center;">
+                    <select name="timezone" class="dash-input dash-select">
                             <option value="Automatically">Automatically</option>
                         </select>
                     </div>

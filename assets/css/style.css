@@ -208,8 +208,9 @@
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(8px);
-    transition: all 0.3s ease;
+    transform: translateY(15px) scale(0.95);
+    transform-origin: top center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-height: 400px;
     overflow-y: auto;
 }
@@ -217,7 +218,18 @@
 .live-search-results.show {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+}
+
+@keyframes liveSearchStagger {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .live-search-item {
@@ -228,6 +240,7 @@
     text-decoration: none;
     color: white;
     transition: background 0.2s;
+    animation: liveSearchStagger 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .live-search-item:last-child {
@@ -280,12 +293,14 @@
 /* --- Efek Fokus (Dim/Blur) saat Search Bar aktif --- */
 main,
 .hero,
+.hero-redesign,
 footer {
     transition: filter 0.4s ease, opacity 0.4s ease;
 }
 
 body:has(.nav-search.is-expanded) main,
 body:has(.nav-search.is-expanded) .hero,
+body:has(.nav-search.is-expanded) .hero-redesign,
 body:has(.nav-search.is-expanded) footer {
     filter: blur(5px) brightness(0.4);
     pointer-events: none;
